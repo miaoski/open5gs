@@ -26,6 +26,24 @@
 
 #include "ipfw/ipfw2.h"
 
+void smf_s5c_handle_echo_request(
+        ogs_gtp_xact_t *xact, ogs_gtp_echo_request_t *req)
+{
+    ogs_assert(xact);
+    ogs_assert(req);
+
+    ogs_debug("[PGW] Receiving Echo Request");
+    /* FIXME : Before implementing recovery counter correctly,
+     *         I'll re-use the recovery value in request message */
+    ogs_gtp_send_echo_response(xact, req->recovery.u8, 0);
+}
+
+void smf_s5c_handle_echo_response(
+        ogs_gtp_xact_t *xact, ogs_gtp_echo_response_t *req)
+{
+    /* Not Implemented */
+}
+
 void smf_s5c_handle_create_session_request(
         smf_sess_t *sess, ogs_gtp_xact_t *xact,
         ogs_gtp_create_session_request_t *req)

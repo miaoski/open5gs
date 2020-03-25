@@ -125,6 +125,12 @@ void smf_state_operational(ogs_fsm_t *s, smf_event_t *e)
         }
 
         switch(gtp_message.h.type) {
+        case OGS_GTP_ECHO_REQUEST_TYPE:
+            smf_s5c_handle_echo_request(gtp_xact, &gtp_message.echo_request);
+            break;
+        case OGS_GTP_ECHO_RESPONSE_TYPE:
+            smf_s5c_handle_echo_response(gtp_xact, &gtp_message.echo_response);
+            break;
         case OGS_GTP_CREATE_SESSION_REQUEST_TYPE:
             if (gtp_message.h.teid == 0) {
                 ogs_expect(!sess);
