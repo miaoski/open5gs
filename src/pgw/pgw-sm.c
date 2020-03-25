@@ -123,7 +123,17 @@ void pgw_state_operational(ogs_fsm_t *s, pgw_event_t *e)
             break;
         }
 
+<<<<<<< HEAD
         switch(gtp_message.h.type) {
+=======
+        switch(message->h.type) {
+        case OGS_GTP_ECHO_REQUEST_TYPE:
+            pgw_s5c_handle_echo_request(xact, &message->echo_request);
+            break;
+        case OGS_GTP_ECHO_RESPONSE_TYPE:
+            pgw_s5c_handle_echo_response(xact, &message->echo_response);
+            break;
+>>>>>>> master
         case OGS_GTP_CREATE_SESSION_REQUEST_TYPE:
             if (gtp_message.h.teid == 0) {
                 ogs_expect(!sess);
