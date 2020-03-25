@@ -1,7 +1,6 @@
 [Unit]
 Description=Open5GS PCRF Daemon
-BindTo=mongodb.service
-After=networking.service mongodb.service
+Wants=mongodb.service mongod.service
 
 [Service]
 Type=simple
@@ -13,6 +12,7 @@ Restart=always
 ExecStart=@bindir@/open5gs-pcrfd -c @sysconfdir@/open5gs/pcrf.yaml
 RestartSec=2
 RestartPreventExitStatus=1
+ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]
 WantedBy=multi-user.target
