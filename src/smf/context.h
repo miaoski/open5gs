@@ -104,14 +104,11 @@ typedef struct smf_sess_s {
     ogs_pfcp_ue_ip_t *ipv4;
     ogs_pfcp_ue_ip_t *ipv6;
 
-    /* User-Lication-Info */
-    ogs_tai_t       tai;
-    ogs_e_cgi_t     e_cgi;
-
     uint8_t         hash_keybuf[OGS_MAX_IMSI_LEN+OGS_MAX_APN_LEN+1];
     int             hash_keylen;
 
     ogs_tlv_octet_t ue_pco; /* Save Protocol Configuration Options from UE */
+    ogs_tlv_octet_t user_location_information; /* User Location Information */
     ogs_tlv_octet_t ue_timezone; /* UE Timezone */
 
     ogs_list_t      bearer_list;

@@ -870,6 +870,7 @@ int pgw_sess_remove(pgw_sess_t *sess)
     ogs_list_remove(&self.sess_list, sess);
 
     OGS_TLV_CLEAR_DATA(&sess->ue_pco);
+    OGS_TLV_CLEAR_DATA(&sess->user_location_information);
     OGS_TLV_CLEAR_DATA(&sess->ue_timezone);
 
     ogs_hash_set(self.sess_hash, sess->hash_keybuf, sess->hash_keylen, NULL);

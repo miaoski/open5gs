@@ -55,7 +55,6 @@ void pgw_s5c_handle_create_session_request(
     pgw_bearer_t *bearer = NULL;
     ogs_gtp_bearer_qos_t bearer_qos;
     ogs_gtp_ambr_t *ambr = NULL;
-    ogs_gtp_uli_t uli;
     uint16_t decoded = 0;
 
     ogs_assert(xact);
@@ -167,19 +166,15 @@ void pgw_s5c_handle_create_session_request(
         OGS_TLV_STORE_DATA(&sess->ue_pco, &req->protocol_configuration_options);
     }
 
-    if (req->ue_time_zone.presence) {
-        OGS_TLV_STORE_DATA(&sess->ue_timezone, &req->ue_time_zone);
-    }
-    
     /* Set User Location Information */
     if (req->user_location_information.presence) {
-        decoded = ogs_gtp_parse_uli(&uli, &req->user_location_information);
-        ogs_assert(req->user_location_information.len == decoded);
-        memcpy(&sess->tai.plmn_id, &uli.tai.plmn_id, sizeof(uli.tai.plmn_id));
-        sess->tai.tac = uli.tai.tac;
-        memcpy(&sess->e_cgi.plmn_id, &uli.e_cgi.plmn_id,
-                sizeof(uli.e_cgi.plmn_id));
-        sess->e_cgi.cell_id = uli.e_cgi.cell_id;
+        OGS_TLV_STORE_DATA(&sess->user_location_information,
+                &req->user_location_information);
+    }
+
+    /* Set UE Timezone */
+    if (req->ue_time_zone.presence) {
+        OGS_TLV_STORE_DATA(&sess->ue_timezone, &req->ue_time_zone);
     }
 
     pgw_gx_send_ccr(sess, xact,

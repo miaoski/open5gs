@@ -54,7 +54,6 @@ void smf_s5c_handle_create_session_request(
     smf_bearer_t *bearer = NULL;
     ogs_gtp_bearer_qos_t bearer_qos;
     ogs_gtp_ambr_t *ambr = NULL;
-    ogs_gtp_uli_t uli;
     uint16_t decoded = 0;
 
     ogs_assert(xact);
@@ -91,10 +90,6 @@ void smf_s5c_handle_create_session_request(
     }
     if (req->bearer_contexts_to_be_created.s5_s8_u_sgw_f_teid.presence == 0) {
         ogs_error("No TEID");
-        cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
-    }
-    if (req->user_location_information.presence == 0) {
-        ogs_error("No User Location Inforamtion");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
     }
 
@@ -161,22 +156,22 @@ void smf_s5c_handle_create_session_request(
         sess->pdn.ambr.uplink = be32toh(ambr->uplink) * 1000;
     }
 
+    /* PCO */
     if (req->protocol_configuration_options.presence) {
         OGS_TLV_STORE_DATA(&sess->ue_pco, &req->protocol_configuration_options);
     }
 
+    /* Set User Location Information */
+    if (req->user_location_information.presence) {
+        OGS_TLV_STORE_DATA(&sess->user_location_information,
+                &req->user_location_information);
+    }
+
+    /* Set UE Timezone */
     if (req->ue_time_zone.presence) {
         OGS_TLV_STORE_DATA(&sess->ue_timezone, &req->ue_time_zone);
     }
     
-    /* Set User Location Information */
-    decoded = ogs_gtp_parse_uli(&uli, &req->user_location_information);
-    ogs_assert(req->user_location_information.len == decoded);
-    memcpy(&sess->tai.plmn_id, &uli.tai.plmn_id, sizeof(uli.tai.plmn_id));
-    sess->tai.tac = uli.tai.tac;
-    memcpy(&sess->e_cgi.plmn_id, &uli.e_cgi.plmn_id, sizeof(uli.e_cgi.plmn_id));
-    sess->e_cgi.cell_id = uli.e_cgi.cell_id;
-
     smf_gx_send_ccr(sess, xact,
         OGS_DIAM_GX_CC_REQUEST_TYPE_INITIAL_REQUEST);
 }
