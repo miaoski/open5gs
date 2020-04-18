@@ -184,23 +184,20 @@ void smf_state_operational(ogs_fsm_t *s, smf_event_t *e)
             gtp_xact = e->gtp_xact;
             ogs_assert(gtp_xact);
 
-            if (gx_message->result_code == ER_DIAMETER_SUCCESS) {
-                switch(gx_message->cc_request_type) {
-                case OGS_DIAM_GX_CC_REQUEST_TYPE_INITIAL_REQUEST:
-                    smf_gx_handle_cca_initial_request(
-                            sess, gx_message, gtp_xact);
-                    break;
-                case OGS_DIAM_GX_CC_REQUEST_TYPE_TERMINATION_REQUEST:
-                    smf_gx_handle_cca_termination_request(
-                            sess, gx_message, gtp_xact);
-                    break;
-                default:
-                    ogs_error("Not implemented(%d)",
-                            gx_message->cc_request_type);
-                    break;
-                }
-            } else
-                ogs_error("Diameter Error(%d)", gx_message->result_code);
+            switch(gx_message->cc_request_type) {
+            case OGS_DIAM_GX_CC_REQUEST_TYPE_INITIAL_REQUEST:
+                smf_gx_handle_cca_initial_request(
+                        sess, gx_message, gtp_xact);
+                break;
+            case OGS_DIAM_GX_CC_REQUEST_TYPE_TERMINATION_REQUEST:
+                smf_gx_handle_cca_termination_request(
+                        sess, gx_message, gtp_xact);
+                break;
+            default:
+                ogs_error("Not implemented(%d)",
+                        gx_message->cc_request_type);
+                break;
+            }
 
             break;
         case OGS_DIAM_GX_CMD_RE_AUTH:
