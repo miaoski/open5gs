@@ -250,7 +250,7 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
         message->forwarding_parameters.destination_interface.u8 = far->dst_if;
 
         if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
-            far->dst_if == OGS_PFCP_INTERFACE_ACCESS) {
+            far->dst_if == OGS_PFCP_INTERFACE_ACCESS) {  /* Downlink */
             ogs_assert(bearer->gnode);
             ogs_pfcp_ip_to_outer_header_creation(
                     &bearer->gnode->ip, &outer_header_creation[i], &len);
