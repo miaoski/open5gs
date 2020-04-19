@@ -339,13 +339,20 @@ ED8(uint8_t     stag:1;,
     };
 } __attribute__ ((packed)) ogs_pfcp_outer_header_creation_t;
 
+#define OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_LEN \
+    sizeof(ogs_pfcp_user_plane_ip_resource_t)
 typedef struct ogs_pfcp_user_plane_ip_resource_s {
+    union {
+        struct {
 ED6(uint8_t     spare:1;,
     uint8_t     assosi:1;,
     uint8_t     assoni:1;,
     uint8_t     teidri:3;,
     uint8_t     v6:1;,
     uint8_t     v4:1;)
+        };
+        uint8_t flags;
+    };
 
     uint8_t     teid_range;
     uint32_t    addr;
@@ -353,6 +360,14 @@ ED6(uint8_t     spare:1;,
     char        network_instance[OGS_MAX_APN_LEN];
     uint8_t     source_interface;
 } __attribute__ ((packed)) ogs_pfcp_user_plane_ip_resource_t;
+
+int16_t ogs_pfcp_parse_user_plane_ip_resource(
+        ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource,
+        ogs_tlv_octet_t *octet);
+int16_t ogs_pfcp_build_user_plane_ip_resource(
+        ogs_tlv_octet_t *octet,
+        ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource,
+        void *data, int data_len);
 
 typedef struct ogs_pfcp_report_type_s {
 ED5(uint8_t     spare0:4;,
