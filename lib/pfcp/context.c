@@ -63,8 +63,8 @@ void ogs_pfcp_context_init(void)
 
     ogs_log_install_domain(&__ogs_pfcp_domain, "pfcp", ogs_core()->log.level);
 
-    ogs_pool_init(&ogs_pfcp_node_pool, 512);
-    ogs_pool_init(&up_pool, 512);
+    ogs_pool_init(&ogs_pfcp_node_pool, ogs_config()->pool.pfcp);
+    ogs_pool_init(&up_pool, ogs_config()->pool.pfcp);
 
     ogs_list_init(&self.n4_list);
 
