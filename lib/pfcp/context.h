@@ -32,7 +32,7 @@ extern "C" {
 #define OGS_MAX_NUM_OF_SUBNET   16
 
 typedef struct ogs_pfcp_node_s ogs_pfcp_node_t;
-typedef struct ogs_pfcp_up_node_s ogs_pfcp_up_node_t;
+typedef struct ogs_pfcp_up_ip_info_s ogs_pfcp_up_ip_info_t;
 
 typedef struct ogs_pfcp_context_s {
     uint32_t        pfcp_port;      /* PFCP local port */
@@ -88,7 +88,7 @@ typedef struct ogs_pfcp_node_s {
     ogs_list_t      up_list;        /* User Plane IP Resource Information */
 } ogs_pfcp_node_t;
 
-typedef struct ogs_pfcp_up_node_s {
+typedef struct ogs_pfcp_up_ip_info_s {
     ogs_lnode_t     lnode;      /* A node of list_t */
 
     ogs_sockaddr_t  *addr;      /* addr or addr6 is needed */
@@ -101,7 +101,7 @@ typedef struct ogs_pfcp_up_node_s {
 
     char apn[OGS_MAX_APN_LEN];  /* Not available if strlen(apn) == 0 */
     int8_t source_interface;    /* Not available if source interface == -1 */
-} ogs_pfcp_up_node_t;
+} ogs_pfcp_up_ip_info_t;
 
 typedef struct ogs_pfcp_far_s ogs_pfcp_far_t;
 typedef struct ogs_pfcp_urr_s ogs_pfcp_urr_t;
@@ -239,15 +239,15 @@ ogs_pfcp_node_t *ogs_pfcp_node_find(
 void ogs_pfcp_node_remove(ogs_list_t *list, ogs_pfcp_node_t *node);
 void ogs_pfcp_node_remove_all(ogs_list_t *list);
 
-ogs_pfcp_up_node_t *ogs_pfcp_up_node_new(
+ogs_pfcp_up_ip_info_t *ogs_pfcp_up_ip_info_new(
         ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
-void ogs_pfcp_up_node_free(ogs_pfcp_up_node_t *node);
+void ogs_pfcp_up_ip_info_free(ogs_pfcp_up_ip_info_t *node);
 
-ogs_pfcp_up_node_t *ogs_pfcp_up_node_add(
+ogs_pfcp_up_ip_info_t *ogs_pfcp_up_ip_info_add(
         ogs_list_t *list, ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
-void ogs_pfcp_up_node_remove(
-        ogs_list_t *list, ogs_pfcp_up_node_t *node);
-void ogs_pfcp_up_node_remove_all(ogs_list_t *list);
+void ogs_pfcp_up_ip_info_remove(
+        ogs_list_t *list, ogs_pfcp_up_ip_info_t *node);
+void ogs_pfcp_up_ip_info_remove_all(ogs_list_t *list);
 
 
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess);
