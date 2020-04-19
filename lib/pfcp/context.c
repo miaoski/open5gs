@@ -656,14 +656,14 @@ ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
     ogs_assert(node);
     memset(node, 0, sizeof(ogs_pfcp_user_plane_ip_resource_t));
 
-    ogs_copyaddrinfo(&new, addr);
-    ogs_copyaddrinfo(&new6, addr6);
-
-    node->addr = new;
-    node->addr6 = new6;
-
-    /* Not available if source interface == -1 */
-    node->source_interface = -1;
+    if (addr) {
+        node->v4 = 1;
+        node->addr = addr->sin.sin_addr.s_addr;
+    }
+    if (addr6) {
+        node->v6 = 1;
+        memcpy(node->addr6, addr6->sin6.sin6_addr.s6_addr, OGS_IPV6_LEN);
+    }
 
     ogs_list_add(list, node);
 
@@ -677,9 +677,6 @@ void ogs_pfcp_user_plane_ip_resource_remove(
     ogs_assert(node);
 
     ogs_list_remove(list, node);
-
-    ogs_freeaddrinfo(node->addr);
-    ogs_freeaddrinfo(node->addr6);
 
     ogs_pool_free(&ogs_pfcp_user_plane_ip_resource_pool, node);
 }

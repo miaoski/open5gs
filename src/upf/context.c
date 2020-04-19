@@ -313,18 +313,18 @@ int upf_context_parse_config(void)
                                         node ? node->addr : NULL,
                                         node6 ? node6->addr : NULL);
                             if (teid_range_indication) {
-                                resource->teid_range.num_of_bits =
-                                    atoi(teid_range_indication);
+                                resource->teidri = atoi(teid_range_indication);
                                 if (teid_range) {
-                                    resource->teid_range.value =
-                                        atoi(teid_range);
+                                    resource->teid_range = atoi(teid_range);
                                 }
                             }
                             if (network_instance) {
-                                ogs_cpystrn(resource->apn, network_instance,
-                                    OGS_MAX_APN_LEN+1);
+                                resource->assoni = 1;
+                                ogs_cpystrn(resource->network_instance,
+                                    network_instance, OGS_MAX_APN_LEN+1);
                             }
                             if (source_interface) {
+                                resource->assosi = 1;
                                 resource->source_interface =
                                     atoi(source_interface);
                             }

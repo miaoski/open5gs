@@ -173,8 +173,8 @@ typedef struct ogs_pfcp_outer_header_removal_s {
 #define OGS_PFCP_NODE_ID_IPV6   1
 #define OGS_PFCP_NODE_ID_FQDN   2
 typedef struct ogs_pfcp_node_id_s {
-ED2(uint8_t spare:4;,
-    uint8_t type:4;)
+ED2(uint8_t     spare:4;,
+    uint8_t     type:4;)
     union {
         uint32_t addr;
         uint8_t addr6[OGS_IPV6_LEN];
@@ -183,10 +183,10 @@ ED2(uint8_t spare:4;,
 } __attribute__ ((packed)) ogs_pfcp_node_id_t;
 
 typedef struct ogs_pfcp_f_seid_s {
-ED3(uint8_t       spare:6;,
-    uint8_t       ipv4:1;,
-    uint8_t       ipv6:1;)
-    uint64_t      seid;
+ED3(uint8_t     spare:6;,
+    uint8_t     ipv4:1;,
+    uint8_t     ipv6:1;)
+    uint64_t    seid;
     union {
         uint32_t addr;
         uint8_t addr6[OGS_IPV6_LEN];
@@ -198,12 +198,12 @@ ED3(uint8_t       spare:6;,
 } __attribute__ ((packed)) ogs_pfcp_f_seid_t;
 
 typedef struct ogs_pfcp_f_teid_s {
-ED5(uint8_t       spare:4;,
-    uint8_t       chid:1;,
-    uint8_t       ch:1;,
-    uint8_t       ipv6:1;,
-    uint8_t       ipv4:1;)
-    uint32_t      teid;
+ED5(uint8_t     spare:4;,
+    uint8_t     chid:1;,
+    uint8_t     ch:1;,
+    uint8_t     ipv6:1;,
+    uint8_t     ipv4:1;)
+    uint32_t    teid;
     union {
         union {
             uint32_t addr;
@@ -247,12 +247,12 @@ ED5(uint8_t       spare:4;,
  * ignore the interface identifier part.
  */
 typedef struct ogs_pfcp_ue_ip_addr_s {
-ED4(uint8_t       spare:5;,
+ED4(uint8_t     spare:5;,
 #define OGS_PFCP_UE_IP_SRC     0
 #define OGS_PFCP_UE_IP_DST     1
-    uint8_t       sd:1;,
-    uint8_t       ipv4:1;,
-    uint8_t       ipv6:1;)
+    uint8_t     sd:1;,
+    uint8_t     ipv4:1;,
+    uint8_t     ipv6:1;)
     union {
         uint32_t addr;
         uint8_t addr6[OGS_IPV6_LEN];
@@ -319,16 +319,16 @@ ED4(uint8_t       spare:5;,
  */
 
 typedef struct ogs_pfcp_outer_header_creation_s {
-ED8(uint8_t       stag:1;,
-    uint8_t       ctag:1;,
-    uint8_t       ip6:1;,
-    uint8_t       ip4:1;,
-    uint8_t       udp6:1;,
-    uint8_t       udp4:1;,
-    uint8_t       gtpu6:1;,
-    uint8_t       gtpu4:1;)
-    uint8_t       spare;
-    uint32_t      teid;
+ED8(uint8_t     stag:1;,
+    uint8_t     ctag:1;,
+    uint8_t     ip6:1;,
+    uint8_t     ip4:1;,
+    uint8_t     udp6:1;,
+    uint8_t     udp4:1;,
+    uint8_t     gtpu6:1;,
+    uint8_t     gtpu4:1;)
+    uint8_t     spare;
+    uint32_t    teid;
     union {
         uint32_t addr;
         uint8_t addr6[OGS_IPV6_LEN];
@@ -339,39 +339,45 @@ ED8(uint8_t       stag:1;,
     };
 } __attribute__ ((packed)) ogs_pfcp_outer_header_creation_t;
 
+typedef struct ogs_pfcp_user_plane_ip_resource_s {
+ED6(uint8_t     spare:1;,
+    uint8_t     assosi:1;,
+    uint8_t     assoni:1;,
+    uint8_t     teidri:3;,
+    uint8_t     v6:1;,
+    uint8_t     v4:1;)
+
+    uint8_t     teid_range;
+    uint32_t    addr;
+    uint8_t     addr6[OGS_IPV6_LEN];
+    char        network_instance[OGS_MAX_APN_LEN];
+    uint8_t     source_interface;
+} __attribute__ ((packed)) ogs_pfcp_user_plane_ip_resource_t;
+
 typedef struct ogs_pfcp_report_type_s {
-ED5(uint8_t       spare0:4;,
-    uint8_t       upir:1;,      /* User Plane Inactivity Report */
-    uint8_t       erir:1;,      /* Error Indication Report */
-    uint8_t       usar:1;,      /* Usage Report */
-    uint8_t       dldr:1;)      /* Downlink Data Report */
+ED5(uint8_t     spare0:4;,
+    uint8_t     upir:1;,      /* User Plane Inactivity Report */
+    uint8_t     erir:1;,      /* Error Indication Report */
+    uint8_t     usar:1;,      /* Usage Report */
+    uint8_t     dldr:1;)      /* Downlink Data Report */
 } __attribute__ ((packed)) ogs_pfcp_report_type_t;
 
 typedef struct ogs_pfcp_downlink_data_service_information_s {
 #define OGS_PFCP_DOWNLINK_DATA_SERVICE_INFORMATION_LEN(__data) \
     (sizeof(struct _pfcp_downlink_data_service_information_t) - \
         (__data).ppi - (__data).qfii)
-ED3(uint8_t       spare1:6;,
-    uint8_t       ppi:1;,       /* Paging Policy Indication */
-    uint8_t       qfii:1;)
+ED3(uint8_t     spare1:6;,
+    uint8_t     ppi:1;,       /* Paging Policy Indication */
+    uint8_t     qfii:1;)
 ED2(
-    uint8_t       spare2:2;,
-    uint8_t       paging_policy_indication:6;
+    uint8_t     spare2:2;,
+    uint8_t     paging_policy_indication:6;
 )
 ED2(
-    uint8_t       spare:2;,
-    uint8_t       QFI:6;
+    uint8_t     spare:2;,
+    uint8_t     QFI:6;
 )
 } __attribute__ ((packed)) ogs_pfcp_downlink_data_service_information_t;
-
-typedef struct ogs_pfcp_user_plane_ip_resource_information_flags_s {
-ED6(uint8_t       spare:1;,
-    uint8_t       assosi:1;,
-    uint8_t       assoni:1;,
-    uint8_t       teidri:3;,
-    uint8_t       v6:1;,
-    uint8_t       v4:1;)
-} __attribute__ ((packed)) ogs_pfcp_user_plane_ip_resource_information_flags_t;
 
 #ifdef __cplusplus
 }
