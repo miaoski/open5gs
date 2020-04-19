@@ -21,7 +21,6 @@ libpfcp_sources = files('''
     message.h
     types.h
     conv.h
-    node.h
     n4-build.h
     path.h
     xact.h
@@ -30,7 +29,6 @@ libpfcp_sources = files('''
     message.c
     types.c
     conv.c
-    node.c
     n4-build.c
     path.c
     xact.c
