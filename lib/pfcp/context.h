@@ -87,23 +87,6 @@ typedef struct ogs_pfcp_node_s {
     ogs_list_t      up_list;        /* User Plane IP Resource Information */
 } ogs_pfcp_node_t;
 
-#if 0
-typedef struct ogs_pfcp_user_plane_ip_resource_s {
-    ogs_lnode_t     lnode;      /* A node of list_t */
-
-    ogs_sockaddr_t  *addr;      /* addr or addr6 is needed */
-    ogs_sockaddr_t  *addr6;
-
-    struct {
-        uint8_t num_of_bits;    /* Not available if num_of_bits == 0 */
-        uint8_t value;
-    } teid_range;
-
-    char apn[OGS_MAX_APN_LEN];  /* Not available if strlen(apn) == 0 */
-    int8_t source_interface;    /* Not available if source interface == -1 */
-} ogs_pfcp_user_plane_ip_resource_t;
-#endif
-
 typedef struct ogs_pfcp_far_s ogs_pfcp_far_t;
 typedef struct ogs_pfcp_urr_s ogs_pfcp_urr_t;
 typedef struct ogs_pfcp_qer_s ogs_pfcp_qer_t;

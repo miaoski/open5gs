@@ -192,6 +192,16 @@ int upf_context_parse_config(void)
                             const char *gtpu_key =
                                 ogs_yaml_iter_key(&gtpu_iter);
                             ogs_assert(gtpu_key);
+
+                            if (ogs_list_count(
+                                    &self.user_plane_ip_resource_list) >=
+                                    OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE) {
+                                ogs_warn("[Overflow]: Number of User Plane "
+                                        "IP Resource <= %d",
+                                        OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE);
+                                break;
+                            }
+
                             if (!strcmp(gtpu_key, "family")) {
                                 const char *v = ogs_yaml_iter_value(&gtpu_iter);
                                 if (v) family = atoi(v);
