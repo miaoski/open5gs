@@ -661,7 +661,8 @@ ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_new(
     return node;
 }
 
-void ogs_pfcp_user_plane_ip_resource_free(ogs_pfcp_user_plane_ip_resource_t *node)
+void ogs_pfcp_user_plane_ip_resource_free(
+        ogs_pfcp_user_plane_ip_resource_t *node)
 {
     ogs_assert(node);
 
