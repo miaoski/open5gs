@@ -55,7 +55,7 @@ typedef struct upf_context_s {
     ogs_sockaddr_t  *gtpc_addr6;    /* UPF GTPC IPv6 Address */
 
     ogs_list_t      gtpu_list;      /* UPF GTPU Server List */
-
+    ogs_list_t      user_plane_ip_resource_list; /* UP IP Resource List */
     uint16_t        function_features; /* UP Function Features */
 
     ogs_queue_t     *queue;         /* Queue for processing UPF control */

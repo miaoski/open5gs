@@ -63,6 +63,8 @@ void upf_context_init(void)
     ogs_list_init(&self.gtpc_list6);
     ogs_list_init(&self.gtpu_list);
 
+    ogs_list_init(&self.user_plane_ip_resource_list);
+
     ogs_list_init(&self.sgw_s5c_list);
     ogs_list_init(&self.sgw_s5u_list);
 
@@ -99,6 +101,8 @@ void upf_context_final(void)
     ogs_gtp_node_remove_all(&self.sgw_s5u_list);
 
     ogs_gtp_node_final();
+    ogs_pfcp_user_plane_ip_resource_remove_all(
+            &self.user_plane_ip_resource_list);
 
     context_initiaized = 0;
 }
@@ -150,8 +154,13 @@ int upf_context_parse_config(void)
                 const char *upf_key = ogs_yaml_iter_key(&upf_iter);
                 ogs_assert(upf_key);
                 if (!strcmp(upf_key, "gtpu")) {
+                    ogs_list_t list, list6;
+                    ogs_socknode_t *node = NULL, *node6 = NULL;
+                    ogs_socknode_t *iter = NULL, *next_iter = NULL;
+
                     ogs_yaml_iter_t gtpu_array, gtpu_iter;
                     ogs_yaml_iter_recurse(&upf_iter, &gtpu_array);
+
                     do {
                         int family = AF_UNSPEC;
                         int i, num = 0;
@@ -159,6 +168,10 @@ int upf_context_parse_config(void)
                         uint16_t port = self.gtpu_port;
                         const char *dev = NULL;
                         ogs_sockaddr_t *addr = NULL;
+                        const char *teid_range_indication = NULL;
+                        const char *teid_range = NULL;
+                        const char *network_instance = NULL;
+                        const char *source_interface = NULL;
 
                         if (ogs_yaml_iter_type(&gtpu_array) ==
                                 YAML_MAPPING_NODE) {
@@ -219,6 +232,21 @@ int upf_context_parse_config(void)
                                 }
                             } else if (!strcmp(gtpu_key, "dev")) {
                                 dev = ogs_yaml_iter_value(&gtpu_iter);
+                            } else if (!strcmp(gtpu_key,
+                                        "teid_range_indication")) {
+                                teid_range_indication =
+                                    ogs_yaml_iter_value(&gtpu_iter);
+                            } else if (!strcmp(gtpu_key,
+                                        "teid_range")) {
+                                teid_range = ogs_yaml_iter_value(&gtpu_iter);
+                            } else if (!strcmp(gtpu_key,
+                                        "network_instance")) {
+                                network_instance =
+                                    ogs_yaml_iter_value(&gtpu_iter);
+                            } else if (!strcmp(gtpu_key,
+                                        "source_interface")) {
+                                source_interface =
+                                    ogs_yaml_iter_value(&gtpu_iter);
                             } else
                                 ogs_warn("unknown key `%s`", gtpu_key);
                         }
@@ -230,37 +258,116 @@ int upf_context_parse_config(void)
                             ogs_assert(rv == OGS_OK);
                         }
 
+                        ogs_list_init(&list);
+                        ogs_list_init(&list6);
+
                         if (addr) {
                             if (ogs_config()->parameter.no_ipv4 == 0)
-                                ogs_socknode_add(
-                                        &self.gtpu_list, AF_INET, addr);
+                                ogs_socknode_add(&list, AF_INET, addr);
                             if (ogs_config()->parameter.no_ipv6 == 0)
-                                ogs_socknode_add(
-                                        &self.gtpu_list, AF_INET6, addr);
+                                ogs_socknode_add(&list6, AF_INET6, addr);
                             ogs_freeaddrinfo(addr);
                         }
 
                         if (dev) {
                             rv = ogs_socknode_probe(
-                                    ogs_config()->parameter.no_ipv4 ?
-                                        NULL : &self.gtpu_list,
-                                    ogs_config()->parameter.no_ipv6 ?
-                                        NULL : &self.gtpu_list,
-                                    dev, self.gtpu_port);
+                                ogs_config()->parameter.no_ipv4 ? NULL : &list,
+                                ogs_config()->parameter.no_ipv6 ? NULL : &list6,
+                                dev, self.gtpu_port);
                             ogs_assert(rv == OGS_OK);
                         }
+
+                        /* Find first IPv4/IPv6 address in the list.
+                         *
+                         * In the following configuration,
+                         * 127.0.0.4, 127.0.0.5 and cafe::1 are ignored
+                         * on PFCP Assocation Response message's
+                         * user plane IP resource information.
+                         *
+                         * gtpu:
+                         *   - addr:
+                         *     - 127.0.0.3
+                         *     - ::1
+                         *     - 127.0.0.4
+                         *     - 127.0.0.5
+                         *     - cafe::1
+                         *
+                         * To include all user plane IP resource information,
+                         * configure as below:
+                         *
+                         * gtpu:
+                         *   - addr:
+                         *     - 127.0.0.3
+                         *     - ::1
+                         *   - addr: 127.0.0.4
+                         *   - addr
+                         *     - 127.0.0.5
+                         *     - cafe::1
+                         */
+                        node = ogs_list_first(&list);
+                        node6 = ogs_list_first(&list6);
+                        if (node || node6) {
+                            ogs_pfcp_user_plane_ip_resource_t *resource =
+                                ogs_pfcp_user_plane_ip_resource_add(
+                                        &self.user_plane_ip_resource_list,
+                                        node ? node->addr : NULL,
+                                        node6 ? node6->addr : NULL);
+                            if (teid_range_indication) {
+                                resource->teid_range.num_of_bits =
+                                    atoi(teid_range_indication);
+                                if (teid_range) {
+                                    resource->teid_range.value =
+                                        atoi(teid_range);
+                                }
+                            }
+                            if (network_instance) {
+                                ogs_cpystrn(resource->apn, network_instance,
+                                    OGS_MAX_APN_LEN+1);
+                            }
+                            if (source_interface) {
+                                resource->source_interface =
+                                    atoi(source_interface);
+                            }
+                        }
+
+                        ogs_list_for_each_safe(&list, next_iter, iter)
+                            ogs_list_add(&self.gtpu_list, iter);
+                        ogs_list_for_each_safe(&list6, next_iter, iter)
+                            ogs_list_add(&self.gtpu_list, iter);
 
                     } while (ogs_yaml_iter_type(&gtpu_array) == 
                             YAML_SEQUENCE_NODE);
 
                     if (ogs_list_first(&self.gtpu_list) == NULL) {
+                        ogs_list_init(&list);
+                        ogs_list_init(&list6);
+
                         rv = ogs_socknode_probe(
-                                ogs_config()->parameter.no_ipv4 ?
-                                    NULL : &self.gtpu_list,
-                                ogs_config()->parameter.no_ipv6 ?
-                                    NULL : &self.gtpu_list,
-                                NULL, self.gtpu_port);
+                            ogs_config()->parameter.no_ipv4 ? NULL : &list,
+                            ogs_config()->parameter.no_ipv6 ? NULL : &list6,
+                            NULL, self.gtpu_port);
                         ogs_assert(rv == OGS_OK);
+
+                        /*
+                         * The first tuple IPv4/IPv6 are added
+                         * in User Plane IP resource information.
+                         *
+                         * TEID Range, Network Instance, Source Interface
+                         * cannot be configured in automatic IP detection.
+                         */
+                        node = ogs_list_first(&list);
+                        node6 = ogs_list_first(&list6);
+                        if (node || node6) {
+                            ogs_pfcp_user_plane_ip_resource_add(
+                                    &self.user_plane_ip_resource_list,
+                                    node ? node->addr : NULL,
+                                    node6 ? node6->addr : NULL);
+                        }
+
+                        ogs_list_for_each_safe(&list, next_iter, iter)
+                            ogs_list_add(&self.gtpu_list, iter);
+                        ogs_list_for_each_safe(&list6, next_iter, iter)
+                            ogs_list_add(&self.gtpu_list, iter);
                     }
                 } else if (!strcmp(upf_key, "pdn")) {
                     /* handle config in pfcp library */

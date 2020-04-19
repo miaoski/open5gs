@@ -249,7 +249,6 @@ void ogs_pfcp_user_plane_ip_resource_remove(
         ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_t *node);
 void ogs_pfcp_user_plane_ip_resource_remove_all(ogs_list_t *list);
 
-
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess);
 
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess);
