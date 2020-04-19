@@ -652,15 +652,15 @@ ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
     ogs_assert(list);
     ogs_assert(addr || addr6);
 
-    ogs_copyaddrinfo(&new, addr);
-    ogs_copyaddrinfo(&new6, addr6);
-
     ogs_pool_alloc(&ogs_pfcp_user_plane_ip_resource_pool, &node);
     ogs_assert(node);
     memset(node, 0, sizeof(ogs_pfcp_user_plane_ip_resource_t));
 
-    node->addr = addr;
-    node->addr6 = addr6;
+    ogs_copyaddrinfo(&new, addr);
+    ogs_copyaddrinfo(&new6, addr6);
+
+    node->addr = new;
+    node->addr6 = new6;
 
     /* Not available if source interface == -1 */
     node->source_interface = -1;
