@@ -23,7 +23,7 @@
 static ogs_pfcp_context_t self;
 
 static OGS_POOL(ogs_pfcp_node_pool, ogs_pfcp_node_t);
-static OGS_POOL(ogs_pfcp_up_ip_info_pool, ogs_pfcp_up_ip_info_t);
+static OGS_POOL(ogs_pfcp_user_plane_ip_resource_pool, ogs_pfcp_user_plane_ip_resource_t);
 
 static OGS_POOL(ogs_pfcp_sess_pool, ogs_pfcp_sess_t);
 static OGS_POOL(ogs_pfcp_pdr_pool, ogs_pfcp_pdr_t);
@@ -64,7 +64,7 @@ void ogs_pfcp_context_init(void)
     ogs_log_install_domain(&__ogs_pfcp_domain, "pfcp", ogs_core()->log.level);
 
     ogs_pool_init(&ogs_pfcp_node_pool, ogs_config()->pool.pfcp);
-    ogs_pool_init(&ogs_pfcp_up_ip_info_pool, ogs_config()->pool.pfcp);
+    ogs_pool_init(&ogs_pfcp_user_plane_ip_resource_pool, ogs_config()->pool.pfcp);
 
     ogs_list_init(&self.n4_list);
 
@@ -111,7 +111,7 @@ void ogs_pfcp_context_final(void)
     ogs_pfcp_node_remove_all(&ogs_pfcp_self()->n4_list);
 
     ogs_pool_final(&ogs_pfcp_node_pool);
-    ogs_pool_final(&ogs_pfcp_up_ip_info_pool);
+    ogs_pool_final(&ogs_pfcp_user_plane_ip_resource_pool);
 
     context_initiaized = 0;
 }
@@ -575,7 +575,7 @@ void ogs_pfcp_node_free(ogs_pfcp_node_t *node)
 {
     ogs_assert(node);
 
-    ogs_pfcp_up_ip_info_remove_all(&node->up_list);
+    ogs_pfcp_user_plane_ip_resource_remove_all(&node->up_list);
 
     if (node->sock)
         ogs_sock_destroy(node->sock);
@@ -641,16 +641,16 @@ void ogs_pfcp_node_remove_all(ogs_list_t *list)
         ogs_pfcp_node_remove(list, node);
 }
 
-ogs_pfcp_up_ip_info_t *ogs_pfcp_up_ip_info_new(
+ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_new(
         ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6)
 {
-    ogs_pfcp_up_ip_info_t *node = NULL;
+    ogs_pfcp_user_plane_ip_resource_t *node = NULL;
 
     ogs_assert(addr || addr6);
 
-    ogs_pool_alloc(&ogs_pfcp_up_ip_info_pool, &node);
+    ogs_pool_alloc(&ogs_pfcp_user_plane_ip_resource_pool, &node);
     ogs_assert(node);
-    memset(node, 0, sizeof(ogs_pfcp_up_ip_info_t));
+    memset(node, 0, sizeof(ogs_pfcp_user_plane_ip_resource_t));
 
     node->addr = addr;
     node->addr6 = addr6;
@@ -661,20 +661,20 @@ ogs_pfcp_up_ip_info_t *ogs_pfcp_up_ip_info_new(
     return node;
 }
 
-void ogs_pfcp_up_ip_info_free(ogs_pfcp_up_ip_info_t *node)
+void ogs_pfcp_user_plane_ip_resource_free(ogs_pfcp_user_plane_ip_resource_t *node)
 {
     ogs_assert(node);
 
     ogs_freeaddrinfo(node->addr);
     ogs_freeaddrinfo(node->addr6);
 
-    ogs_pool_free(&ogs_pfcp_up_ip_info_pool, node);
+    ogs_pool_free(&ogs_pfcp_user_plane_ip_resource_pool, node);
 }
 
-ogs_pfcp_up_ip_info_t *ogs_pfcp_up_ip_info_add(
+ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
         ogs_list_t *list, ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6)
 {
-    ogs_pfcp_up_ip_info_t *node = NULL;
+    ogs_pfcp_user_plane_ip_resource_t *node = NULL;
     ogs_sockaddr_t *new = NULL;
     ogs_sockaddr_t *new6 = NULL;
 
@@ -683,7 +683,7 @@ ogs_pfcp_up_ip_info_t *ogs_pfcp_up_ip_info_add(
 
     ogs_copyaddrinfo(&new, addr);
     ogs_copyaddrinfo(&new6, addr6);
-    node = ogs_pfcp_up_ip_info_new(new, new6);
+    node = ogs_pfcp_user_plane_ip_resource_new(new, new6);
     ogs_assert(node);
 
     ogs_list_add(list, node);
@@ -691,24 +691,24 @@ ogs_pfcp_up_ip_info_t *ogs_pfcp_up_ip_info_add(
     return node;
 }
 
-void ogs_pfcp_up_ip_info_remove(
-        ogs_list_t *list, ogs_pfcp_up_ip_info_t *node)
+void ogs_pfcp_user_plane_ip_resource_remove(
+        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_t *node)
 {
     ogs_assert(list);
     ogs_assert(node);
 
     ogs_list_remove(list, node);
-    ogs_pfcp_up_ip_info_free(node);
+    ogs_pfcp_user_plane_ip_resource_free(node);
 }
 
-void ogs_pfcp_up_ip_info_remove_all(ogs_list_t *list)
+void ogs_pfcp_user_plane_ip_resource_remove_all(ogs_list_t *list)
 {
-    ogs_pfcp_up_ip_info_t *node = NULL, *next_node = NULL;
+    ogs_pfcp_user_plane_ip_resource_t *node = NULL, *next_node = NULL;
 
     ogs_assert(list);
 
     ogs_list_for_each_safe(list, next_node, node)
-        ogs_pfcp_up_ip_info_remove(list, node);
+        ogs_pfcp_user_plane_ip_resource_remove(list, node);
 }
 
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess)
