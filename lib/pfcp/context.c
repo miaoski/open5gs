@@ -37,7 +37,7 @@ static OGS_POOL(ogs_pfcp_subnet_pool, ogs_pfcp_subnet_t);
 
 static int context_initiaized = 0;
 
-void ogs_pfcp_context_init(void)
+void ogs_pfcp_context_init(int num_of_user_plane_resource)
 {
     struct timeval tv;
     ogs_assert(context_initiaized == 0);
@@ -64,7 +64,8 @@ void ogs_pfcp_context_init(void)
     ogs_log_install_domain(&__ogs_pfcp_domain, "pfcp", ogs_core()->log.level);
 
     ogs_pool_init(&ogs_pfcp_node_pool, ogs_config()->pool.pfcp);
-    ogs_pool_init(&ogs_pfcp_user_plane_ip_resource_pool, ogs_config()->pool.pfcp);
+    ogs_pool_init(
+        &ogs_pfcp_user_plane_ip_resource_pool, num_of_user_plane_resource);
 
     ogs_list_init(&self.n4_list);
 
@@ -641,37 +642,6 @@ void ogs_pfcp_node_remove_all(ogs_list_t *list)
         ogs_pfcp_node_remove(list, node);
 }
 
-ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_new(
-        ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6)
-{
-    ogs_pfcp_user_plane_ip_resource_t *node = NULL;
-
-    ogs_assert(addr || addr6);
-
-    ogs_pool_alloc(&ogs_pfcp_user_plane_ip_resource_pool, &node);
-    ogs_assert(node);
-    memset(node, 0, sizeof(ogs_pfcp_user_plane_ip_resource_t));
-
-    node->addr = addr;
-    node->addr6 = addr6;
-
-    /* Not available if source interface == -1 */
-    node->source_interface = -1;
-
-    return node;
-}
-
-void ogs_pfcp_user_plane_ip_resource_free(
-        ogs_pfcp_user_plane_ip_resource_t *node)
-{
-    ogs_assert(node);
-
-    ogs_freeaddrinfo(node->addr);
-    ogs_freeaddrinfo(node->addr6);
-
-    ogs_pool_free(&ogs_pfcp_user_plane_ip_resource_pool, node);
-}
-
 ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
         ogs_list_t *list, ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6)
 {
@@ -684,8 +654,16 @@ ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
 
     ogs_copyaddrinfo(&new, addr);
     ogs_copyaddrinfo(&new6, addr6);
-    node = ogs_pfcp_user_plane_ip_resource_new(new, new6);
+
+    ogs_pool_alloc(&ogs_pfcp_user_plane_ip_resource_pool, &node);
     ogs_assert(node);
+    memset(node, 0, sizeof(ogs_pfcp_user_plane_ip_resource_t));
+
+    node->addr = addr;
+    node->addr6 = addr6;
+
+    /* Not available if source interface == -1 */
+    node->source_interface = -1;
 
     ogs_list_add(list, node);
 
@@ -699,7 +677,11 @@ void ogs_pfcp_user_plane_ip_resource_remove(
     ogs_assert(node);
 
     ogs_list_remove(list, node);
-    ogs_pfcp_user_plane_ip_resource_free(node);
+
+    ogs_freeaddrinfo(node->addr);
+    ogs_freeaddrinfo(node->addr6);
+
+    ogs_pool_free(&ogs_pfcp_user_plane_ip_resource_pool, node);
 }
 
 void ogs_pfcp_user_plane_ip_resource_remove_all(ogs_list_t *list)

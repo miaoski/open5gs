@@ -30,7 +30,7 @@ int upf_initialize()
 {
     int rv;
 
-    ogs_pfcp_context_init();
+    ogs_pfcp_context_init(OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE);
     upf_context_init();
     upf_event_init();
 

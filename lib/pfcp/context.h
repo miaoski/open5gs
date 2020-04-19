@@ -223,7 +223,7 @@ typedef struct ogs_pfcp_subnet_s {
     ogs_pfcp_dev_t  *dev;           /* Related Context */
 } ogs_pfcp_subnet_t;
 
-void ogs_pfcp_context_init(void);
+void ogs_pfcp_context_init(int num_of_user_plane_ip_resource);
 void ogs_pfcp_context_final(void);
 ogs_pfcp_context_t *ogs_pfcp_self(void);
 int ogs_pfcp_context_parse_config(const char *local, const char *remote);
@@ -237,11 +237,6 @@ ogs_pfcp_node_t *ogs_pfcp_node_find(
         ogs_list_t *list, ogs_sockaddr_t *addr);
 void ogs_pfcp_node_remove(ogs_list_t *list, ogs_pfcp_node_t *node);
 void ogs_pfcp_node_remove_all(ogs_list_t *list);
-
-ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_new(
-        ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
-void ogs_pfcp_user_plane_ip_resource_free(
-        ogs_pfcp_user_plane_ip_resource_t *node);
 
 ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
         ogs_list_t *list, ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
