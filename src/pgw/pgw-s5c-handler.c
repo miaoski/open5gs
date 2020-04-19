@@ -212,10 +212,6 @@ void pgw_s5c_handle_delete_session_request(
     if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
         ogs_gtp_send_error_message(xact, sess ? sess->sgw_s5c_teid : 0,
                 OGS_GTP_DELETE_SESSION_RESPONSE_TYPE, cause_value);
-<<<<<<< HEAD
-=======
-        ogs_pkbuf_free(gtpbuf);
->>>>>>> master
         return;
     }
 
