@@ -29,10 +29,10 @@ extern "C" {
 int upf_pfcp_open(void);
 void upf_pfcp_close(void);
 
-void upf_pfcp_send_association_setup_request(ogs_pfcp_cp_node_t *node);
+void upf_pfcp_send_association_setup_request(ogs_pfcp_node_t *node);
 void upf_pfcp_send_association_setup_response(ogs_pfcp_xact_t *xact,
         uint8_t cause);
-void upf_pfcp_send_heartbeat_request(ogs_pfcp_cp_node_t *node);
+void upf_pfcp_send_heartbeat_request(ogs_pfcp_node_t *node);
 
 #ifdef __cplusplus
 }

@@ -28,14 +28,14 @@
 void smf_pfcp_state_initial(ogs_fsm_t *s, smf_event_t *e)
 {
     int rv;
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
 
     ogs_assert(s);
     ogs_assert(e);
 
     smf_sm_debug(e);
 
-    node = e->cp_node;
+    node = e->pfcp_node;
     ogs_assert(node);
 
     rv = ogs_pfcp_connect(
@@ -54,13 +54,13 @@ void smf_pfcp_state_initial(ogs_fsm_t *s, smf_event_t *e)
 
 void smf_pfcp_state_final(ogs_fsm_t *s, smf_event_t *e)
 {
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
     ogs_assert(s);
     ogs_assert(e);
 
     smf_sm_debug(e);
 
-    node = e->cp_node;
+    node = e->pfcp_node;
     ogs_assert(node);
 
     ogs_timer_delete(node->t_association);
@@ -71,7 +71,7 @@ void smf_pfcp_state_will_associate(ogs_fsm_t *s, smf_event_t *e)
 {
     char buf[OGS_ADDRSTRLEN];
 
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
     ogs_pfcp_xact_t *xact = NULL;
     ogs_pfcp_message_t *message = NULL;
 
@@ -82,7 +82,7 @@ void smf_pfcp_state_will_associate(ogs_fsm_t *s, smf_event_t *e)
 
     smf_sm_debug(e);
 
-    node = e->cp_node;
+    node = e->pfcp_node;
     ogs_assert(node);
     addr = node->sa_list;
     ogs_assert(addr);
@@ -100,7 +100,7 @@ void smf_pfcp_state_will_associate(ogs_fsm_t *s, smf_event_t *e)
     case SMF_EVT_N4_TIMER:
         switch(e->timer_id) {
         case SMF_TIMER_ASSOCIATION:
-            node = e->cp_node;
+            node = e->pfcp_node;
             ogs_assert(node);
 
             ogs_warn("Retry to association with peer [%s]:%d failed",
@@ -150,7 +150,7 @@ void smf_pfcp_state_associated(ogs_fsm_t *s, smf_event_t *e)
 {
     char buf[OGS_ADDRSTRLEN];
 
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
     ogs_pfcp_xact_t *xact = NULL;
     ogs_pfcp_message_t *message = NULL;
 
@@ -162,7 +162,7 @@ void smf_pfcp_state_associated(ogs_fsm_t *s, smf_event_t *e)
 
     smf_sm_debug(e);
 
-    node = e->cp_node;
+    node = e->pfcp_node;
     ogs_assert(node);
     addr = node->sa_list;
     ogs_assert(addr);
@@ -253,7 +253,7 @@ void smf_pfcp_state_associated(ogs_fsm_t *s, smf_event_t *e)
     case SMF_EVT_N4_TIMER:
         switch(e->timer_id) {
         case SMF_TIMER_HEARTBEAT:
-            node = e->cp_node;
+            node = e->pfcp_node;
             ogs_assert(node);
 
             smf_pfcp_send_heartbeat_request(node);

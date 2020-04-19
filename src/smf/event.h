@@ -28,7 +28,7 @@ extern "C" {
 
 typedef struct ogs_gtp_node_s ogs_gtp_node_t;
 typedef struct ogs_gtp_xact_s ogs_gtp_xact_t;
-typedef struct ogs_pfcp_cp_node_s ogs_pfcp_cp_node_t;
+typedef struct ogs_pfcp_node_s ogs_pfcp_node_t;
 typedef struct ogs_pfcp_xact_s ogs_pfcp_xact_t;
 typedef struct ogs_pfcp_message_s ogs_pfcp_message_t;
 typedef struct smf_sess_s smf_sess_t;
@@ -56,7 +56,7 @@ typedef struct smf_event_s {
     ogs_gtp_node_t *gnode;
     ogs_gtp_xact_t *gtp_xact;
 
-    ogs_pfcp_cp_node_t *cp_node;
+    ogs_pfcp_node_t *pfcp_node;
     ogs_pfcp_xact_t *pfcp_xact;
     ogs_pfcp_message_t *pfcp_message;
 

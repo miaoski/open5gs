@@ -33,7 +33,7 @@ static void pfcp_recv_cb(short when, ogs_socket_t fd, void *data)
     upf_event_t *e = NULL;
     ogs_pkbuf_t *pkbuf = NULL;
     ogs_sockaddr_t from;
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
     ogs_pfcp_header_t *h = NULL;
 
     ogs_assert(fd != INVALID_SOCKET);
@@ -69,14 +69,14 @@ static void pfcp_recv_cb(short when, ogs_socket_t fd, void *data)
     }
 
     e = upf_event_new(UPF_EVT_N4_MESSAGE);
-    node = ogs_pfcp_cp_node_find(&ogs_pfcp_self()->n4_list, &from);
+    node = ogs_pfcp_node_find(&ogs_pfcp_self()->n4_list, &from);
     if (!node) {
-        node = ogs_pfcp_cp_node_add(&ogs_pfcp_self()->n4_list, &from);
+        node = ogs_pfcp_node_add(&ogs_pfcp_self()->n4_list, &from);
         ogs_assert(node);
         node->sock = data;
     }
     ogs_assert(e);
-    e->cp_node = node;
+    e->pfcp_node = node;
     e->pkbuf = pkbuf;
 
     rv = ogs_queue_push(upf_self()->queue, e);
@@ -144,7 +144,7 @@ static void timeout(ogs_pfcp_xact_t *xact, void *data)
         ogs_assert(data);
 
         e = upf_event_new(UPF_EVT_N4_NO_HEARTBEAT);
-        e->cp_node = data;
+        e->pfcp_node = data;
 
         rv = ogs_queue_push(upf_self()->queue, e);
         if (rv != OGS_OK) {
@@ -157,7 +157,7 @@ static void timeout(ogs_pfcp_xact_t *xact, void *data)
     }
 }
 
-void upf_pfcp_send_association_setup_request(ogs_pfcp_cp_node_t *node)
+void upf_pfcp_send_association_setup_request(ogs_pfcp_node_t *node)
 {
     int rv;
     ogs_pkbuf_t *n4buf = NULL;
@@ -203,7 +203,7 @@ void upf_pfcp_send_association_setup_response(ogs_pfcp_xact_t *xact,
     ogs_expect(rv == OGS_OK);
 }
 
-void upf_pfcp_send_heartbeat_request(ogs_pfcp_cp_node_t *node)
+void upf_pfcp_send_heartbeat_request(ogs_pfcp_node_t *node)
 {
     int rv;
     ogs_pkbuf_t *n4buf = NULL;

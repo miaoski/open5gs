@@ -28,14 +28,14 @@
 void upf_pfcp_state_initial(ogs_fsm_t *s, upf_event_t *e)
 {
     int rv;
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
 
     ogs_assert(s);
     ogs_assert(e);
 
     upf_sm_debug(e);
 
-    node = e->cp_node;
+    node = e->pfcp_node;
     ogs_assert(node);
 
     rv = ogs_pfcp_connect(
@@ -54,13 +54,13 @@ void upf_pfcp_state_initial(ogs_fsm_t *s, upf_event_t *e)
 
 void upf_pfcp_state_final(ogs_fsm_t *s, upf_event_t *e)
 {
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
     ogs_assert(s);
     ogs_assert(e);
 
     upf_sm_debug(e);
 
-    node = e->cp_node;
+    node = e->pfcp_node;
     ogs_assert(node);
 
     ogs_timer_delete(node->t_association);
@@ -71,7 +71,7 @@ void upf_pfcp_state_will_associate(ogs_fsm_t *s, upf_event_t *e)
 {
     char buf[OGS_ADDRSTRLEN];
 
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
     ogs_pfcp_xact_t *xact = NULL;
     ogs_pfcp_message_t *message = NULL;
     ogs_sockaddr_t *addr = NULL;
@@ -80,7 +80,7 @@ void upf_pfcp_state_will_associate(ogs_fsm_t *s, upf_event_t *e)
 
     upf_sm_debug(e);
 
-    node = e->cp_node;
+    node = e->pfcp_node;
     ogs_assert(node);
 
     switch (e->id) {
@@ -146,7 +146,7 @@ void upf_pfcp_state_associated(ogs_fsm_t *s, upf_event_t *e)
 {
     char buf[OGS_ADDRSTRLEN];
 
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
     ogs_pfcp_xact_t *xact = NULL;
     ogs_pfcp_message_t *message = NULL;
 
@@ -158,7 +158,7 @@ void upf_pfcp_state_associated(ogs_fsm_t *s, upf_event_t *e)
 
     upf_sm_debug(e);
 
-    node = e->cp_node;
+    node = e->pfcp_node;
     ogs_assert(node);
     addr = node->sa_list;
     ogs_assert(addr);
@@ -260,7 +260,7 @@ void upf_pfcp_state_associated(ogs_fsm_t *s, upf_event_t *e)
     case UPF_EVT_N4_TIMER:
         switch(e->timer_id) {
         case UPF_TIMER_HEARTBEAT:
-            node = e->cp_node;
+            node = e->pfcp_node;
             ogs_assert(node);
 
             upf_pfcp_send_heartbeat_request(node);

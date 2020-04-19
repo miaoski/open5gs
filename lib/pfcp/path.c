@@ -35,7 +35,7 @@ ogs_sock_t *ogs_pfcp_server(ogs_socknode_t *node)
 }
 
 int ogs_pfcp_connect(
-        ogs_sock_t *ipv4, ogs_sock_t *ipv6, ogs_pfcp_cp_node_t *node)
+        ogs_sock_t *ipv4, ogs_sock_t *ipv6, ogs_pfcp_node_t *node)
 {
     ogs_sockaddr_t *addr;
     char buf[OGS_ADDRSTRLEN];
@@ -77,7 +77,7 @@ int ogs_pfcp_connect(
     return OGS_OK;
 }
 
-int ogs_pfcp_send(ogs_pfcp_cp_node_t *node, ogs_pkbuf_t *pkbuf)
+int ogs_pfcp_send(ogs_pfcp_node_t *node, ogs_pkbuf_t *pkbuf)
 {
     ssize_t sent;
     ogs_sock_t *sock = NULL;
@@ -96,7 +96,7 @@ int ogs_pfcp_send(ogs_pfcp_cp_node_t *node, ogs_pkbuf_t *pkbuf)
     return OGS_OK;
 }
 
-int ogs_pfcp_sendto(ogs_pfcp_cp_node_t *node, ogs_pkbuf_t *pkbuf)
+int ogs_pfcp_sendto(ogs_pfcp_node_t *node, ogs_pkbuf_t *pkbuf)
 {
     ssize_t sent;
     ogs_sock_t *sock = NULL;

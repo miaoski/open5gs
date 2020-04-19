@@ -619,14 +619,14 @@ smf_sess_t *smf_sess_add(
     ogs_hash_set(self.sess_hash, sess->hash_keybuf, sess->hash_keylen, sess);
 
     /* Select UPF with round-robin manner */
-    if (ogs_pfcp_self()->cp_node == NULL)
-        ogs_pfcp_self()->cp_node = ogs_list_first(&ogs_pfcp_self()->n4_list);
+    if (ogs_pfcp_self()->node == NULL)
+        ogs_pfcp_self()->node = ogs_list_first(&ogs_pfcp_self()->n4_list);
 
-    for (; ogs_pfcp_self()->cp_node;
-        ogs_pfcp_self()->cp_node = ogs_list_next(ogs_pfcp_self()->cp_node)) {
+    for (; ogs_pfcp_self()->node;
+        ogs_pfcp_self()->node = ogs_list_next(ogs_pfcp_self()->node)) {
         if (OGS_FSM_CHECK(
-                &ogs_pfcp_self()->cp_node->sm, smf_pfcp_state_associated)) {
-            OGS_SETUP_PFCP_NODE(&sess->pfcp, ogs_pfcp_self()->cp_node);
+                &ogs_pfcp_self()->node->sm, smf_pfcp_state_associated)) {
+            OGS_SETUP_PFCP_NODE(&sess->pfcp, ogs_pfcp_self()->node);
             break;
         }
     }

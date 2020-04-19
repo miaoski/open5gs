@@ -72,7 +72,7 @@ int ogs_pfcp_xact_final(void)
     return OGS_OK;
 }
 
-ogs_pfcp_xact_t *ogs_pfcp_xact_local_create(ogs_pfcp_cp_node_t *node,
+ogs_pfcp_xact_t *ogs_pfcp_xact_local_create(ogs_pfcp_node_t *node,
         ogs_pfcp_header_t *hdesc, ogs_pkbuf_t *pkbuf,
         void (*cb)(ogs_pfcp_xact_t *xact, void *data), void *data)
 {
@@ -121,7 +121,7 @@ ogs_pfcp_xact_t *ogs_pfcp_xact_local_create(ogs_pfcp_cp_node_t *node,
 }
 
 ogs_pfcp_xact_t *ogs_pfcp_xact_remote_create(
-        ogs_pfcp_cp_node_t *node, uint32_t sqn)
+        ogs_pfcp_node_t *node, uint32_t sqn)
 {
     char buf[OGS_ADDRSTRLEN];
     ogs_pfcp_xact_t *xact = NULL;
@@ -157,7 +157,7 @@ ogs_pfcp_xact_t *ogs_pfcp_xact_remote_create(
     return xact;
 }
 
-void ogs_pfcp_xact_delete_all(ogs_pfcp_cp_node_t *node)
+void ogs_pfcp_xact_delete_all(ogs_pfcp_node_t *node)
 {
     ogs_pfcp_xact_t *xact = NULL, *next_xact = NULL;
 
@@ -640,7 +640,7 @@ static void holding_timeout(void *data)
 
 
 int ogs_pfcp_xact_receive(
-        ogs_pfcp_cp_node_t *node, ogs_pfcp_header_t *h, ogs_pfcp_xact_t **xact)
+        ogs_pfcp_node_t *node, ogs_pfcp_header_t *h, ogs_pfcp_xact_t **xact)
 {
     char buf[OGS_ADDRSTRLEN];
     int rv;
@@ -714,7 +714,7 @@ static ogs_pfcp_xact_stage_t ogs_pfcp_xact_get_stage(uint8_t type, uint32_t xid)
 }
 
 ogs_pfcp_xact_t *ogs_pfcp_xact_find_by_xid(
-        ogs_pfcp_cp_node_t *node, uint8_t type, uint32_t xid)
+        ogs_pfcp_node_t *node, uint8_t type, uint32_t xid)
 {
     char buf[OGS_ADDRSTRLEN];
 

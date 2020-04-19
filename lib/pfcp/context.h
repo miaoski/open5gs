@@ -31,7 +31,7 @@ extern "C" {
 #define OGS_MAX_NUM_OF_DEV      16
 #define OGS_MAX_NUM_OF_SUBNET   16
 
-typedef struct ogs_pfcp_cp_node_s ogs_pfcp_cp_node_t;
+typedef struct ogs_pfcp_node_s ogs_pfcp_node_t;
 typedef struct ogs_pfcp_up_node_s ogs_pfcp_up_node_t;
 
 typedef struct ogs_pfcp_context_s {
@@ -48,7 +48,7 @@ typedef struct ogs_pfcp_context_s {
     uint32_t        pfcp_started;   /* UTC time when the PFCP entity started */
 
     ogs_list_t      n4_list;        /* PFCP Node List */
-    ogs_pfcp_cp_node_t *cp_node;    /* Iterator for Peer round-robin */
+    ogs_pfcp_node_t *node;    /* Iterator for Peer round-robin */
 
     ogs_list_t      dev_list;       /* Tun Device List */
     ogs_list_t      subnet_list;    /* UE Subnet List */
@@ -65,7 +65,7 @@ typedef struct ogs_pfcp_context_s {
         (__cTX)->node = __pNODE; \
     } while(0)
 
-typedef struct ogs_pfcp_cp_node_s {
+typedef struct ogs_pfcp_node_s {
     ogs_lnode_t     lnode;          /* A node of list_t */
 
     ogs_sockaddr_t  *sa_list;       /* Socket Address List Candidate */
@@ -86,7 +86,7 @@ typedef struct ogs_pfcp_cp_node_s {
     uint8_t         num_of_tac;
 
     ogs_list_t      up_list;        /* User Plane IP Resource Information */
-} ogs_pfcp_cp_node_t;
+} ogs_pfcp_node_t;
 
 typedef struct ogs_pfcp_up_node_s {
     ogs_lnode_t     lnode;      /* A node of list_t */
@@ -128,7 +128,7 @@ typedef struct ogs_pfcp_sess_s {
     ogs_pfcp_bar_t      *bar;       /* BAR Item */
 
     /* Related Context */
-    ogs_pfcp_cp_node_t  *node;
+    ogs_pfcp_node_t  *node;
 } ogs_pfcp_sess_t;
 
 typedef struct ogs_pfcp_pdr_s {
@@ -229,15 +229,15 @@ void ogs_pfcp_context_final(void);
 ogs_pfcp_context_t *ogs_pfcp_self(void);
 int ogs_pfcp_context_parse_config(const char *local, const char *remote);
 
-ogs_pfcp_cp_node_t *ogs_pfcp_cp_node_new(ogs_sockaddr_t *sa_list);
-void ogs_pfcp_cp_node_free(ogs_pfcp_cp_node_t *node);
+ogs_pfcp_node_t *ogs_pfcp_node_new(ogs_sockaddr_t *sa_list);
+void ogs_pfcp_node_free(ogs_pfcp_node_t *node);
 
-ogs_pfcp_cp_node_t *ogs_pfcp_cp_node_add(
+ogs_pfcp_node_t *ogs_pfcp_node_add(
         ogs_list_t *list, ogs_sockaddr_t *addr);
-ogs_pfcp_cp_node_t *ogs_pfcp_cp_node_find(
+ogs_pfcp_node_t *ogs_pfcp_node_find(
         ogs_list_t *list, ogs_sockaddr_t *addr);
-void ogs_pfcp_cp_node_remove(ogs_list_t *list, ogs_pfcp_cp_node_t *node);
-void ogs_pfcp_cp_node_remove_all(ogs_list_t *list);
+void ogs_pfcp_node_remove(ogs_list_t *list, ogs_pfcp_node_t *node);
+void ogs_pfcp_node_remove_all(ogs_list_t *list);
 
 ogs_pfcp_up_node_t *ogs_pfcp_up_node_new(
         ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);

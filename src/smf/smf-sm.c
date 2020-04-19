@@ -54,7 +54,7 @@ void smf_state_operational(ogs_fsm_t *s, smf_event_t *e)
 
     ogs_diam_gx_message_t *gx_message = NULL;
 
-    ogs_pfcp_cp_node_t *cp_node = NULL;
+    ogs_pfcp_node_t *pfcp_node = NULL;
     ogs_pfcp_xact_t *pfcp_xact = NULL;
     ogs_pfcp_message_t pfcp_message;
 
@@ -74,22 +74,22 @@ void smf_state_operational(ogs_fsm_t *s, smf_event_t *e)
             ogs_fatal("Can't establish N4-PFCP path");
         }
 
-        ogs_list_for_each(&ogs_pfcp_self()->n4_list, cp_node) {
+        ogs_list_for_each(&ogs_pfcp_self()->n4_list, pfcp_node) {
             smf_event_t e;
-            e.cp_node = cp_node;
+            e.pfcp_node = pfcp_node;
 
-            ogs_fsm_create(&cp_node->sm,
+            ogs_fsm_create(&pfcp_node->sm,
                     smf_pfcp_state_initial, smf_pfcp_state_final);
-            ogs_fsm_init(&cp_node->sm, &e);
+            ogs_fsm_init(&pfcp_node->sm, &e);
         }
         break;
     case OGS_FSM_EXIT_SIG:
-        ogs_list_for_each(&ogs_pfcp_self()->n4_list, cp_node) {
+        ogs_list_for_each(&ogs_pfcp_self()->n4_list, pfcp_node) {
             smf_event_t e;
-            e.cp_node = cp_node;
+            e.pfcp_node = pfcp_node;
 
-            ogs_fsm_fini(&cp_node->sm, &e);
-            ogs_fsm_delete(&cp_node->sm);
+            ogs_fsm_fini(&pfcp_node->sm, &e);
+            ogs_fsm_delete(&pfcp_node->sm);
         }
 
         smf_gtp_close();
@@ -215,8 +215,8 @@ void smf_state_operational(ogs_fsm_t *s, smf_event_t *e)
         ogs_assert(e);
         recvbuf = e->pkbuf;
         ogs_assert(recvbuf);
-        cp_node = e->cp_node;
-        ogs_assert(cp_node);
+        pfcp_node = e->pfcp_node;
+        ogs_assert(pfcp_node);
 
         if (ogs_pfcp_parse_msg(&pfcp_message, recvbuf) != OGS_OK) {
             ogs_error("ogs_pfcp_parse_msg() failed");
@@ -224,7 +224,7 @@ void smf_state_operational(ogs_fsm_t *s, smf_event_t *e)
             break;
         }
 
-        rv = ogs_pfcp_xact_receive(cp_node, &pfcp_message.h, &pfcp_xact);
+        rv = ogs_pfcp_xact_receive(pfcp_node, &pfcp_message.h, &pfcp_xact);
         if (rv != OGS_OK) {
             ogs_pkbuf_free(recvbuf);
             break;
@@ -232,8 +232,8 @@ void smf_state_operational(ogs_fsm_t *s, smf_event_t *e)
 
         e->pfcp_message = &pfcp_message;
         e->pfcp_xact = pfcp_xact;
-        ogs_fsm_dispatch(&cp_node->sm, e);
-        if (OGS_FSM_CHECK(&cp_node->sm, smf_pfcp_state_exception)) {
+        ogs_fsm_dispatch(&pfcp_node->sm, e);
+        if (OGS_FSM_CHECK(&pfcp_node->sm, smf_pfcp_state_exception)) {
             ogs_error("PFCP state machine exception");
             break;
         }
@@ -242,11 +242,11 @@ void smf_state_operational(ogs_fsm_t *s, smf_event_t *e)
         break;
     case SMF_EVT_N4_TIMER:
     case SMF_EVT_N4_NO_HEARTBEAT:
-        cp_node = e->cp_node;
-        ogs_assert(cp_node);
-        ogs_assert(OGS_FSM_STATE(&cp_node->sm));
+        pfcp_node = e->pfcp_node;
+        ogs_assert(pfcp_node);
+        ogs_assert(OGS_FSM_STATE(&pfcp_node->sm));
 
-        ogs_fsm_dispatch(&cp_node->sm, e);
+        ogs_fsm_dispatch(&pfcp_node->sm, e);
         break;
     default:
         ogs_error("No handler for event %s", smf_event_get_name(e));

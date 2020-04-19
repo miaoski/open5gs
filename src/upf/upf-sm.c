@@ -45,7 +45,7 @@ void upf_state_operational(ogs_fsm_t *s, upf_event_t *e)
     ogs_pkbuf_t *recvbuf = NULL;
 
     ogs_pfcp_message_t pfcp_message;
-    ogs_pfcp_cp_node_t *node = NULL;
+    ogs_pfcp_node_t *node = NULL;
     ogs_pfcp_xact_t *xact = NULL;
 
     upf_sm_debug(e);
@@ -65,7 +65,7 @@ void upf_state_operational(ogs_fsm_t *s, upf_event_t *e)
 
         ogs_list_for_each(&ogs_pfcp_self()->n4_list, node) {
             upf_event_t e;
-            e.cp_node = node;
+            e.pfcp_node = node;
 
             ogs_fsm_create(&node->sm,
                     upf_pfcp_state_initial, upf_pfcp_state_final);
@@ -75,7 +75,7 @@ void upf_state_operational(ogs_fsm_t *s, upf_event_t *e)
     case OGS_FSM_EXIT_SIG:
         ogs_list_for_each(&ogs_pfcp_self()->n4_list, node) {
             upf_event_t e;
-            e.cp_node = node;
+            e.pfcp_node = node;
 
             ogs_fsm_fini(&node->sm, &e);
             ogs_fsm_delete(&node->sm);
@@ -88,7 +88,7 @@ void upf_state_operational(ogs_fsm_t *s, upf_event_t *e)
         ogs_assert(e);
         recvbuf = e->pkbuf;
         ogs_assert(recvbuf);
-        node = e->cp_node;
+        node = e->pfcp_node;
         ogs_assert(node);
 
         if (ogs_pfcp_parse_msg(&pfcp_message, recvbuf) != OGS_OK) {
@@ -115,7 +115,7 @@ void upf_state_operational(ogs_fsm_t *s, upf_event_t *e)
         break;
     case UPF_EVT_N4_TIMER:
     case UPF_EVT_N4_NO_HEARTBEAT:
-        node = e->cp_node;
+        node = e->pfcp_node;
         ogs_assert(node);
         ogs_assert(OGS_FSM_STATE(&node->sm));
 
