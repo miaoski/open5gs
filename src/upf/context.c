@@ -318,33 +318,32 @@ int upf_context_parse_config(void)
                         node = ogs_list_first(&list);
                         node6 = ogs_list_first(&list6);
                         if (node || node6) {
-                            ogs_pfcp_gtpu_resource_t *resource =
-                                ogs_pfcp_gtpu_resource_add(
-                                    &self.gtpu_resource_list, NULL);
+                            ogs_pfcp_user_plane_ip_resource_info_t info;
 
-                            ogs_pfcp_gtpu_resource_set_addr(
-                                    resource,
+                            memset(&info, 0, sizeof(info));
+                            ogs_pfcp_sockaddr_to_user_plane_ip_resource_info(
                                     node ? node->addr : NULL,
-                                    node6 ? node6->addr : NULL);
+                                    node6 ? node6->addr : NULL,
+                                    &info);
 
                             if (teid_range_indication) {
-                                resource->info.teidri =
-                                    atoi(teid_range_indication);
+                                info.teidri = atoi(teid_range_indication);
                                 if (teid_range) {
-                                    resource->info.teid_range =
-                                        atoi(teid_range);
+                                    info.teid_range = atoi(teid_range);
                                 }
                             }
                             if (network_instance) {
-                                resource->info.assoni = 1;
-                                ogs_cpystrn(resource->info.network_instance,
+                                info.assoni = 1;
+                                ogs_cpystrn(info.network_instance,
                                     network_instance, OGS_MAX_APN_LEN+1);
                             }
                             if (source_interface) {
-                                resource->info.assosi = 1;
-                                resource->info.source_interface =
-                                    atoi(source_interface);
+                                info.assosi = 1;
+                                info.source_interface = atoi(source_interface);
                             }
+
+                            ogs_pfcp_gtpu_resource_add(
+                                &self.gtpu_resource_list, &info);
                         }
 
                         ogs_list_for_each_safe(&list, next_iter, iter)
@@ -375,13 +374,16 @@ int upf_context_parse_config(void)
                         node = ogs_list_first(&list);
                         node6 = ogs_list_first(&list6);
                         if (node || node6) {
-                            ogs_pfcp_gtpu_resource_t *resource =
-                                ogs_pfcp_gtpu_resource_add(
-                                    &self.gtpu_resource_list, NULL);
-                            ogs_pfcp_gtpu_resource_set_addr(
-                                    resource,
+                            ogs_pfcp_user_plane_ip_resource_info_t info;
+
+                            memset(&info, 0, sizeof(info));
+                            ogs_pfcp_sockaddr_to_user_plane_ip_resource_info(
                                     node ? node->addr : NULL,
-                                    node6 ? node6->addr : NULL);
+                                    node6 ? node6->addr : NULL,
+                                    &info);
+
+                            ogs_pfcp_gtpu_resource_add(
+                                &self.gtpu_resource_list, &info);
                         }
 
                         ogs_list_for_each_safe(&list, next_iter, iter)

@@ -647,12 +647,12 @@ ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_add(ogs_list_t *list,
     ogs_pfcp_gtpu_resource_t *new = NULL;
 
     ogs_assert(list);
+    ogs_assert(info);
 
     ogs_pool_alloc(&ogs_pfcp_gtpu_resource_pool, &new);
     ogs_assert(new);
 
-    if (info)
-        memcpy(&new->info, info, sizeof(*info));
+    memcpy(&new->info, info, sizeof(*info));
 
     ogs_list_add(list, new);
 

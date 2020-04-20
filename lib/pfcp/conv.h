@@ -41,6 +41,9 @@ int ogs_pfcp_f_seid_to_ip(ogs_pfcp_f_seid_t *f_seid, ogs_ip_t *ip);
 
 int ogs_pfcp_sockaddr_to_f_teid(
     ogs_sockaddr_t *a, ogs_sockaddr_t *b, ogs_pfcp_f_teid_t *f_teid, int *len);
+int ogs_pfcp_sockaddr_to_user_plane_ip_resource_info(
+    ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6,
+    ogs_pfcp_user_plane_ip_resource_info_t *info);
 
 int ogs_pfcp_paa_to_ue_ip_addr(
     ogs_paa_t *paa, ogs_pfcp_ue_ip_addr_t *addr, int *len);

@@ -230,6 +230,25 @@ int ogs_pfcp_sockaddr_to_f_teid(
     return sockaddr_to_f_teid(addr, addr6, f_teid, len);
 }
 
+int ogs_pfcp_sockaddr_to_user_plane_ip_resource_info(
+    ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6,
+    ogs_pfcp_user_plane_ip_resource_info_t *info)
+{
+    ogs_assert(addr || addr6);
+    ogs_assert(info);
+
+    if (addr) {
+        info->v4 = 1;
+        info->addr = addr->sin.sin_addr.s_addr;
+    }
+    if (addr6) {
+        info->v6 = 1;
+        memcpy(info->addr6, addr6->sin6.sin6_addr.s6_addr, OGS_IPV6_LEN);
+    }
+
+    return OGS_OK;
+}
+
 int ogs_pfcp_paa_to_ue_ip_addr(
     ogs_paa_t *paa, ogs_pfcp_ue_ip_addr_t *addr, int *len)
 {
