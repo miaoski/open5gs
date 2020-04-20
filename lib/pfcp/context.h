@@ -84,7 +84,8 @@ typedef struct ogs_pfcp_node_s {
     uint16_t        tac[OGS_MAX_NUM_OF_TAI];
     uint8_t         num_of_tac;
 
-    ogs_list_t      up_list;        /* User Plane IP Resource Information */
+    /* User Plane IP Resource Information */
+    ogs_list_t      user_plane_ip_resource_list;
 } ogs_pfcp_node_t;
 
 typedef struct ogs_pfcp_far_s ogs_pfcp_far_t;
@@ -224,7 +225,10 @@ void ogs_pfcp_node_remove(ogs_list_t *list, ogs_pfcp_node_t *node);
 void ogs_pfcp_node_remove_all(ogs_list_t *list);
 
 ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
-        ogs_list_t *list, ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
+        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_t *node);
+void ogs_pfcp_user_plane_ip_resource_set_addr(
+        ogs_pfcp_user_plane_ip_resource_t *node,
+        ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
 void ogs_pfcp_user_plane_ip_resource_remove(
         ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_t *node);
 void ogs_pfcp_user_plane_ip_resource_remove_all(ogs_list_t *list);

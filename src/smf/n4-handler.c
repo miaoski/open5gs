@@ -26,16 +26,59 @@ void smf_n4_handle_association_setup_request(
         ogs_pfcp_node_t *node, ogs_pfcp_xact_t *xact, 
         ogs_pfcp_association_setup_request_t *req)
 {
+    int i;
+
     ogs_assert(xact);
+    ogs_assert(node);
+    ogs_assert(req);
+
     smf_pfcp_send_association_setup_response(
             xact, OGS_PFCP_CAUSE_REQUEST_ACCEPTED);
+
+    ogs_pfcp_user_plane_ip_resource_remove_all(
+            &node->user_plane_ip_resource_list);
+
+    for (i = 0; i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE; i++) {
+        ogs_pfcp_tlv_user_plane_ip_resource_information_t *message =
+            &req->user_plane_ip_resource_information[i];
+        ogs_pfcp_user_plane_ip_resource_t user_plane_ip_resource;
+
+        if (message->presence == 0)
+            break;
+
+        ogs_pfcp_parse_user_plane_ip_resource(
+                &user_plane_ip_resource, message);
+        ogs_pfcp_user_plane_ip_resource_add(
+                &node->user_plane_ip_resource_list, &user_plane_ip_resource);
+    }
 }
 
 void smf_n4_handle_association_setup_response(
         ogs_pfcp_node_t *node, ogs_pfcp_xact_t *xact, 
         ogs_pfcp_association_setup_response_t *rsp)
 {
+    int i;
+
     ogs_assert(xact);
+    ogs_assert(node);
+    ogs_assert(rsp);
+
+    ogs_pfcp_user_plane_ip_resource_remove_all(
+            &node->user_plane_ip_resource_list);
+
+    for (i = 0; i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE; i++) {
+        ogs_pfcp_tlv_user_plane_ip_resource_information_t *message =
+            &rsp->user_plane_ip_resource_information[i];
+        ogs_pfcp_user_plane_ip_resource_t user_plane_ip_resource;
+
+        if (message->presence == 0)
+            break;
+
+        ogs_pfcp_parse_user_plane_ip_resource(
+                &user_plane_ip_resource, message);
+        ogs_pfcp_user_plane_ip_resource_add(
+                &node->user_plane_ip_resource_list, &user_plane_ip_resource);
+    }
 }
 
 void smf_n4_handle_heartbeat_request(

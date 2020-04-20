@@ -319,9 +319,12 @@ int upf_context_parse_config(void)
                         if (node || node6) {
                             ogs_pfcp_user_plane_ip_resource_t *resource =
                                 ogs_pfcp_user_plane_ip_resource_add(
-                                        &self.user_plane_ip_resource_list,
-                                        node ? node->addr : NULL,
-                                        node6 ? node6->addr : NULL);
+                                    &self.user_plane_ip_resource_list, NULL);
+
+                            ogs_pfcp_user_plane_ip_resource_set_addr(
+                                    resource,
+                                    node ? node->addr : NULL,
+                                    node6 ? node6->addr : NULL);
 
                             if (teid_range_indication) {
                                 resource->teidri = atoi(teid_range_indication);
@@ -369,8 +372,11 @@ int upf_context_parse_config(void)
                         node = ogs_list_first(&list);
                         node6 = ogs_list_first(&list6);
                         if (node || node6) {
-                            ogs_pfcp_user_plane_ip_resource_add(
-                                    &self.user_plane_ip_resource_list,
+                            ogs_pfcp_user_plane_ip_resource_t *resource =
+                                ogs_pfcp_user_plane_ip_resource_add(
+                                    &self.user_plane_ip_resource_list, NULL);
+                            ogs_pfcp_user_plane_ip_resource_set_addr(
+                                    resource,
                                     node ? node->addr : NULL,
                                     node6 ? node6->addr : NULL);
                         }

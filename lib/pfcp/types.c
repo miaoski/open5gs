@@ -140,7 +140,6 @@ int16_t ogs_pfcp_parse_user_plane_ip_resource(
         ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource,
         ogs_tlv_octet_t *octet)
 {
-    ogs_pfcp_user_plane_ip_resource_t *source = octet->data;
     int16_t size = 0;
 
     ogs_assert(user_plane_ip_resource);
@@ -149,7 +148,9 @@ int16_t ogs_pfcp_parse_user_plane_ip_resource(
     memset(user_plane_ip_resource, 0,
             sizeof(ogs_pfcp_user_plane_ip_resource_t));
 
-    user_plane_ip_resource->flags = source->flags;
+    memcpy(&user_plane_ip_resource->flags,
+            (unsigned char *)octet->data + size,
+            sizeof(user_plane_ip_resource->flags));
     size++;
 
     if (user_plane_ip_resource->teidri) {
