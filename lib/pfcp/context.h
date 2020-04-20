@@ -70,8 +70,6 @@ typedef struct ogs_pfcp_node_s {
     ogs_sock_t      *sock;          /* Socket Instance */
     ogs_sockaddr_t  addr;           /* Remote Address */
 
-    ogs_ip_t        ip;             /* F-SEID IP address Duplicate Check */
-
     ogs_list_t      local_list;    
     ogs_list_t      remote_list;   
 
