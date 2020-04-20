@@ -659,25 +659,6 @@ ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_add(ogs_list_t *list,
     return new;
 }
 
-void ogs_pfcp_gtpu_resource_set_addr(ogs_pfcp_gtpu_resource_t *resource,
-        ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6)
-{
-    ogs_assert(resource);
-    ogs_assert(addr || addr6);
-
-    memset(resource, 0, sizeof(*resource));
-
-    if (addr) {
-        resource->info.v4 = 1;
-        resource->info.addr = addr->sin.sin_addr.s_addr;
-    }
-    if (addr6) {
-        resource->info.v6 = 1;
-        memcpy(resource->info.addr6,
-                addr6->sin6.sin6_addr.s6_addr, OGS_IPV6_LEN);
-    }
-}
-
 void ogs_pfcp_gtpu_resource_remove(ogs_list_t *list,
         ogs_pfcp_gtpu_resource_t *resource)
 {

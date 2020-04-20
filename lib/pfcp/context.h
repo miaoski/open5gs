@@ -114,7 +114,7 @@ typedef struct ogs_pfcp_sess_s {
     ogs_pfcp_bar_t      *bar;       /* BAR Item */
 
     /* Related Context */
-    ogs_pfcp_node_t  *node;
+    ogs_pfcp_node_t     *node;
 } ogs_pfcp_sess_t;
 
 typedef struct ogs_pfcp_pdr_s {
@@ -227,8 +227,6 @@ void ogs_pfcp_node_remove_all(ogs_list_t *list);
 
 ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_add(ogs_list_t *list,
         ogs_pfcp_user_plane_ip_resource_info_t *info);
-void ogs_pfcp_gtpu_resource_set_addr(ogs_pfcp_gtpu_resource_t *resource,
-        ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
 void ogs_pfcp_gtpu_resource_remove(ogs_list_t *list,
         ogs_pfcp_gtpu_resource_t *resource);
 void ogs_pfcp_gtpu_resource_remove_all(ogs_list_t *list);
