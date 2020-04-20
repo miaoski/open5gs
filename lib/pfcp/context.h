@@ -53,8 +53,6 @@ typedef struct ogs_pfcp_context_s {
     ogs_list_t      subnet_list;    /* UE Subnet List */
 
     ogs_list_t      sess_list;
-
-    ogs_list_t      up_list;        /* User Plane IP Resource Information */
 } ogs_pfcp_context_t;
 
 #define OGS_SETUP_PFCP_NODE(__cTX, __pNODE) \
@@ -84,9 +82,14 @@ typedef struct ogs_pfcp_node_s {
     uint16_t        tac[OGS_MAX_NUM_OF_TAI];
     uint8_t         num_of_tac;
 
-    /* User Plane IP Resource Information */
-    ogs_list_t      user_plane_ip_resource_list;
+    ogs_list_t      gtpu_resource_list; /* User Plane IP Resource Information */
 } ogs_pfcp_node_t;
+
+typedef struct ogs_pfcp_gtpu_resource_s {
+    ogs_lnode_t lnode;
+
+    ogs_pfcp_user_plane_ip_resource_info_t info;
+} __attribute__ ((packed)) ogs_pfcp_gtpu_resource_t;
 
 typedef struct ogs_pfcp_far_s ogs_pfcp_far_t;
 typedef struct ogs_pfcp_urr_s ogs_pfcp_urr_t;
@@ -209,7 +212,7 @@ typedef struct ogs_pfcp_subnet_s {
     ogs_pfcp_dev_t  *dev;           /* Related Context */
 } ogs_pfcp_subnet_t;
 
-void ogs_pfcp_context_init(int num_of_user_plane_ip_resource);
+void ogs_pfcp_context_init(int num_of_gtpu_resource);
 void ogs_pfcp_context_final(void);
 ogs_pfcp_context_t *ogs_pfcp_self(void);
 int ogs_pfcp_context_parse_config(const char *local, const char *remote);
@@ -224,14 +227,13 @@ ogs_pfcp_node_t *ogs_pfcp_node_find(
 void ogs_pfcp_node_remove(ogs_list_t *list, ogs_pfcp_node_t *node);
 void ogs_pfcp_node_remove_all(ogs_list_t *list);
 
-ogs_pfcp_user_plane_ip_resource_info_t *ogs_pfcp_user_plane_ip_resource_add(
-        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_info_t *info);
-void ogs_pfcp_user_plane_ip_resource_set_addr(
-        ogs_pfcp_user_plane_ip_resource_info_t *info,
+ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_add(ogs_list_t *list,
+        ogs_pfcp_user_plane_ip_resource_info_t *info);
+void ogs_pfcp_gtpu_resource_set_addr(ogs_pfcp_gtpu_resource_t *resource,
         ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
-void ogs_pfcp_user_plane_ip_resource_remove(
-        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_info_t *info);
-void ogs_pfcp_user_plane_ip_resource_remove_all(ogs_list_t *list);
+void ogs_pfcp_gtpu_resource_remove(ogs_list_t *list,
+        ogs_pfcp_gtpu_resource_t *resource);
+void ogs_pfcp_gtpu_resource_remove_all(ogs_list_t *list);
 
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess);
 

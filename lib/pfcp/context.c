@@ -23,7 +23,7 @@
 static ogs_pfcp_context_t self;
 
 static OGS_POOL(ogs_pfcp_node_pool, ogs_pfcp_node_t);
-static OGS_POOL(ogs_pfcp_user_plane_ip_resource_pool, ogs_pfcp_user_plane_ip_resource_info_t);
+static OGS_POOL(ogs_pfcp_gtpu_resource_pool, ogs_pfcp_gtpu_resource_t);
 
 static OGS_POOL(ogs_pfcp_sess_pool, ogs_pfcp_sess_t);
 static OGS_POOL(ogs_pfcp_pdr_pool, ogs_pfcp_pdr_t);
@@ -37,7 +37,7 @@ static OGS_POOL(ogs_pfcp_subnet_pool, ogs_pfcp_subnet_t);
 
 static int context_initiaized = 0;
 
-void ogs_pfcp_context_init(int num_of_user_plane_resource)
+void ogs_pfcp_context_init(int num_of_gtpu_resource)
 {
     struct timeval tv;
     ogs_assert(context_initiaized == 0);
@@ -64,8 +64,7 @@ void ogs_pfcp_context_init(int num_of_user_plane_resource)
     ogs_log_install_domain(&__ogs_pfcp_domain, "pfcp", ogs_core()->log.level);
 
     ogs_pool_init(&ogs_pfcp_node_pool, ogs_config()->pool.pfcp);
-    ogs_pool_init(
-        &ogs_pfcp_user_plane_ip_resource_pool, num_of_user_plane_resource);
+    ogs_pool_init(&ogs_pfcp_gtpu_resource_pool, num_of_gtpu_resource);
 
     ogs_list_init(&self.n4_list);
 
@@ -112,7 +111,7 @@ void ogs_pfcp_context_final(void)
     ogs_pfcp_node_remove_all(&ogs_pfcp_self()->n4_list);
 
     ogs_pool_final(&ogs_pfcp_node_pool);
-    ogs_pool_final(&ogs_pfcp_user_plane_ip_resource_pool);
+    ogs_pool_final(&ogs_pfcp_gtpu_resource_pool);
 
     context_initiaized = 0;
 }
@@ -567,7 +566,7 @@ ogs_pfcp_node_t *ogs_pfcp_node_new(ogs_sockaddr_t *sa_list)
     ogs_list_init(&node->local_list);
     ogs_list_init(&node->remote_list);
 
-    ogs_list_init(&node->user_plane_ip_resource_list);
+    ogs_list_init(&node->gtpu_resource_list);
 
     return node;
 }
@@ -576,8 +575,7 @@ void ogs_pfcp_node_free(ogs_pfcp_node_t *node)
 {
     ogs_assert(node);
 
-    ogs_pfcp_user_plane_ip_resource_remove_all(
-            &node->user_plane_ip_resource_list);
+    ogs_pfcp_gtpu_resource_remove_all(&node->gtpu_resource_list);
 
     if (node->sock)
         ogs_sock_destroy(node->sock);
@@ -643,62 +641,62 @@ void ogs_pfcp_node_remove_all(ogs_list_t *list)
         ogs_pfcp_node_remove(list, node);
 }
 
-ogs_pfcp_user_plane_ip_resource_info_t *ogs_pfcp_user_plane_ip_resource_add(
-        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_info_t *info)
+ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_add(ogs_list_t *list,
+        ogs_pfcp_user_plane_ip_resource_info_t *info)
 {
-    ogs_pfcp_user_plane_ip_resource_info_t *new = NULL;
+    ogs_pfcp_gtpu_resource_t *new = NULL;
 
     ogs_assert(list);
 
-    ogs_pool_alloc(&ogs_pfcp_user_plane_ip_resource_pool, &new);
+    ogs_pool_alloc(&ogs_pfcp_gtpu_resource_pool, &new);
     ogs_assert(new);
 
     if (info)
-        memcpy(new, info, sizeof(*info));
+        memcpy(&new->info, info, sizeof(*info));
 
     ogs_list_add(list, new);
 
     return new;
 }
 
-void ogs_pfcp_user_plane_ip_resource_set_addr(
-        ogs_pfcp_user_plane_ip_resource_info_t *info,
+void ogs_pfcp_gtpu_resource_set_addr(ogs_pfcp_gtpu_resource_t *resource,
         ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6)
 {
-    ogs_assert(info);
+    ogs_assert(resource);
     ogs_assert(addr || addr6);
 
-    memset(info, 0, sizeof(*info));
+    memset(resource, 0, sizeof(*resource));
 
     if (addr) {
-        info->v4 = 1;
-        info->addr = addr->sin.sin_addr.s_addr;
+        resource->info.v4 = 1;
+        resource->info.addr = addr->sin.sin_addr.s_addr;
     }
     if (addr6) {
-        info->v6 = 1;
-        memcpy(info->addr6, addr6->sin6.sin6_addr.s6_addr, OGS_IPV6_LEN);
+        resource->info.v6 = 1;
+        memcpy(resource->info.addr6,
+                addr6->sin6.sin6_addr.s6_addr, OGS_IPV6_LEN);
     }
 }
 
-void ogs_pfcp_user_plane_ip_resource_remove(
-        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_info_t *info)
+void ogs_pfcp_gtpu_resource_remove(ogs_list_t *list,
+        ogs_pfcp_gtpu_resource_t *resource)
 {
     ogs_assert(list);
-    ogs_assert(info);
+    ogs_assert(resource);
 
-    ogs_list_remove(list, info);
+    ogs_list_remove(list, resource);
 
-    ogs_pool_free(&ogs_pfcp_user_plane_ip_resource_pool, info);
+    ogs_pool_free(&ogs_pfcp_gtpu_resource_pool, resource);
 }
 
-void ogs_pfcp_user_plane_ip_resource_remove_all(ogs_list_t *list)
+void ogs_pfcp_gtpu_resource_remove_all(ogs_list_t *list)
 {
-    ogs_pfcp_user_plane_ip_resource_info_t *info = NULL, *next_info = NULL;
+    ogs_pfcp_gtpu_resource_t *resource = NULL, *next_resource = NULL;
 
     ogs_assert(list);
 
-    ogs_list_for_each_safe(list, next_info, info)
-        ogs_pfcp_user_plane_ip_resource_remove(list, info);
+    ogs_list_for_each_safe(list, next_resource, resource)
+        ogs_pfcp_gtpu_resource_remove(list, resource);
 }
 
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess)

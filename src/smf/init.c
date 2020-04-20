@@ -32,8 +32,7 @@ int smf_initialize()
 {
     int rv;
 
-    ogs_pfcp_context_init(
-            ogs_config()->max.upf * OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO);
+    ogs_pfcp_context_init(ogs_config()->max.upf * OGS_MAX_NUM_OF_GTPU_RESOURCE);
     smf_context_init();
     smf_event_init();
 

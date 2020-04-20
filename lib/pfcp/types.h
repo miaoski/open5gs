@@ -342,8 +342,6 @@ ED8(uint8_t     stag:1;,
 #define OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_INFO_LEN \
     sizeof(ogs_pfcp_user_plane_ip_resource_info_t)
 typedef struct ogs_pfcp_user_plane_ip_resource_info_s {
-    ogs_lnode_t lnode;
-
     union {
         struct {
 ED6(uint8_t     spare:1;,

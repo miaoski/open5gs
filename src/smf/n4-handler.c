@@ -35,10 +35,9 @@ void smf_n4_handle_association_setup_request(
     smf_pfcp_send_association_setup_response(
             xact, OGS_PFCP_CAUSE_REQUEST_ACCEPTED);
 
-    ogs_pfcp_user_plane_ip_resource_remove_all(
-            &node->user_plane_ip_resource_list);
+    ogs_pfcp_gtpu_resource_remove_all(&node->gtpu_resource_list);
 
-    for (i = 0; i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO; i++) {
+    for (i = 0; i < OGS_MAX_NUM_OF_GTPU_RESOURCE; i++) {
         ogs_pfcp_tlv_user_plane_ip_resource_information_t *message =
             &req->user_plane_ip_resource_information[i];
         ogs_pfcp_user_plane_ip_resource_info_t info;
@@ -47,8 +46,7 @@ void smf_n4_handle_association_setup_request(
             break;
 
         ogs_pfcp_parse_user_plane_ip_resource_info(&info, message);
-        ogs_pfcp_user_plane_ip_resource_add(
-                &node->user_plane_ip_resource_list, &info);
+        ogs_pfcp_gtpu_resource_add(&node->gtpu_resource_list, &info);
     }
 }
 
@@ -62,10 +60,9 @@ void smf_n4_handle_association_setup_response(
     ogs_assert(node);
     ogs_assert(rsp);
 
-    ogs_pfcp_user_plane_ip_resource_remove_all(
-            &node->user_plane_ip_resource_list);
+    ogs_pfcp_gtpu_resource_remove_all(&node->gtpu_resource_list);
 
-    for (i = 0; i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO; i++) {
+    for (i = 0; i < OGS_MAX_NUM_OF_GTPU_RESOURCE; i++) {
         ogs_pfcp_tlv_user_plane_ip_resource_information_t *message =
             &rsp->user_plane_ip_resource_information[i];
         ogs_pfcp_user_plane_ip_resource_info_t info;
@@ -74,8 +71,7 @@ void smf_n4_handle_association_setup_response(
             break;
 
         ogs_pfcp_parse_user_plane_ip_resource_info(&info, message);
-        ogs_pfcp_user_plane_ip_resource_add(
-                &node->user_plane_ip_resource_list, &info);
+        ogs_pfcp_gtpu_resource_add(&node->gtpu_resource_list, &info);
     }
 }
 
