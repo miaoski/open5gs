@@ -194,11 +194,11 @@ int upf_context_parse_config(void)
                             ogs_assert(gtpu_key);
 
                             if (ogs_list_count(
-                                    &self.user_plane_ip_resource_list) >=
-                                    OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE) {
+                                &self.user_plane_ip_resource_list) >=
+                                OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO) {
                                 ogs_warn("[Overflow]: Number of User Plane "
-                                        "IP Resource <= %d",
-                                        OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE);
+                                    "IP Resource <= %d",
+                                    OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO);
                                 break;
                             }
 
@@ -317,29 +317,29 @@ int upf_context_parse_config(void)
                         node = ogs_list_first(&list);
                         node6 = ogs_list_first(&list6);
                         if (node || node6) {
-                            ogs_pfcp_user_plane_ip_resource_t *resource =
+                            ogs_pfcp_user_plane_ip_resource_info_t *info =
                                 ogs_pfcp_user_plane_ip_resource_add(
                                     &self.user_plane_ip_resource_list, NULL);
 
                             ogs_pfcp_user_plane_ip_resource_set_addr(
-                                    resource,
+                                    info,
                                     node ? node->addr : NULL,
                                     node6 ? node6->addr : NULL);
 
                             if (teid_range_indication) {
-                                resource->teidri = atoi(teid_range_indication);
+                                info->teidri = atoi(teid_range_indication);
                                 if (teid_range) {
-                                    resource->teid_range = atoi(teid_range);
+                                    info->teid_range = atoi(teid_range);
                                 }
                             }
                             if (network_instance) {
-                                resource->assoni = 1;
-                                ogs_cpystrn(resource->network_instance,
+                                info->assoni = 1;
+                                ogs_cpystrn(info->network_instance,
                                     network_instance, OGS_MAX_APN_LEN+1);
                             }
                             if (source_interface) {
-                                resource->assosi = 1;
-                                resource->source_interface =
+                                info->assosi = 1;
+                                info->source_interface =
                                     atoi(source_interface);
                             }
                         }
@@ -372,11 +372,11 @@ int upf_context_parse_config(void)
                         node = ogs_list_first(&list);
                         node6 = ogs_list_first(&list6);
                         if (node || node6) {
-                            ogs_pfcp_user_plane_ip_resource_t *resource =
+                            ogs_pfcp_user_plane_ip_resource_info_t *info =
                                 ogs_pfcp_user_plane_ip_resource_add(
                                     &self.user_plane_ip_resource_list, NULL);
                             ogs_pfcp_user_plane_ip_resource_set_addr(
-                                    resource,
+                                    info,
                                     node ? node->addr : NULL,
                                     node6 ? node6->addr : NULL);
                         }

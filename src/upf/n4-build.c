@@ -28,10 +28,9 @@ ogs_pkbuf_t *upf_n4_build_association_setup_request(uint8_t type)
     ogs_pfcp_node_id_t node_id;
     int node_id_len = 0;
 
-    ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource = NULL;
-    char user_plane_ip_resource_buf
-        [OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE]
-        [OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_LEN];
+    ogs_pfcp_user_plane_ip_resource_info_t *info = NULL;
+    char infobuf[OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO]
+                [OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_INFO_LEN];
     int i = 0;
 
     ogs_debug("[UPF] Association Setup Request");
@@ -54,18 +53,16 @@ ogs_pkbuf_t *upf_n4_build_association_setup_request(uint8_t type)
     req->up_function_features.u16 = htobe16(upf_self()->function_features);
 
     i = 0;
-    ogs_list_for_each(&upf_self()->user_plane_ip_resource_list,
-            user_plane_ip_resource) {
-        ogs_assert(i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE);
+    ogs_list_for_each(&upf_self()->user_plane_ip_resource_list, info) {
+        ogs_assert(i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO);
         ogs_pfcp_tlv_user_plane_ip_resource_information_t *message =
             &req->user_plane_ip_resource_information[i];
         ogs_assert(message);
 
         message->presence = 1;
-        ogs_pfcp_build_user_plane_ip_resource(
-            message, user_plane_ip_resource,
-            user_plane_ip_resource_buf[i],
-            OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_LEN);
+        ogs_pfcp_build_user_plane_ip_resource_info(
+            message, info, infobuf[i],
+            OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_INFO_LEN);
         i++;
     }
 
@@ -82,10 +79,9 @@ ogs_pkbuf_t *upf_n4_build_association_setup_response(uint8_t type,
     ogs_pfcp_node_id_t node_id;
     int node_id_len = 0;
 
-    ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource = NULL;
-    char user_plane_ip_resource_buf
-        [OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE]
-        [OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_LEN];
+    ogs_pfcp_user_plane_ip_resource_info_t *info = NULL;
+    char infobuf[OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO]
+                [OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_INFO_LEN];
     int i = 0;
 
     ogs_debug("[UPF] Association Setup Response");
@@ -111,18 +107,15 @@ ogs_pkbuf_t *upf_n4_build_association_setup_response(uint8_t type,
     rsp->up_function_features.u16 = htobe16(upf_self()->function_features);
 
     i = 0;
-    ogs_list_for_each(&upf_self()->user_plane_ip_resource_list,
-            user_plane_ip_resource) {
-        ogs_assert(i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE);
+    ogs_list_for_each(&upf_self()->user_plane_ip_resource_list, info) {
+        ogs_assert(i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO);
         ogs_pfcp_tlv_user_plane_ip_resource_information_t *message =
             &rsp->user_plane_ip_resource_information[i];
         ogs_assert(message);
 
         message->presence = 1;
-        ogs_pfcp_build_user_plane_ip_resource(
-            message, user_plane_ip_resource,
-            user_plane_ip_resource_buf[i],
-            OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_LEN);
+        ogs_pfcp_build_user_plane_ip_resource_info(message, info, infobuf[i],
+            OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_INFO_LEN);
         i++;
     }
 

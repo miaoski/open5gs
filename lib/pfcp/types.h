@@ -339,9 +339,9 @@ ED8(uint8_t     stag:1;,
     };
 } __attribute__ ((packed)) ogs_pfcp_outer_header_creation_t;
 
-#define OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_LEN \
-    sizeof(ogs_pfcp_user_plane_ip_resource_t)
-typedef struct ogs_pfcp_user_plane_ip_resource_s {
+#define OGS_PFCP_MAX_USER_PLANE_IP_RESOURCE_INFO_LEN \
+    sizeof(ogs_pfcp_user_plane_ip_resource_info_t)
+typedef struct ogs_pfcp_user_plane_ip_resource_info_s {
     ogs_lnode_t lnode;
 
     union {
@@ -361,14 +361,14 @@ ED6(uint8_t     spare:1;,
     uint8_t     addr6[OGS_IPV6_LEN];
     char        network_instance[OGS_MAX_APN_LEN];
     uint8_t     source_interface;
-} __attribute__ ((packed)) ogs_pfcp_user_plane_ip_resource_t;
+} __attribute__ ((packed)) ogs_pfcp_user_plane_ip_resource_info_t;
 
-int16_t ogs_pfcp_build_user_plane_ip_resource(
+int16_t ogs_pfcp_build_user_plane_ip_resource_info(
         ogs_tlv_octet_t *octet,
-        ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource,
+        ogs_pfcp_user_plane_ip_resource_info_t *info,
         void *data, int data_len);
-int16_t ogs_pfcp_parse_user_plane_ip_resource(
-        ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource,
+int16_t ogs_pfcp_parse_user_plane_ip_resource_info(
+        ogs_pfcp_user_plane_ip_resource_info_t *info,
         ogs_tlv_octet_t *octet);
 
 typedef struct ogs_pfcp_report_type_s {

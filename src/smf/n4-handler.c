@@ -38,18 +38,17 @@ void smf_n4_handle_association_setup_request(
     ogs_pfcp_user_plane_ip_resource_remove_all(
             &node->user_plane_ip_resource_list);
 
-    for (i = 0; i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE; i++) {
+    for (i = 0; i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO; i++) {
         ogs_pfcp_tlv_user_plane_ip_resource_information_t *message =
             &req->user_plane_ip_resource_information[i];
-        ogs_pfcp_user_plane_ip_resource_t user_plane_ip_resource;
+        ogs_pfcp_user_plane_ip_resource_info_t info;
 
         if (message->presence == 0)
             break;
 
-        ogs_pfcp_parse_user_plane_ip_resource(
-                &user_plane_ip_resource, message);
+        ogs_pfcp_parse_user_plane_ip_resource_info(&info, message);
         ogs_pfcp_user_plane_ip_resource_add(
-                &node->user_plane_ip_resource_list, &user_plane_ip_resource);
+                &node->user_plane_ip_resource_list, &info);
     }
 }
 
@@ -66,18 +65,17 @@ void smf_n4_handle_association_setup_response(
     ogs_pfcp_user_plane_ip_resource_remove_all(
             &node->user_plane_ip_resource_list);
 
-    for (i = 0; i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE; i++) {
+    for (i = 0; i < OGS_MAX_NUM_OF_USER_PLANE_IP_RESOURCE_INFO; i++) {
         ogs_pfcp_tlv_user_plane_ip_resource_information_t *message =
             &rsp->user_plane_ip_resource_information[i];
-        ogs_pfcp_user_plane_ip_resource_t user_plane_ip_resource;
+        ogs_pfcp_user_plane_ip_resource_info_t info;
 
         if (message->presence == 0)
             break;
 
-        ogs_pfcp_parse_user_plane_ip_resource(
-                &user_plane_ip_resource, message);
+        ogs_pfcp_parse_user_plane_ip_resource_info(&info, message);
         ogs_pfcp_user_plane_ip_resource_add(
-                &node->user_plane_ip_resource_list, &user_plane_ip_resource);
+                &node->user_plane_ip_resource_list, &info);
     }
 }
 

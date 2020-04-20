@@ -224,13 +224,13 @@ ogs_pfcp_node_t *ogs_pfcp_node_find(
 void ogs_pfcp_node_remove(ogs_list_t *list, ogs_pfcp_node_t *node);
 void ogs_pfcp_node_remove_all(ogs_list_t *list);
 
-ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
-        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_t *node);
+ogs_pfcp_user_plane_ip_resource_info_t *ogs_pfcp_user_plane_ip_resource_add(
+        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_info_t *info);
 void ogs_pfcp_user_plane_ip_resource_set_addr(
-        ogs_pfcp_user_plane_ip_resource_t *node,
+        ogs_pfcp_user_plane_ip_resource_info_t *info,
         ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6);
 void ogs_pfcp_user_plane_ip_resource_remove(
-        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_t *node);
+        ogs_list_t *list, ogs_pfcp_user_plane_ip_resource_info_t *info);
 void ogs_pfcp_user_plane_ip_resource_remove_all(ogs_list_t *list);
 
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess);

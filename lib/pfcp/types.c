@@ -75,22 +75,21 @@ const char *ogs_pfcp_cause_get_name(uint8_t cause)
     return "OGS_PFCP_CAUSE_UNKNOWN";
 }
 
-int16_t ogs_pfcp_build_user_plane_ip_resource(
+int16_t ogs_pfcp_build_user_plane_ip_resource_info(
         ogs_tlv_octet_t *octet,
-        ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource,
+        ogs_pfcp_user_plane_ip_resource_info_t *info,
         void *data, int data_len)
 {
-    ogs_pfcp_user_plane_ip_resource_t target;
+    ogs_pfcp_user_plane_ip_resource_info_t target;
     int16_t size = 0;
 
-    ogs_assert(user_plane_ip_resource);
+    ogs_assert(info);
     ogs_assert(octet);
     ogs_assert(data);
     ogs_assert(data_len);
 
     octet->data = data;
-    memcpy(&target, user_plane_ip_resource,
-            sizeof(ogs_pfcp_user_plane_ip_resource_t));
+    memcpy(&target, info, sizeof(ogs_pfcp_user_plane_ip_resource_info_t));
 
     ogs_assert(size + sizeof(target.flags) <= data_len);
     memcpy((unsigned char *)octet->data + size,
@@ -136,63 +135,56 @@ int16_t ogs_pfcp_build_user_plane_ip_resource(
     return octet->len;
 }
 
-int16_t ogs_pfcp_parse_user_plane_ip_resource(
-        ogs_pfcp_user_plane_ip_resource_t *user_plane_ip_resource,
+int16_t ogs_pfcp_parse_user_plane_ip_resource_info(
+        ogs_pfcp_user_plane_ip_resource_info_t *info,
         ogs_tlv_octet_t *octet)
 {
     int16_t size = 0;
 
-    ogs_assert(user_plane_ip_resource);
+    ogs_assert(info);
     ogs_assert(octet);
 
-    memset(user_plane_ip_resource, 0,
-            sizeof(ogs_pfcp_user_plane_ip_resource_t));
+    memset(info, 0, sizeof(ogs_pfcp_user_plane_ip_resource_info_t));
 
-    memcpy(&user_plane_ip_resource->flags,
-            (unsigned char *)octet->data + size,
-            sizeof(user_plane_ip_resource->flags));
+    memcpy(&info->flags,
+            (unsigned char *)octet->data + size, sizeof(info->flags));
     size++;
 
-    if (user_plane_ip_resource->teidri) {
-        ogs_assert(size + sizeof(user_plane_ip_resource->teid_range) <=
-                octet->len);
-        memcpy(&user_plane_ip_resource->teid_range,
-                (unsigned char *)octet->data + size,
-                sizeof(user_plane_ip_resource->teid_range));
-        size += sizeof(user_plane_ip_resource->teid_range);
+    if (info->teidri) {
+        ogs_assert(size + sizeof(info->teid_range) <= octet->len);
+        memcpy(&info->teid_range, (unsigned char *)octet->data + size,
+                sizeof(info->teid_range));
+        size += sizeof(info->teid_range);
     }
 
-    if (user_plane_ip_resource->v4) {
-        ogs_assert(size + sizeof(user_plane_ip_resource->addr) <= octet->len);
-        memcpy(&user_plane_ip_resource->addr,
+    if (info->v4) {
+        ogs_assert(size + sizeof(info->addr) <= octet->len);
+        memcpy(&info->addr,
                 (unsigned char *)octet->data + size,
-                sizeof(user_plane_ip_resource->addr));
-        size += sizeof(user_plane_ip_resource->addr);
+                sizeof(info->addr));
+        size += sizeof(info->addr);
     }
 
-    if (user_plane_ip_resource->v6) {
+    if (info->v6) {
         ogs_assert(size + OGS_IPV6_LEN <= octet->len);
-        memcpy(&user_plane_ip_resource->addr6,
-                (unsigned char *)octet->data + size, OGS_IPV6_LEN);
+        memcpy(&info->addr6, (unsigned char *)octet->data + size, OGS_IPV6_LEN);
         size += OGS_IPV6_LEN;
     }
 
-    if (user_plane_ip_resource->assoni) {
+    if (info->assoni) {
         int len = octet->len - size;
-        if (user_plane_ip_resource->assosi) len--;
+        if (info->assosi) len--;
 
-        ogs_fqdn_parse(user_plane_ip_resource->network_instance, 
-                (char *)octet->data + size, len);
+        ogs_fqdn_parse(info->network_instance, (char *)octet->data + size, len);
         size += len;
     }
 
-    if (user_plane_ip_resource->assosi) {
-        ogs_assert(size + sizeof(user_plane_ip_resource->source_interface) <=
+    if (info->assosi) {
+        ogs_assert(size + sizeof(info->source_interface) <=
                 octet->len);
-        memcpy(&user_plane_ip_resource->source_interface,
-                (unsigned char *)octet->data + size,
-                sizeof(user_plane_ip_resource->source_interface));
-        size += sizeof(user_plane_ip_resource->source_interface);
+        memcpy(&info->source_interface, (unsigned char *)octet->data + size,
+                sizeof(info->source_interface));
+        size += sizeof(info->source_interface);
     }
 
     ogs_assert(size == octet->len);
