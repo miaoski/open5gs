@@ -646,8 +646,6 @@ ogs_pfcp_user_plane_ip_resource_t *ogs_pfcp_user_plane_ip_resource_add(
         ogs_list_t *list, ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6)
 {
     ogs_pfcp_user_plane_ip_resource_t *node = NULL;
-    ogs_sockaddr_t *new = NULL;
-    ogs_sockaddr_t *new6 = NULL;
 
     ogs_assert(list);
     ogs_assert(addr || addr6);

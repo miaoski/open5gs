@@ -322,6 +322,7 @@ int upf_context_parse_config(void)
                                         &self.user_plane_ip_resource_list,
                                         node ? node->addr : NULL,
                                         node6 ? node6->addr : NULL);
+
                             if (teid_range_indication) {
                                 resource->teidri = atoi(teid_range_indication);
                                 if (teid_range) {

@@ -97,6 +97,13 @@ int16_t ogs_pfcp_build_user_plane_ip_resource(
             &target.flags, sizeof(target.flags));
     size += sizeof(target.flags);
 
+    if (target.teidri) {
+        ogs_assert(size + sizeof(target.teid_range) <= data_len);
+        memcpy((unsigned char *)octet->data + size,
+                &target.teid_range, sizeof(target.teid_range));
+        size += sizeof(target.teid_range);
+    }
+
     if (target.v4) {
         ogs_assert(size + sizeof(target.addr) <= data_len);
         memcpy((unsigned char *)octet->data + size,
@@ -109,13 +116,6 @@ int16_t ogs_pfcp_build_user_plane_ip_resource(
         memcpy((unsigned char *)octet->data + size,
                 &target.addr6, OGS_IPV6_LEN);
         size += OGS_IPV6_LEN;
-    }
-
-    if (target.teidri) {
-        ogs_assert(size + sizeof(target.teid_range) <= data_len);
-        memcpy((unsigned char *)octet->data + size,
-                &target.teid_range, sizeof(target.teid_range));
-        size += sizeof(target.teid_range);
     }
 
     if (target.assoni) {
@@ -152,6 +152,15 @@ int16_t ogs_pfcp_parse_user_plane_ip_resource(
     user_plane_ip_resource->flags = source->flags;
     size++;
 
+    if (user_plane_ip_resource->teidri) {
+        ogs_assert(size + sizeof(user_plane_ip_resource->teid_range) <=
+                octet->len);
+        memcpy(&user_plane_ip_resource->teid_range,
+                (unsigned char *)octet->data + size,
+                sizeof(user_plane_ip_resource->teid_range));
+        size += sizeof(user_plane_ip_resource->teid_range);
+    }
+
     if (user_plane_ip_resource->v4) {
         ogs_assert(size + sizeof(user_plane_ip_resource->addr) <= octet->len);
         memcpy(&user_plane_ip_resource->addr,
@@ -165,15 +174,6 @@ int16_t ogs_pfcp_parse_user_plane_ip_resource(
         memcpy(&user_plane_ip_resource->addr6,
                 (unsigned char *)octet->data + size, OGS_IPV6_LEN);
         size += OGS_IPV6_LEN;
-    }
-
-    if (user_plane_ip_resource->teidri) {
-        ogs_assert(size + sizeof(user_plane_ip_resource->teid_range) <=
-                octet->len);
-        memcpy(&user_plane_ip_resource->teid_range,
-                (unsigned char *)octet->data + size,
-                sizeof(user_plane_ip_resource->teid_range));
-        size += sizeof(user_plane_ip_resource->teid_range);
     }
 
     if (user_plane_ip_resource->assoni) {
