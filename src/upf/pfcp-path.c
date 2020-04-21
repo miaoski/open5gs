@@ -237,7 +237,7 @@ void upf_pfcp_send_session_establishment_response(ogs_pfcp_xact_t *xact,
 
     memset(&h, 0, sizeof(ogs_pfcp_header_t));
     h.type = OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE;
-    h.seid = 0;
+    h.seid = sess->pfcp.remote_n4_seid;
 
     n4buf = upf_n4_build_session_establishment_response(h.type, sess);
     ogs_expect_or_return(n4buf);

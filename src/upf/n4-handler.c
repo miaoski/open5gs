@@ -216,4 +216,6 @@ void upf_n4_handle_session_establishment_request(
                 OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE, cause_value);
         return;
     }
+
+    upf_pfcp_send_session_establishment_response(xact, sess);
 }

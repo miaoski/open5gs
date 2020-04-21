@@ -131,23 +131,35 @@ ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
     ogs_pfcp_session_establishment_response_t *rsp = NULL;
 
     ogs_pfcp_node_id_t node_id;
-    int node_id_len = 0;
+    ogs_pfcp_f_seid_t f_seid;
+    int len = 0;
 
     ogs_debug("[UPF] Session Establishment Response");
 
     rsp = &pfcp_message.pfcp_session_establishment_response;
     memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
 
+    /* Node ID */
     ogs_pfcp_sockaddr_to_node_id(
             ogs_pfcp_self()->pfcp_addr, ogs_pfcp_self()->pfcp_addr6,
             ogs_config()->parameter.prefer_ipv4,
-            &node_id, &node_id_len);
+            &node_id, &len);
     rsp->node_id.presence = 1;
     rsp->node_id.data = &node_id;
-    rsp->node_id.len = node_id_len;
+    rsp->node_id.len = len;
 
+    /* Cause */
     rsp->cause.presence = 1;
     rsp->cause.u8 = OGS_PFCP_CAUSE_REQUEST_ACCEPTED;
+
+    /* F-SEID */
+    ogs_pfcp_sockaddr_to_f_seid(
+            ogs_pfcp_self()->pfcp_addr, ogs_pfcp_self()->pfcp_addr6,
+            &f_seid, &len);
+    f_seid.seid = htobe64(sess->pfcp.local_n4_seid);
+    rsp->up_f_seid.presence = 1;
+    rsp->up_f_seid.data = &f_seid;
+    rsp->up_f_seid.len = len;
 
     pfcp_message.h.type = type;
     return ogs_pfcp_build_msg(&pfcp_message);
