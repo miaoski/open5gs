@@ -123,3 +123,32 @@ ogs_pkbuf_t *upf_n4_build_association_setup_response(uint8_t type,
     pfcp_message.h.type = type;
     return ogs_pfcp_build_msg(&pfcp_message);
 }
+
+ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
+        upf_sess_t *sess)
+{
+    ogs_pfcp_message_t pfcp_message;
+    ogs_pfcp_session_establishment_response_t *rsp = NULL;
+
+    ogs_pfcp_node_id_t node_id;
+    int node_id_len = 0;
+
+    ogs_debug("[UPF] Session Establishment Response");
+
+    rsp = &pfcp_message.pfcp_session_establishment_response;
+    memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
+
+    ogs_pfcp_sockaddr_to_node_id(
+            ogs_pfcp_self()->pfcp_addr, ogs_pfcp_self()->pfcp_addr6,
+            ogs_config()->parameter.prefer_ipv4,
+            &node_id, &node_id_len);
+    rsp->node_id.presence = 1;
+    rsp->node_id.data = &node_id;
+    rsp->node_id.len = node_id_len;
+
+    rsp->cause.presence = 1;
+    rsp->cause.u8 = OGS_PFCP_CAUSE_REQUEST_ACCEPTED;
+
+    pfcp_message.h.type = type;
+    return ogs_pfcp_build_msg(&pfcp_message);
+}

@@ -30,6 +30,9 @@ ogs_pkbuf_t *upf_n4_build_association_setup_request(uint8_t type);
 ogs_pkbuf_t *upf_n4_build_association_setup_response(uint8_t type,
         uint8_t cause);
 
+ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
+        upf_sess_t *sess);
+
 #ifdef __cplusplus
 }
 #endif
