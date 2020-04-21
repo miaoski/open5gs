@@ -158,6 +158,14 @@ void upf_n4_handle_session_establishment_request(
             ogs_pfcp_far_find_or_add(pdr, message->far_id.u32);
     }
 
+    if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
+        ogs_pfcp_sess_clear(&sess->pfcp);
+        ogs_pfcp_send_error_message(xact, sess ? sess->pfcp.remote_n4_seid : 0,
+                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
+                cause_value, offending_ie_value);
+        return;
+    }
+
     for (i = 0; i < OGS_MAX_NUM_OF_FAR; i++) {
         ogs_pfcp_tlv_create_far_t *message = &req->create_far[i];
         ogs_pfcp_far_t *far = NULL;
