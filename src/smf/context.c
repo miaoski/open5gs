@@ -848,20 +848,10 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
         else
             bearer->upf_s5u_teid = bearer->index;
     } else {
-        if (sess->pfcp.node->addr.ogs_sa_family == AF_INET)  {
-            bearer->upf_s5u_addr = ogs_calloc(1, sizeof(ogs_sockaddr_t));
-            ogs_assert(bearer->upf_s5u_addr);
-            bearer->upf_s5u_addr->sin.sin_addr.s_addr =
-                sess->pfcp.node->addr.sin.sin_addr.s_addr;
-            bearer->upf_s5u_addr->ogs_sa_family = AF_INET;
-        }
-        else if (sess->pfcp.node->addr.ogs_sa_family == AF_INET6) {
-            bearer->upf_s5u_addr6 = ogs_calloc(1, sizeof(ogs_sockaddr_t));
-            ogs_assert(bearer->upf_s5u_addr6);
-            memcpy(bearer->upf_s5u_addr6->sin6.sin6_addr.s6_addr,
-                sess->pfcp.node->addr.sin6.sin6_addr.s6_addr, OGS_IPV6_LEN);
-            bearer->upf_s5u_addr6->ogs_sa_family = AF_INET6;
-        }
+        if (sess->pfcp.node->addr.ogs_sa_family == AF_INET)
+            ogs_copyaddrinfo(&bearer->upf_s5u_addr, &sess->pfcp.node->addr);
+        else if (sess->pfcp.node->addr.ogs_sa_family == AF_INET6)
+            ogs_copyaddrinfo(&bearer->upf_s5u_addr6, &sess->pfcp.node->addr);
         else
             ogs_assert_if_reached();
         ogs_assert(bearer->upf_s5u_addr || bearer->upf_s5u_addr6);
@@ -886,9 +876,9 @@ int smf_bearer_remove(smf_bearer_t *bearer)
     if (bearer->name)
         ogs_free(bearer->name);
     if (bearer->upf_s5u_addr)
-        ogs_free(bearer->upf_s5u_addr);
+        ogs_freeaddrinfo(bearer->upf_s5u_addr);
     if (bearer->upf_s5u_addr6)
-        ogs_free(bearer->upf_s5u_addr6);
+        ogs_freeaddrinfo(bearer->upf_s5u_addr6);
 
     smf_pf_remove_all(bearer);
 
