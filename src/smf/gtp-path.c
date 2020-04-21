@@ -21,6 +21,7 @@
 
 #include "event.h"
 #include "gtp-path.h"
+#include "s5c-build.h"
 #include "ipfw.h"
 
 #define SMF_GTP_HANDLED     1
@@ -105,4 +106,28 @@ void smf_gtp_close(void)
 {
     ogs_socknode_remove_all(&smf_self()->gtpc_list);
     ogs_socknode_remove_all(&smf_self()->gtpc_list6);
+}
+
+void smf_gtp_send_create_session_response(
+        smf_sess_t *sess, ogs_gtp_xact_t *xact)
+{
+    int rv;
+    ogs_gtp_header_t h;
+    ogs_pkbuf_t *pkbuf = NULL;
+
+    ogs_assert(sess);
+    ogs_assert(xact);
+
+    memset(&h, 0, sizeof(ogs_gtp_header_t));
+    h.type = OGS_GTP_CREATE_SESSION_RESPONSE_TYPE;
+    h.teid = sess->sgw_s5c_teid;
+
+    pkbuf = smf_s5c_build_create_session_response(h.type, sess);
+    ogs_expect_or_return(pkbuf);
+
+    rv = ogs_gtp_xact_update_tx(xact, &h, pkbuf);
+    ogs_expect_or_return(rv == OGS_OK);
+
+    rv = ogs_gtp_xact_commit(xact);
+    ogs_expect(rv == OGS_OK);
 }

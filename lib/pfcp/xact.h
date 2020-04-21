@@ -59,6 +59,8 @@ typedef struct ogs_pfcp_xact_s {
     uint8_t         response_rcount;
     ogs_timer_t     *tm_holding;    /**< Timer waiting for holding message */
     uint8_t         holding_rcount;
+
+    void            *assoc_xact;    /**< Associated GTP transaction */
 } ogs_pfcp_xact_t;
 
 int ogs_pfcp_xact_init(ogs_timer_mgr_t *timer_mgr, int size);

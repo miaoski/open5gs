@@ -176,7 +176,7 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
         } else if (pdr->src_if == OGS_PFCP_INTERFACE_ACCESS &&
                     far->dst_if == OGS_PFCP_INTERFACE_CORE) { /* Uplink */
             ogs_pfcp_sockaddr_to_f_teid(
-                    bearer->upf_s5u_addr, bearer->upf_s5u_addr6,
+                    bearer->gtpu_addr, bearer->gtpu_addr6,
                     &f_teid[i], &len);
             f_teid[i].teid = htobe32(bearer->upf_s5u_teid);
 

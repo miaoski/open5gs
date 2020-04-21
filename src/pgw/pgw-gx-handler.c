@@ -85,7 +85,6 @@ void pgw_gx_handle_cca_initial_request(
         return;
     }
 
-    /* Send Create Session Request with Creating Default Bearer */
     memset(&h, 0, sizeof(ogs_gtp_header_t));
     h.type = OGS_GTP_CREATE_SESSION_RESPONSE_TYPE;
     h.teid = sess->sgw_s5c_teid;

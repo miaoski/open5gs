@@ -63,15 +63,11 @@ static uint8_t gtp_cause_from_diameter(
 
 void smf_gx_handle_cca_initial_request(
         smf_sess_t *sess, ogs_diam_gx_message_t *gx_message,
-        ogs_gtp_xact_t *xact)
+        ogs_gtp_xact_t *gtp_xact)
 {
-    int rv;
-    ogs_gtp_header_t h;
-    ogs_pkbuf_t *pkbuf = NULL;
-
     ogs_assert(sess);
     ogs_assert(gx_message);
-    ogs_assert(xact);
+    ogs_assert(gtp_xact);
 
     ogs_debug("[PGW] Create Session Response");
     ogs_debug("    SGW_S5C_TEID[0x%x] PGW_S5C_TEID[0x%x]",
@@ -81,42 +77,24 @@ void smf_gx_handle_cca_initial_request(
         uint8_t cause_value = gtp_cause_from_diameter(
             gx_message->err, gx_message->exp_err);
 
-        ogs_gtp_send_error_message(xact, sess ? sess->sgw_s5c_teid : 0,
+        ogs_gtp_send_error_message(gtp_xact, sess ? sess->sgw_s5c_teid : 0,
                 OGS_GTP_CREATE_SESSION_RESPONSE_TYPE, cause_value);
         return;
     }
 
-    smf_pfcp_send_session_establishment_request(sess);
-#if 0
-    /* Send Create Session Request with Creating Default Bearer */
-    memset(&h, 0, sizeof(ogs_gtp_header_t));
-    h.type = OGS_GTP_CREATE_SESSION_RESPONSE_TYPE;
-    h.teid = sess->sgw_s5c_teid;
-
-    pkbuf = smf_s5c_build_create_session_response(
-            h.type, sess, gx_message);
-    ogs_expect_or_return(pkbuf);
-
-    rv = ogs_gtp_xact_update_tx(xact, &h, pkbuf);
-    ogs_expect_or_return(rv == OGS_OK);
-
-    rv = ogs_gtp_xact_commit(xact);
-    ogs_expect(rv == OGS_OK);
-
-    bearer_binding(sess, gx_message);
-#endif
+    smf_pfcp_send_session_establishment_request(sess, gtp_xact);
 }
 
 void smf_gx_handle_cca_termination_request(
         smf_sess_t *sess, ogs_diam_gx_message_t *gx_message,
-        ogs_gtp_xact_t *xact)
+        ogs_gtp_xact_t *gtp_xact)
 {
     int rv;
     ogs_gtp_header_t h;
     ogs_pkbuf_t *pkbuf = NULL;
     uint32_t sgw_s5c_teid;
 
-    ogs_assert(xact);
+    ogs_assert(gtp_xact);
     ogs_assert(sess);
     ogs_assert(gx_message);
 
@@ -135,7 +113,7 @@ void smf_gx_handle_cca_termination_request(
         uint8_t cause_value = gtp_cause_from_diameter(
             gx_message->err, gx_message->exp_err);
 
-        ogs_gtp_send_error_message(xact, sgw_s5c_teid,
+        ogs_gtp_send_error_message(gtp_xact, sgw_s5c_teid,
                 OGS_GTP_DELETE_SESSION_RESPONSE_TYPE, cause_value);
         return;
     }

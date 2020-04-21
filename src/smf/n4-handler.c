@@ -20,6 +20,7 @@
 #include "context.h"
 #include "timer.h"
 #include "pfcp-path.h"
+#include "gtp-path.h"
 #include "n4-handler.h"
 
 void smf_n4_handle_association_setup_request(
@@ -100,7 +101,18 @@ void smf_n4_handle_session_establishment_response(
         smf_sess_t *sess, ogs_pfcp_xact_t *xact,
         ogs_pfcp_session_establishment_response_t *rsp)
 {
+    ogs_gtp_xact_t *gtp_xact = NULL;
+
     ogs_assert(xact);
 
+    gtp_xact = xact->assoc_xact;
+    ogs_assert(gtp_xact);
+
     ogs_pfcp_xact_commit(xact);
+
+    smf_gtp_send_create_session_response(sess, gtp_xact);
+
+#if 0
+    bearer_binding(sess, gx_message);
+#endif
 }
