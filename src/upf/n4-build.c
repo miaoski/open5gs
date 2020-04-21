@@ -130,6 +130,9 @@ ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_establishment_response_t *rsp = NULL;
 
+    ogs_pfcp_pdr_t *pdr = NULL;
+    int i = 0;
+
     ogs_pfcp_node_id_t node_id;
     ogs_pfcp_f_seid_t f_seid;
     int len = 0;
@@ -160,6 +163,18 @@ ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
     rsp->up_f_seid.presence = 1;
     rsp->up_f_seid.data = &f_seid;
     rsp->up_f_seid.len = len;
+
+    /* Created PDR */
+    i = 0;
+    ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
+        ogs_pfcp_tlv_created_pdr_t *message = &rsp->created_pdr[i];
+        ogs_assert(message);
+
+        message->presence = 1;
+        message->pdr_id.presence = 1;
+        message->pdr_id.u16 = pdr->id;
+        i++;
+    }
 
     pfcp_message.h.type = type;
     return ogs_pfcp_build_msg(&pfcp_message);

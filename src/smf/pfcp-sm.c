@@ -230,6 +230,8 @@ void smf_pfcp_state_associated(ogs_fsm_t *s, smf_event_t *e)
         case OGS_PFCP_SESSION_ESTABLISHMENT_REQUEST_TYPE:
             break;
         case OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE:
+            smf_n4_handle_session_establishment_response(
+                    sess, xact, &message->pfcp_session_establishment_response);
             break;
         case OGS_PFCP_SESSION_MODIFICATION_REQUEST_TYPE:
             break;

@@ -91,3 +91,13 @@ void smf_n4_handle_heartbeat_response(
     ogs_timer_start(node->t_heartbeat,
             smf_timer_cfg(SMF_TIMER_HEARTBEAT)->duration);
 }
+
+void smf_n4_handle_session_establishment_response(
+        smf_sess_t *sess, ogs_pfcp_xact_t *xact,
+        ogs_pfcp_session_establishment_response_t *rsp)
+{
+    int rv;
+
+    rv = ogs_pfcp_xact_commit(xact);
+    ogs_expect(rv == OGS_OK);
+}
