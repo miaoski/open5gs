@@ -327,7 +327,7 @@ static void bearer_binding(pgw_sess_t *sess, ogs_diam_gx_message_t *gx_message)
                     /* Update QoS parameter */
                     memcpy(&bearer->qos, &pcc_rule->qos, sizeof(ogs_qos_t));
 
-                    /* Update Bearer Request will encode updated QoS parameter */
+                    /* Update Bearer Request encodes updated QoS parameter */
                     qos_presence = 1;
                 }
 
