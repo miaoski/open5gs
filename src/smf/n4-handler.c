@@ -188,10 +188,6 @@ void smf_n4_handle_session_establishment_response(
     sess->pfcp.remote_n4_seid = be64toh(up_f_seid->seid);
 
     smf_gtp_send_create_session_response(sess, gtp_xact);
-
-#if 0
-    bearer_binding(sess, gx_message);
-#endif
 }
 
 void smf_n4_handle_session_deletion_response(

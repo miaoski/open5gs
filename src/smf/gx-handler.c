@@ -82,6 +82,8 @@ void smf_gx_handle_cca_initial_request(
         return;
     }
 
+    bearer_binding(sess, gx_message);
+
     smf_pfcp_send_session_establishment_request(sess, gtp_xact);
 }
 
