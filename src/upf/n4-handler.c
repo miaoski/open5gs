@@ -109,7 +109,6 @@ void upf_n4_handle_session_establishment_request(
             break;
         }
 
-        ff
         if (message->pdi.source_interface.presence == 0) {
             ogs_warn("No Source Interface in PDI");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
