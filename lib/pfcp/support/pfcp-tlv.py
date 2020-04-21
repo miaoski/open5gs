@@ -144,7 +144,7 @@ def get_cells(cells):
         ie_value = ie_value[:len(ie_value)-1]
 
     tlv_more = "0"  # PFCP has no tlv_more
-    if ie_type == 'Create PDR' or ie_type == 'Update PDR' or ie_type == "Remove PDR":
+    if ie_type == 'Create PDR' or ie_type == 'Created PDR' or ie_type == 'Update PDR' or ie_type == "Remove PDR":
         tlv_more = "3"
     if ie_type == 'Create FAR' or ie_type == 'Update FAR' or ie_type == "Remove FAR":
         tlv_more = "3"

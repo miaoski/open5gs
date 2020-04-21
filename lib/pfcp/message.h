@@ -20,7 +20,7 @@
 /*******************************************************************************
  * This file had been created by pfcp-tlv.py script v0.1.0
  * Please do not modify this file but regenerate it via script.
- * Created on: 2020-04-21 11:05:21.180044 by acetcom
+ * Created on: 2020-04-21 12:04:25.169177 by acetcom
  * from 29244-g10.docx
  ******************************************************************************/
 
@@ -1206,7 +1206,7 @@ typedef struct ogs_pfcp_session_establishment_response_s {
     ogs_pfcp_tlv_cause_t cause;
     ogs_pfcp_tlv_offending_ie_t offending_ie;
     ogs_pfcp_tlv_f_seid_t up_f_seid;
-    ogs_pfcp_tlv_created_pdr_t created_pdr;
+    ogs_pfcp_tlv_created_pdr_t created_pdr[4];
     ogs_pfcp_tlv_load_control_information_t load_control_information;
     ogs_pfcp_tlv_overload_control_information_t overload_control_information;
     ogs_pfcp_tlv_fq_csid_t sgw_u_fq_csid;
@@ -1254,7 +1254,7 @@ typedef struct ogs_pfcp_session_modification_request_s {
 typedef struct ogs_pfcp_session_modification_response_s {
     ogs_pfcp_tlv_cause_t cause;
     ogs_pfcp_tlv_offending_ie_t offending_ie;
-    ogs_pfcp_tlv_created_pdr_t created_pdr;
+    ogs_pfcp_tlv_created_pdr_t created_pdr[4];
     ogs_pfcp_tlv_load_control_information_t load_control_information;
     ogs_pfcp_tlv_overload_control_information_t overload_control_information;
     ogs_pfcp_tlv_usage_report_session_modification_response_t usage_report;

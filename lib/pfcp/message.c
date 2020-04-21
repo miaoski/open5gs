@@ -20,7 +20,7 @@
 /*******************************************************************************
  * This file had been created by pfcp-tlv.py script v0.1.0
  * Please do not modify this file but regenerate it via script.
- * Created on: 2020-04-21 11:05:21.189289 by acetcom
+ * Created on: 2020-04-21 12:04:25.178414 by acetcom
  * from 29244-g10.docx
  ******************************************************************************/
 
@@ -2604,6 +2604,7 @@ ogs_tlv_desc_t ogs_pfcp_msg_desc_pfcp_session_establishment_response =
         &ogs_pfcp_tlv_desc_offending_ie,
         &ogs_pfcp_tlv_desc_f_seid,
         &ogs_pfcp_tlv_desc_created_pdr,
+        &ogs_tlv_desc_more4,
         &ogs_pfcp_tlv_desc_load_control_information,
         &ogs_pfcp_tlv_desc_overload_control_information,
         &ogs_pfcp_tlv_desc_fq_csid,
@@ -2674,6 +2675,7 @@ ogs_tlv_desc_t ogs_pfcp_msg_desc_pfcp_session_modification_response =
         &ogs_pfcp_tlv_desc_cause,
         &ogs_pfcp_tlv_desc_offending_ie,
         &ogs_pfcp_tlv_desc_created_pdr,
+        &ogs_tlv_desc_more4,
         &ogs_pfcp_tlv_desc_load_control_information,
         &ogs_pfcp_tlv_desc_overload_control_information,
         &ogs_pfcp_tlv_desc_usage_report_session_modification_response,
