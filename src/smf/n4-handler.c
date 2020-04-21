@@ -57,6 +57,8 @@ void smf_n4_handle_association_setup_response(
     int i;
 
     ogs_assert(xact);
+    ogs_pfcp_xact_commit(xact);
+
     ogs_assert(node);
     ogs_assert(rsp);
 
@@ -88,6 +90,8 @@ void smf_n4_handle_heartbeat_response(
         ogs_pfcp_heartbeat_response_t *rsp)
 {
     ogs_assert(xact);
+    ogs_pfcp_xact_commit(xact);
+
     ogs_timer_start(node->t_heartbeat,
             smf_timer_cfg(SMF_TIMER_HEARTBEAT)->duration);
 }
@@ -96,8 +100,7 @@ void smf_n4_handle_session_establishment_response(
         smf_sess_t *sess, ogs_pfcp_xact_t *xact,
         ogs_pfcp_session_establishment_response_t *rsp)
 {
-    int rv;
+    ogs_assert(xact);
 
-    rv = ogs_pfcp_xact_commit(xact);
-    ogs_expect(rv == OGS_OK);
+    ogs_pfcp_xact_commit(xact);
 }

@@ -36,6 +36,7 @@ void upf_n4_handle_association_setup_response(
         ogs_pfcp_association_setup_response_t *rsp)
 {
     ogs_assert(xact);
+    ogs_pfcp_xact_commit(xact);
 }
 
 void upf_n4_handle_heartbeat_request(
@@ -51,6 +52,8 @@ void upf_n4_handle_heartbeat_response(
         ogs_pfcp_heartbeat_response_t *rsp)
 {
     ogs_assert(xact);
+    ogs_pfcp_xact_commit(xact);
+
     ogs_timer_start(node->t_heartbeat,
             upf_timer_cfg(UPF_TIMER_HEARTBEAT)->duration);
 }
