@@ -677,9 +677,7 @@ ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_find(ogs_list_t *list,
         }
 
         if (resource->info.assosi &&
-            resource->info.source_interface >= OGS_PFCP_INTERFACE_ACCESS &&
             resource->info.source_interface <= OGS_PFCP_INTERFACE_LI_FUNCTION &&
-            source_interface >= OGS_PFCP_INTERFACE_ACCESS &&
             source_interface <= OGS_PFCP_INTERFACE_LI_FUNCTION &&
             source_interface != resource->info.source_interface) {
             match = false;
