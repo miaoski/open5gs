@@ -123,6 +123,14 @@ typedef struct smf_bearer_s {
 
     uint8_t         ebi;
 
+    /* 
+     * UPF-S5U-TEID     = INDEX         | TEID_RANGE 
+     * INDEX            = UPF-S5U-TEID  & ~TEID_RANGE
+     */
+#define UPF_S5U_TEID_TO_INDEX(__tEID, __iND, __rANGE) \
+    (__tEID & ~(__rANGE << (32 - __iND)))
+#define UPF_S5U_INDEX_TO_TEID(__iNDEX, __iND, __rANGE) \
+    (__iNDEX | (__rANGE << (32 - __iND)))
     uint32_t        upf_s5u_teid;   /* UPF_S5U can be allocated by SMF or UPF */
     uint32_t        sgw_s5u_teid;   /* SGW_S5U is allocated by SGW */
 

@@ -644,19 +644,51 @@ void ogs_pfcp_node_remove_all(ogs_list_t *list)
 ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_add(ogs_list_t *list,
         ogs_pfcp_user_plane_ip_resource_info_t *info)
 {
-    ogs_pfcp_gtpu_resource_t *new = NULL;
+    ogs_pfcp_gtpu_resource_t *resource = NULL;
 
     ogs_assert(list);
     ogs_assert(info);
 
-    ogs_pool_alloc(&ogs_pfcp_gtpu_resource_pool, &new);
-    ogs_assert(new);
+    ogs_pool_alloc(&ogs_pfcp_gtpu_resource_pool, &resource);
+    ogs_assert(resource);
 
-    memcpy(&new->info, info, sizeof(*info));
+    memcpy(&resource->info, info, sizeof(*info));
 
-    ogs_list_add(list, new);
+    ogs_list_add(list, resource);
 
-    return new;
+    return resource;
+}
+
+ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_find(ogs_list_t *list,
+        char *apn, ogs_pfcp_interface_t source_interface)
+{
+    ogs_pfcp_gtpu_resource_t *resource = NULL;
+
+    ogs_assert(list);
+
+    ogs_list_for_each(list, resource) {
+        bool match = true;
+
+        if (resource->info.assoni &&
+            strlen(resource->info.network_instance) &&
+            apn && strlen(apn) &&
+            strcmp(apn, resource->info.network_instance) != 0) {
+            match = false;
+        }
+
+        if (resource->info.assosi &&
+            resource->info.source_interface >= OGS_PFCP_INTERFACE_ACCESS &&
+            resource->info.source_interface <= OGS_PFCP_INTERFACE_LI_FUNCTION &&
+            source_interface >= OGS_PFCP_INTERFACE_ACCESS &&
+            source_interface <= OGS_PFCP_INTERFACE_LI_FUNCTION &&
+            source_interface != resource->info.source_interface) {
+            match = false;
+        }
+
+        if (match == true) return resource;
+    }
+
+    return NULL;
 }
 
 void ogs_pfcp_gtpu_resource_remove(ogs_list_t *list,

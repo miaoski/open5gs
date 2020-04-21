@@ -93,6 +93,7 @@ typedef uint32_t ogs_pfcp_precedence_t;
 #define OGS_PFCP_INTERFACE_SGI_N6_LAN                       2
 #define OGS_PFCP_INTERFACE_CP_FUNCTION                      3
 #define OGS_PFCP_INTERFACE_LI_FUNCTION                      4
+#define OGS_PFCP_INTERFACE_UNKNOWN                          0xff
 typedef uint8_t  ogs_pfcp_interface_t;
 
 /* 
@@ -407,7 +408,7 @@ ED6(uint8_t     spare:1;,
     uint32_t    addr;
     uint8_t     addr6[OGS_IPV6_LEN];
     char        network_instance[OGS_MAX_APN_LEN];
-    uint8_t     source_interface;
+    ogs_pfcp_interface_t source_interface;
 } __attribute__ ((packed)) ogs_pfcp_user_plane_ip_resource_info_t;
 
 int16_t ogs_pfcp_build_user_plane_ip_resource_info(

@@ -833,8 +833,6 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 
     ogs_list_init(&bearer->pf_list);
 
-    bearer->upf_s5u_teid = bearer->index;
-    
     bearer->sess = sess;
 
     ogs_list_add(&sess->bearer_list, bearer);

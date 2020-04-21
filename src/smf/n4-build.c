@@ -175,9 +175,26 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
 
         } else if (pdr->src_if == OGS_PFCP_INTERFACE_ACCESS &&
                     far->dst_if == OGS_PFCP_INTERFACE_CORE) { /* Uplink */
-            ogs_pfcp_sockaddr_to_f_teid(
-                    &sess->pfcp.node->addr, NULL,
-                    &f_teid[i], &len);
+            ogs_pfcp_gtpu_resource_t *resource = NULL;
+
+            resource = ogs_pfcp_gtpu_resource_find(
+                    &sess->pfcp.node->gtpu_resource_list,
+                    sess->pdn.apn, OGS_PFCP_INTERFACE_ACCESS);
+            if (resource) {
+                ogs_pfcp_user_plane_ip_resource_info_to_f_teid(
+                    &resource->info, &f_teid[i], &len);
+                if (resource->info.teidri)
+                    bearer->upf_s5u_teid = UPF_S5U_INDEX_TO_TEID(
+                            bearer->index, resource->info.teidri,
+                            resource->info.teid_range);
+                else
+                    bearer->upf_s5u_teid = bearer->index;
+            } else {
+                ogs_pfcp_sockaddr_to_f_teid(
+                        &sess->pfcp.node->addr, NULL,
+                        &f_teid[i], &len);
+                bearer->upf_s5u_teid = bearer->index;
+            }
             f_teid[i].teid = htobe32(bearer->upf_s5u_teid);
 
             message->pdi.local_f_teid.presence = 1;

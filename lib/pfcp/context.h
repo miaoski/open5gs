@@ -227,6 +227,8 @@ void ogs_pfcp_node_remove_all(ogs_list_t *list);
 
 ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_add(ogs_list_t *list,
         ogs_pfcp_user_plane_ip_resource_info_t *info);
+ogs_pfcp_gtpu_resource_t *ogs_pfcp_gtpu_resource_find(ogs_list_t *list,
+        char *apn, ogs_pfcp_interface_t source_interface);
 void ogs_pfcp_gtpu_resource_remove(ogs_list_t *list,
         ogs_pfcp_gtpu_resource_t *resource);
 void ogs_pfcp_gtpu_resource_remove_all(ogs_list_t *list);

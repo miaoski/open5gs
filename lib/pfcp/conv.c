@@ -249,6 +249,38 @@ int ogs_pfcp_sockaddr_to_user_plane_ip_resource_info(
     return OGS_OK;
 }
 
+int ogs_pfcp_user_plane_ip_resource_info_to_f_teid(
+    ogs_pfcp_user_plane_ip_resource_info_t *info,
+    ogs_pfcp_f_teid_t *f_teid, int *len)
+{
+    const int hdr_len = 5;
+
+    ogs_assert(info);
+    ogs_assert(f_teid);
+    memset(f_teid, 0, sizeof *f_teid);
+
+    if (info->v4 && info->v6) {
+        f_teid->ipv4 = 1;
+        f_teid->both.addr = info->addr;
+        f_teid->ipv6 = 1;
+        memcpy(f_teid->both.addr6, info->addr6, OGS_IPV6_LEN);
+        *len = OGS_IPV4V6_LEN + hdr_len;
+    } else if (info->v4) {
+        f_teid->ipv4 = 1;
+        f_teid->ipv6 = 0;
+        f_teid->addr = info->addr;
+        *len = OGS_IPV4_LEN + hdr_len;
+    } else if (info->v6) {
+        f_teid->ipv4 = 0;
+        f_teid->ipv6 = 1;
+        memcpy(f_teid->addr6, info->addr6, OGS_IPV6_LEN);
+        *len = OGS_IPV6_LEN + hdr_len;
+    } else
+        ogs_assert_if_reached();
+
+    return OGS_OK;
+}
+
 int ogs_pfcp_paa_to_ue_ip_addr(
     ogs_paa_t *paa, ogs_pfcp_ue_ip_addr_t *addr, int *len)
 {
