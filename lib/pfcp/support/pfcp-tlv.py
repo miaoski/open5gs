@@ -408,6 +408,7 @@ type_list["Gate Status"]["size"] = 1                        # Type 25
 type_list["QER Correlation ID"]["size"] = 4                 # Type 28
 type_list["Precedence"]["size"] = 4                         # Type 29
 type_list["Reporting Triggers"]["size"] = 1                 # Type 37
+type_list["Offending IE"]["size"] = 2                       # Type 40
 type_list["Destination Interface"]["size"] = 1              # Type 42
 type_list["UP Function Features"]["size"] = 2               # Type 43
 type_list["Apply Action"]["size"] = 1                       # Type 44

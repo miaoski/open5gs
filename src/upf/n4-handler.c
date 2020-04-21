@@ -60,6 +60,7 @@ void upf_n4_handle_session_establishment_request(
         ogs_pfcp_session_establishment_request_t *req)
 {
     uint8_t cause_value = 0;
+    uint8_t offending_ie_value = 0;
     int i;
 
     ogs_assert(xact);
@@ -73,7 +74,7 @@ void upf_n4_handle_session_establishment_request(
         ogs_warn("No Context");
         ogs_pfcp_send_error_message(xact, 0,
                 OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
-                OGS_PFCP_CAUSE_SESSION_CONTEXT_NOT_FOUND);
+                OGS_PFCP_CAUSE_SESSION_CONTEXT_NOT_FOUND, 0);
         return;
     }
 
@@ -87,6 +88,7 @@ void upf_n4_handle_session_establishment_request(
         if (message->pdr_id.presence == 0) {
             ogs_warn("No PDR-ID");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+            offending_ie_value = OGS_PFCP_PDR_ID_TYPE;
             break;
         }
 
@@ -96,18 +98,22 @@ void upf_n4_handle_session_establishment_request(
         if (message->precedence.presence == 0) {
             ogs_warn("No Presence in PDR");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+            offending_ie_value = OGS_PFCP_PRECEDENCE_TYPE;
             break;
         }
 
         if (message->pdi.presence == 0) {
             ogs_warn("No PDI in PDR");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+            offending_ie_value = OGS_PFCP_PDI_TYPE;
             break;
         }
 
+        ff
         if (message->pdi.source_interface.presence == 0) {
             ogs_warn("No Source Interface in PDI");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+            offending_ie_value = OGS_PFCP_SOURCE_INTERFACE_TYPE;
             break;
         }
 
@@ -125,12 +131,14 @@ void upf_n4_handle_session_establishment_request(
             if (message->pdi.local_f_teid.presence == 0) {
                 ogs_warn("No F-TEID in PDI");
                 cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+                offending_ie_value = OGS_PFCP_F_TEID_TYPE;
                 break;
             }
 
             if (message->outer_header_removal.presence == 0) {
                 ogs_warn("No Outer Header Removal in PDI");
                 cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+                offending_ie_value = OGS_PFCP_OUTER_HEADER_REMOVAL_TYPE;
                 break;
             }
 
@@ -143,6 +151,7 @@ void upf_n4_handle_session_establishment_request(
         } else {
             ogs_error("Invalid Source Interface[%d] in PDR", pdr->src_if);
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
+            offending_ie_value = OGS_PFCP_SOURCE_INTERFACE_TYPE;
             break;
         }
 
@@ -160,6 +169,7 @@ void upf_n4_handle_session_establishment_request(
         if (message->far_id.presence == 0) {
             ogs_warn("No FAR-ID");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+            offending_ie_value = OGS_PFCP_FAR_ID_TYPE;
             break;
         }
 
@@ -167,18 +177,21 @@ void upf_n4_handle_session_establishment_request(
         if (!far) {
             ogs_error("Cannot find FAR-ID[%d] in PDR", message->far_id.u32);
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
+            offending_ie_value = OGS_PFCP_FAR_ID_TYPE;
             break;
         }
 
         if (message->apply_action.presence == 0) {
             ogs_warn("No Apply Action");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+            offending_ie_value = OGS_PFCP_APPLY_ACTION_TYPE;
             break;
         }
         if (message->forwarding_parameters.
                 destination_interface.presence == 0) {
             ogs_warn("No Destination Interface");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+            offending_ie_value = OGS_PFCP_DESTINATION_INTERFACE_TYPE;
             break;
         }
 
@@ -190,6 +203,7 @@ void upf_n4_handle_session_establishment_request(
                     outer_header_creation.presence == 0) {
                 ogs_warn("No Outer Header Creation in PDI");
                 cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+                offending_ie_value = OGS_PFCP_OUTER_HEADER_CREATION_TYPE;
                 break;
             }
 
@@ -206,6 +220,7 @@ void upf_n4_handle_session_establishment_request(
         } else {
             ogs_error("Invalid Destination Interface[%d] in FAR", far->dst_if);
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
+            offending_ie_value = OGS_PFCP_DESTINATION_INTERFACE_TYPE;
             break;
         }
     }
@@ -213,7 +228,8 @@ void upf_n4_handle_session_establishment_request(
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_sess_clear(&sess->pfcp);
         ogs_pfcp_send_error_message(xact, sess ? sess->pfcp.remote_n4_seid : 0,
-                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE, cause_value);
+                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
+                cause_value, offending_ie_value);
         return;
     }
 

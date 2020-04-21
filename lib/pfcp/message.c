@@ -20,7 +20,7 @@
 /*******************************************************************************
  * This file had been created by pfcp-tlv.py script v0.1.0
  * Please do not modify this file but regenerate it via script.
- * Created on: 2020-02-19 11:01:37.524415 by acetcom
+ * Created on: 2020-04-21 11:05:21.189289 by acetcom
  * from 29244-g10.docx
  ******************************************************************************/
 
@@ -259,10 +259,10 @@ ogs_tlv_desc_t ogs_pfcp_tlv_desc_report_type =
 
 ogs_tlv_desc_t ogs_pfcp_tlv_desc_offending_ie =
 {
-    OGS_TLV_VAR_STR,
+    OGS_TLV_UINT16,
     "Offending IE",
     OGS_PFCP_OFFENDING_IE_TYPE,
-    0,
+    2,
     0,
     sizeof(ogs_pfcp_tlv_offending_ie_t),
     { NULL }

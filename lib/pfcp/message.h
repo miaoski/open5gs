@@ -20,7 +20,7 @@
 /*******************************************************************************
  * This file had been created by pfcp-tlv.py script v0.1.0
  * Please do not modify this file but regenerate it via script.
- * Created on: 2020-02-19 11:01:37.501258 by acetcom
+ * Created on: 2020-04-21 11:05:21.180044 by acetcom
  * from 29244-g10.docx
  ******************************************************************************/
 
@@ -502,7 +502,7 @@ typedef ogs_tlv_octet_t ogs_pfcp_tlv_inactivity_detection_time_t;
 typedef ogs_tlv_uint8_t ogs_pfcp_tlv_reporting_triggers_t;
 typedef ogs_tlv_octet_t ogs_pfcp_tlv_redirect_information_t;
 typedef ogs_tlv_octet_t ogs_pfcp_tlv_report_type_t;
-typedef ogs_tlv_octet_t ogs_pfcp_tlv_offending_ie_t;
+typedef ogs_tlv_uint16_t ogs_pfcp_tlv_offending_ie_t;
 typedef ogs_tlv_octet_t ogs_pfcp_tlv_forwarding_policy_t;
 typedef ogs_tlv_uint8_t ogs_pfcp_tlv_destination_interface_t;
 typedef ogs_tlv_uint16_t ogs_pfcp_tlv_up_function_features_t;

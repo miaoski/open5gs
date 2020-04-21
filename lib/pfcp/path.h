@@ -42,7 +42,8 @@ ogs_pkbuf_t *ogs_pfcp_handle_echo_req(ogs_pkbuf_t *pkt);
 void ogs_pfcp_send_heartbeat_response(ogs_pfcp_xact_t *xact);
 
 void ogs_pfcp_send_error_message(
-    ogs_pfcp_xact_t *xact, uint64_t seid, uint8_t type, uint8_t cause_value);
+    ogs_pfcp_xact_t *xact, uint64_t seid, uint8_t type,
+    uint8_t cause_value, uint16_t offending_ie_value);
 
 #ifdef __cplusplus
 }

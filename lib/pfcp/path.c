@@ -141,11 +141,13 @@ void ogs_pfcp_send_heartbeat_response(ogs_pfcp_xact_t *xact)
 }
 
 void ogs_pfcp_send_error_message(
-    ogs_pfcp_xact_t *xact, uint64_t seid, uint8_t type, uint8_t cause_value)
+    ogs_pfcp_xact_t *xact, uint64_t seid, uint8_t type,
+    uint8_t cause_value, uint16_t offending_ie_value)
 {
     int rv;
     ogs_pfcp_message_t errmsg;
-    ogs_pfcp_tlv_cause_t *tlv = NULL;
+    ogs_pfcp_tlv_cause_t *cause = NULL;
+    ogs_pfcp_tlv_offending_ie_t *offending_ie = NULL;
     ogs_pkbuf_t *pkbuf = NULL;
 
     ogs_assert(xact);
@@ -156,44 +158,56 @@ void ogs_pfcp_send_error_message(
 
     switch (type) {
     case OGS_PFCP_PFD_MANAGEMENT_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_pfd_management_response.cause;
+        cause = &errmsg.pfcp_pfd_management_response.cause;
+        offending_ie = &errmsg.pfcp_pfd_management_response.offending_ie;
         break;
     case OGS_PFCP_ASSOCIATION_SETUP_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_association_setup_response.cause;
+        cause = &errmsg.pfcp_association_setup_response.cause;
         break;
     case OGS_PFCP_ASSOCIATION_UPDATE_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_association_update_response.cause;
+        cause = &errmsg.pfcp_association_update_response.cause;
         break;
     case OGS_PFCP_ASSOCIATION_RELEASE_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_association_release_response.cause;
+        cause = &errmsg.pfcp_association_release_response.cause;
         break;
     case OGS_PFCP_NODE_REPORT_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_node_report_response.cause;
+        cause = &errmsg.pfcp_node_report_response.cause;
+        offending_ie = &errmsg.pfcp_node_report_response.offending_ie;
         break;
     case OGS_PFCP_SESSION_SET_DELETION_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_session_set_deletion_response.cause;
+        cause = &errmsg.pfcp_session_set_deletion_response.cause;
+        offending_ie = &errmsg.pfcp_session_set_deletion_response.offending_ie;
         break;
     case OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_session_establishment_response.cause;
+        cause = &errmsg.pfcp_session_establishment_response.cause;
+        offending_ie = &errmsg.pfcp_session_establishment_response.offending_ie;
         break;
     case OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_session_modification_response.cause;
+        cause = &errmsg.pfcp_session_modification_response.cause;
+        offending_ie = &errmsg.pfcp_session_modification_response.offending_ie;
         break;
     case OGS_PFCP_SESSION_DELETION_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_session_deletion_response.cause;
+        cause = &errmsg.pfcp_session_deletion_response.cause;
+        offending_ie = &errmsg.pfcp_session_deletion_response.offending_ie;
         break;
     case OGS_PFCP_SESSION_REPORT_RESPONSE_TYPE:
-        tlv = &errmsg.pfcp_session_report_response.cause;
+        cause = &errmsg.pfcp_session_report_response.cause;
+        offending_ie = &errmsg.pfcp_session_report_response.offending_ie;
         break;
     default:
         ogs_assert_if_reached();
         return;
     }
 
-    ogs_assert(tlv);
+    ogs_assert(cause);
 
-    tlv->presence = 1;
-    tlv->u8 = cause_value;
+    cause->presence = 1;
+    cause->u8 = cause_value;
+
+    if (offending_ie && offending_ie_value) {
+        offending_ie->presence = 1;
+        offending_ie->u16 = offending_ie_value;
+    }
 
     pkbuf = ogs_pfcp_build_msg(&errmsg);
     ogs_expect_or_return(pkbuf);
@@ -204,4 +218,3 @@ void ogs_pfcp_send_error_message(
     rv = ogs_pfcp_xact_commit(xact);
     ogs_expect(rv == OGS_OK);
 }
-
