@@ -45,6 +45,9 @@ int ogs_pfcp_sockaddr_to_f_teid(
 int ogs_pfcp_sockaddr_to_user_plane_ip_resource_info(
     ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6,
     ogs_pfcp_user_plane_ip_resource_info_t *info);
+int ogs_pfcp_user_plane_ip_resource_info_to_sockaddr(
+    ogs_pfcp_user_plane_ip_resource_info_t *info,
+    ogs_sockaddr_t **addr, ogs_sockaddr_t **addr6);
 int ogs_pfcp_user_plane_ip_resource_info_to_f_teid(
     ogs_pfcp_user_plane_ip_resource_info_t *info,
     ogs_pfcp_f_teid_t *f_teid, int *len);

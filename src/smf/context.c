@@ -561,13 +561,6 @@ smf_sess_t *smf_sess_add(
     /* Set APN */
     ogs_cpystrn(sess->pdn.apn, apn, OGS_MAX_APN_LEN+1);
 
-    /* Set Default Bearer */
-    ogs_list_init(&sess->bearer_list);
-
-    bearer = smf_bearer_add(sess);
-    ogs_assert(bearer);
-    bearer->ebi = ebi;
-
     /* UE IP Address */
     sess->pdn.paa.pdn_type = pdn_type;
     ogs_expect(pdn_type == paa->pdn_type);
@@ -656,6 +649,13 @@ smf_sess_t *smf_sess_add(
     ul_far->id = OGS_NEXT_ID(sess->pfcp.far_id, 1, OGS_MAX_NUM_OF_FAR+1);
     ul_far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
     ul_far->dst_if = OGS_PFCP_INTERFACE_CORE;
+
+    /* Set Default Bearer */
+    ogs_list_init(&sess->bearer_list);
+
+    bearer = smf_bearer_add(sess);
+    ogs_assert(bearer);
+    bearer->ebi = ebi;
 
     ogs_list_add(&ogs_pfcp_self()->sess_list, sess);
     
@@ -820,6 +820,7 @@ smf_sess_t *smf_sess_add_by_message(ogs_gtp_message_t *message)
 smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 {
     smf_bearer_t *bearer = NULL;
+    ogs_pfcp_gtpu_resource_t *resource = NULL;
 
     ogs_assert(sess);
 
@@ -832,6 +833,41 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
             ogs_config()->pool.bearer);
 
     ogs_list_init(&bearer->pf_list);
+
+    resource = ogs_pfcp_gtpu_resource_find(
+            &sess->pfcp.node->gtpu_resource_list,
+            sess->pdn.apn, OGS_PFCP_INTERFACE_ACCESS);
+    if (resource) {
+        ogs_pfcp_user_plane_ip_resource_info_to_sockaddr(&resource->info,
+            &bearer->upf_s5u_addr, &bearer->upf_s5u_addr6);
+        ogs_assert(bearer->upf_s5u_addr || bearer->upf_s5u_addr6);
+        if (resource->info.teidri)
+            bearer->upf_s5u_teid = UPF_S5U_INDEX_TO_TEID(
+                    bearer->index, resource->info.teidri,
+                    resource->info.teid_range);
+        else
+            bearer->upf_s5u_teid = bearer->index;
+    } else {
+        if (sess->pfcp.node->addr.ogs_sa_family == AF_INET)  {
+            bearer->upf_s5u_addr = ogs_calloc(1, sizeof(ogs_sockaddr_t));
+            ogs_assert(bearer->upf_s5u_addr);
+            bearer->upf_s5u_addr->sin.sin_addr.s_addr =
+                sess->pfcp.node->addr.sin.sin_addr.s_addr;
+            bearer->upf_s5u_addr->ogs_sa_family = AF_INET;
+        }
+        else if (sess->pfcp.node->addr.ogs_sa_family == AF_INET6) {
+            bearer->upf_s5u_addr6 = ogs_calloc(1, sizeof(ogs_sockaddr_t));
+            ogs_assert(bearer->upf_s5u_addr6);
+            memcpy(bearer->upf_s5u_addr6->sin6.sin6_addr.s6_addr,
+                sess->pfcp.node->addr.sin6.sin6_addr.s6_addr, OGS_IPV6_LEN);
+            bearer->upf_s5u_addr6->ogs_sa_family = AF_INET6;
+        }
+        else
+            ogs_assert_if_reached();
+        ogs_assert(bearer->upf_s5u_addr || bearer->upf_s5u_addr6);
+
+        bearer->upf_s5u_teid = bearer->index;
+    }
 
     bearer->sess = sess;
 
@@ -849,6 +885,10 @@ int smf_bearer_remove(smf_bearer_t *bearer)
 
     if (bearer->name)
         ogs_free(bearer->name);
+    if (bearer->upf_s5u_addr)
+        ogs_free(bearer->upf_s5u_addr);
+    if (bearer->upf_s5u_addr6)
+        ogs_free(bearer->upf_s5u_addr6);
 
     smf_pf_remove_all(bearer);
 

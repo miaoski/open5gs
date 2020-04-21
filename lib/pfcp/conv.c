@@ -175,13 +175,13 @@ int ogs_pfcp_f_seid_to_ip(ogs_pfcp_f_seid_t *f_seid, ogs_ip_t *ip)
     return OGS_OK;
 }
 
-static int sockaddr_to_f_teid(
+int ogs_pfcp_sockaddr_to_f_teid(
     ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6,
     ogs_pfcp_f_teid_t *f_teid, int *len)
 {
     const int hdr_len = 5;
 
-    ogs_assert(addr == NULL || addr6 == NULL);
+    ogs_assert(addr || addr6);
     ogs_assert(f_teid);
     memset(f_teid, 0, sizeof *f_teid);
 
@@ -207,29 +207,6 @@ static int sockaddr_to_f_teid(
     return OGS_OK;
 }
 
-int ogs_pfcp_sockaddr_to_f_teid(
-    ogs_sockaddr_t *a, ogs_sockaddr_t *b, ogs_pfcp_f_teid_t *f_teid, int *len)
-{
-    ogs_sockaddr_t *addr = NULL, *addr6 = NULL;
-
-    if (a && a->sin.sin_family == AF_INET) {
-        addr = a;
-    }
-    if (a && a->sin.sin_family == AF_INET6) {
-        addr6 = a;
-    }
-    if (b && b->sin.sin_family == AF_INET) {
-        ogs_assert(addr);
-        addr = b;
-    }
-    if (b && b->sin.sin_family == AF_INET6) {
-        ogs_assert(addr6);
-        addr6 = b;
-    }
-
-    return sockaddr_to_f_teid(addr, addr6, f_teid, len);
-}
-
 int ogs_pfcp_sockaddr_to_user_plane_ip_resource_info(
     ogs_sockaddr_t *addr, ogs_sockaddr_t *addr6,
     ogs_pfcp_user_plane_ip_resource_info_t *info)
@@ -244,6 +221,31 @@ int ogs_pfcp_sockaddr_to_user_plane_ip_resource_info(
     if (addr6) {
         info->v6 = 1;
         memcpy(info->addr6, addr6->sin6.sin6_addr.s6_addr, OGS_IPV6_LEN);
+    }
+
+    return OGS_OK;
+}
+
+int ogs_pfcp_user_plane_ip_resource_info_to_sockaddr(
+    ogs_pfcp_user_plane_ip_resource_info_t *info,
+    ogs_sockaddr_t **addr, ogs_sockaddr_t **addr6)
+{
+    ogs_assert(addr && addr6);
+    ogs_assert(info);
+
+    *addr = NULL;
+    *addr6 = NULL;
+
+    if (info->v4) {
+        *addr = ogs_calloc(1, sizeof(**addr));
+        (*addr)->sin.sin_addr.s_addr = info->addr;
+        (*addr)->ogs_sa_family = AF_INET;
+    }
+
+    if (info->v6) {
+        *addr6 = ogs_calloc(1, sizeof(**addr6));
+        memcpy((*addr6)->sin6.sin6_addr.s6_addr, info->addr6, OGS_IPV6_LEN);
+        (*addr6)->ogs_sa_family = AF_INET6;
     }
 
     return OGS_OK;
