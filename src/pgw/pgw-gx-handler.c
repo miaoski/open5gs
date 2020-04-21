@@ -85,15 +85,6 @@ void pgw_gx_handle_cca_initial_request(
         return;
     }
 
-    if (gx_message->result_code != ER_DIAMETER_SUCCESS) {
-        uint8_t cause_value = gtp_cause_from_diameter(
-            gx_message->err, gx_message->exp_err);
-
-        ogs_gtp_send_error_message(xact, sess ? sess->sgw_s5c_teid : 0,
-                OGS_GTP_CREATE_SESSION_RESPONSE_TYPE, cause_value);
-        return;
-    }
-
     /* Send Create Session Request with Creating Default Bearer */
     memset(&h, 0, sizeof(ogs_gtp_header_t));
     h.type = OGS_GTP_CREATE_SESSION_RESPONSE_TYPE;
