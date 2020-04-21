@@ -142,6 +142,7 @@ void smf_n4_handle_session_establishment_response(
 {
     uint8_t cause_value = 0;
     ogs_gtp_xact_t *gtp_xact = NULL;
+    ogs_pfcp_f_seid_t *up_f_seid = NULL;
 
     ogs_assert(xact);
     ogs_assert(rsp);
@@ -158,8 +159,8 @@ void smf_n4_handle_session_establishment_response(
         cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
     }
 
-    if (rsp->cause.presence == 0) {
-        ogs_error("No Cause");
+    if (rsp->up_f_seid.presence == 0) {
+        ogs_error("No UP F-SEID");
         cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
     }
 
@@ -179,9 +180,61 @@ void smf_n4_handle_session_establishment_response(
         return;
     }
 
+    ogs_assert(sess);
+
+    /* UP F-SEID */
+    up_f_seid = rsp->up_f_seid.data;
+    ogs_assert(up_f_seid);
+    sess->pfcp.remote_n4_seid = be64toh(up_f_seid->seid);
+
     smf_gtp_send_create_session_response(sess, gtp_xact);
 
 #if 0
     bearer_binding(sess, gx_message);
 #endif
+}
+
+void smf_n4_handle_session_deletion_response(
+        smf_sess_t *sess, ogs_pfcp_xact_t *xact,
+        ogs_pfcp_session_deletion_response_t *rsp)
+{
+    uint8_t cause_value = 0;
+    ogs_gtp_xact_t *gtp_xact = NULL;
+
+    ogs_assert(xact);
+    ogs_assert(rsp);
+
+    gtp_xact = xact->assoc_xact;
+    ogs_assert(gtp_xact);
+
+    ogs_pfcp_xact_commit(xact);
+
+    cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
+
+    if (!sess) {
+        ogs_warn("No Context");
+        cause_value = OGS_GTP_CAUSE_CONTEXT_NOT_FOUND;
+    }
+
+    if (rsp->cause.presence) {
+        if (rsp->cause.u8 != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
+            ogs_warn("Cause[%d] : No Accepted", rsp->cause.u8);
+            cause_value = gtp_cause_from_pfcp(rsp->cause.u8);
+        }
+    } else {
+        ogs_error("No Cause");
+        cause_value = OGS_GTP_CAUSE_MANDATORY_IE_MISSING;
+    }
+
+    if (cause_value != OGS_GTP_CAUSE_REQUEST_ACCEPTED) {
+        ogs_gtp_send_error_message(gtp_xact, sess ? sess->sgw_s5c_teid : 0,
+                OGS_GTP_DELETE_SESSION_RESPONSE_TYPE, cause_value);
+        return;
+    }
+
+    ogs_assert(sess);
+
+    smf_gtp_send_delete_session_response(sess, gtp_xact);
+
+    smf_sess_remove(sess);
 }

@@ -236,15 +236,13 @@ void upf_pfcp_state_associated(ogs_fsm_t *s, upf_event_t *e)
             upf_n4_handle_session_establishment_request(
                 sess, xact, &message->pfcp_session_establishment_request);
             break;
-        case OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE:
-            break;
         case OGS_PFCP_SESSION_MODIFICATION_REQUEST_TYPE:
             break;
         case OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE:
             break;
         case OGS_PFCP_SESSION_DELETION_REQUEST_TYPE:
-            break;
-        case OGS_PFCP_SESSION_DELETION_RESPONSE_TYPE:
+            upf_n4_handle_session_deletion_request(
+                sess, xact, &message->pfcp_session_deletion_request);
             break;
         case OGS_PFCP_SESSION_REPORT_REQUEST_TYPE:
             break;

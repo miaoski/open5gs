@@ -36,6 +36,8 @@ void smf_pfcp_send_heartbeat_request(ogs_pfcp_node_t *node);
 
 void smf_pfcp_send_session_establishment_request(
         smf_sess_t *sess, void *gtp_xact);
+void smf_pfcp_send_session_deletion_request(
+        smf_sess_t *sess, void *gtp_xact);
 
 #ifdef __cplusplus
 }

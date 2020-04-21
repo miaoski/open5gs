@@ -251,3 +251,28 @@ void smf_pfcp_send_session_establishment_request(
     rv = ogs_pfcp_xact_commit(xact);
     ogs_expect(rv == OGS_OK);
 }
+
+void smf_pfcp_send_session_deletion_request(smf_sess_t *sess, void *gtp_xact)
+{
+    int rv;
+    ogs_pkbuf_t *n4buf = NULL;
+    ogs_pfcp_header_t h;
+    ogs_pfcp_xact_t *xact = NULL;
+
+    ogs_assert(sess);
+
+    memset(&h, 0, sizeof(ogs_pfcp_header_t));
+    h.type = OGS_PFCP_SESSION_DELETION_REQUEST_TYPE;
+    h.seid = sess->pfcp.remote_n4_seid;
+
+    n4buf = smf_n4_build_session_deletion_request(h.type, sess);
+    ogs_expect_or_return(n4buf);
+
+    xact = ogs_pfcp_xact_local_create(
+            sess->pfcp.node, &h, n4buf, timeout, sess);
+    ogs_expect_or_return(xact);
+    xact->assoc_xact = gtp_xact;
+
+    rv = ogs_pfcp_xact_commit(xact);
+    ogs_expect(rv == OGS_OK);
+}

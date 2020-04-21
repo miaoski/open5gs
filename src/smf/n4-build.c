@@ -302,3 +302,15 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     pfcp_message.h.type = type;
     return ogs_pfcp_build_msg(&pfcp_message);
 }
+
+ogs_pkbuf_t *smf_n4_build_session_deletion_request(
+        uint8_t type, smf_sess_t *sess)
+{
+    ogs_pfcp_message_t pfcp_message;
+
+    ogs_debug("[SMF] Session Establishment Request");
+    ogs_assert(sess);
+
+    pfcp_message.h.type = type;
+    return ogs_pfcp_build_msg(&pfcp_message);
+}

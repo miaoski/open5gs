@@ -89,49 +89,15 @@ void smf_gx_handle_cca_termination_request(
         smf_sess_t *sess, ogs_diam_gx_message_t *gx_message,
         ogs_gtp_xact_t *gtp_xact)
 {
-    int rv;
-    ogs_gtp_header_t h;
-    ogs_pkbuf_t *pkbuf = NULL;
-    uint32_t sgw_s5c_teid;
-
-    ogs_assert(gtp_xact);
     ogs_assert(sess);
     ogs_assert(gx_message);
-
-    /* backup sgw_s5c_teid in session context */
-    sgw_s5c_teid = sess->sgw_s5c_teid;
+    ogs_assert(gtp_xact);
 
     ogs_debug("[SMF] Delete Session Response");
     ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
             sess->sgw_s5c_teid, sess->smf_s5c_teid);
 
-#if 0
-    /* Remove a smf session */
-    smf_sess_remove(sess);
-
-    if (gx_message->result_code != ER_DIAMETER_SUCCESS) {
-        uint8_t cause_value = gtp_cause_from_diameter(
-            gx_message->err, gx_message->exp_err);
-
-        ogs_gtp_send_error_message(gtp_xact, sgw_s5c_teid,
-                OGS_GTP_DELETE_SESSION_RESPONSE_TYPE, cause_value);
-        return;
-    }
-
-    memset(&h, 0, sizeof(ogs_gtp_header_t));
-    h.type = OGS_GTP_DELETE_SESSION_RESPONSE_TYPE;
-    h.teid = sgw_s5c_teid;
-
-    pkbuf = smf_s5c_build_delete_session_response(
-            h.type, sess, gx_message);
-    ogs_expect_or_return(pkbuf);
-
-    rv = ogs_gtp_xact_update_tx(xact, &h, pkbuf);
-    ogs_expect_or_return(rv == OGS_OK);
-
-    rv = ogs_gtp_xact_commit(xact);
-    ogs_expect(rv == OGS_OK);
-#endif
+    smf_pfcp_send_session_deletion_request(sess, gtp_xact);
 }
 
 void smf_gx_handle_re_auth_request(
@@ -312,7 +278,7 @@ static void bearer_binding(smf_sess_t *sess, ogs_diam_gx_message_t *gx_message)
                     /* Update QoS parameter */
                     memcpy(&bearer->qos, &pcc_rule->qos, sizeof(ogs_qos_t));
 
-                    /* Update Bearer Request will encode updated QoS parameter */
+                    /* Update Bearer Request encodes updated QoS parameter */
                     qos_presence = 1;
                 }
 

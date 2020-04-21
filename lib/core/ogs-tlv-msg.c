@@ -263,21 +263,26 @@ ogs_pkbuf_t *ogs_tlv_build_msg(ogs_tlv_desc_t *desc, void *msg, int mode)
     ogs_assert(msg);
 
     ogs_assert(desc->ctype == OGS_TLV_MESSAGE);
-    ogs_assert(desc->child_descs[0]);
     
-    r = tlv_add_compound(&root, NULL, desc, msg, 0);
-    ogs_assert(r > 0 && root);
+    if (desc->child_descs[0]) {
+        r = tlv_add_compound(&root, NULL, desc, msg, 0);
+        ogs_assert(r > 0 && root);
 
-    length = ogs_tlv_calc_length(root, mode);
+        length = ogs_tlv_calc_length(root, mode);
+    } else {
+        length = 0;
+    }
     pkbuf = ogs_pkbuf_alloc(NULL, OGS_TLV_MAX_HEADROOM+length);
     ogs_assert(pkbuf);
     ogs_pkbuf_reserve(pkbuf, OGS_TLV_MAX_HEADROOM);
     ogs_pkbuf_put(pkbuf, length);
 
-    rendlen = ogs_tlv_render(root, pkbuf->data, length, mode);
-    ogs_assert(rendlen == length);
+    if (desc->child_descs[0]) {
+        rendlen = ogs_tlv_render(root, pkbuf->data, length, mode);
+        ogs_assert(rendlen == length);
 
-    ogs_tlv_free_all(root);
+        ogs_tlv_free_all(root);
+    }
 
     return pkbuf;
 }

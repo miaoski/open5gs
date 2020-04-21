@@ -179,3 +179,22 @@ ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
     pfcp_message.h.type = type;
     return ogs_pfcp_build_msg(&pfcp_message);
 }
+
+ogs_pkbuf_t *upf_n4_build_session_deletion_response(uint8_t type,
+        upf_sess_t *sess)
+{
+    ogs_pfcp_message_t pfcp_message;
+    ogs_pfcp_session_deletion_response_t *rsp = NULL;
+
+    ogs_debug("[UPF] Session Deletion Response");
+
+    rsp = &pfcp_message.pfcp_session_deletion_response;
+    memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
+
+    /* Cause */
+    rsp->cause.presence = 1;
+    rsp->cause.u8 = OGS_PFCP_CAUSE_REQUEST_ACCEPTED;
+
+    pfcp_message.h.type = type;
+    return ogs_pfcp_build_msg(&pfcp_message);
+}

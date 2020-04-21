@@ -131,3 +131,27 @@ void smf_gtp_send_create_session_response(
     rv = ogs_gtp_xact_commit(xact);
     ogs_expect(rv == OGS_OK);
 }
+
+void smf_gtp_send_delete_session_response(
+        smf_sess_t *sess, ogs_gtp_xact_t *xact)
+{
+    int rv;
+    ogs_gtp_header_t h;
+    ogs_pkbuf_t *pkbuf = NULL;
+
+    ogs_assert(xact);
+    ogs_assert(sess);
+
+    memset(&h, 0, sizeof(ogs_gtp_header_t));
+    h.type = OGS_GTP_DELETE_SESSION_RESPONSE_TYPE;
+    h.teid = sess->sgw_s5c_teid;
+
+    pkbuf = smf_s5c_build_delete_session_response(h.type, sess);
+    ogs_expect_or_return(pkbuf);
+
+    rv = ogs_gtp_xact_update_tx(xact, &h, pkbuf);
+    ogs_expect_or_return(rv == OGS_OK);
+
+    rv = ogs_gtp_xact_commit(xact);
+    ogs_expect(rv == OGS_OK);
+}

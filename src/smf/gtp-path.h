@@ -32,6 +32,8 @@ void smf_gtp_close(void);
 
 void smf_gtp_send_create_session_response(
         smf_sess_t *sess, ogs_gtp_xact_t *xact);
+void smf_gtp_send_delete_session_response(
+        smf_sess_t *sess, ogs_gtp_xact_t *xact);
 
 #ifdef __cplusplus
 }

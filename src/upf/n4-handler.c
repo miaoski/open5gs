@@ -245,3 +245,23 @@ void upf_n4_handle_session_establishment_request(
 
     upf_pfcp_send_session_establishment_response(xact, sess);
 }
+
+void upf_n4_handle_session_deletion_request(
+        upf_sess_t *sess, ogs_pfcp_xact_t *xact,
+        ogs_pfcp_session_deletion_request_t *req)
+{
+    ogs_assert(xact);
+    ogs_assert(req);
+
+    ogs_debug("[UPF] Session Deletion Request");
+
+    if (!sess) {
+        ogs_warn("No Context");
+        ogs_pfcp_send_error_message(xact, 0,
+                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
+                OGS_PFCP_CAUSE_SESSION_CONTEXT_NOT_FOUND, 0);
+        return;
+    }
+
+    upf_pfcp_send_session_deletion_response(xact, sess);
+}
