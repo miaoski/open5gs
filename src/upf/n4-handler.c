@@ -263,5 +263,9 @@ void upf_n4_handle_session_deletion_request(
         return;
     }
 
+    ogs_assert(sess);
+
     upf_pfcp_send_session_deletion_response(xact, sess);
+
+    upf_sess_remove(sess);
 }
