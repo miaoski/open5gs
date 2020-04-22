@@ -116,10 +116,8 @@ typedef struct upf_bearer_s {
     ogs_lnode_t     lnode; /**< A node of list_t */
     uint32_t        index;
 
-    uint8_t         ebi;
-
-    uint32_t        upf_s5u_teid;   /* UPF_S5U is derived from INDEX */
-    uint32_t        sgw_s5u_teid;   /* SGW_S5U is received from SGW */
+    uint32_t        upf_s5u_teid;
+    uint32_t        sgw_s5u_teid;
 
     char            *name;          /* PCC Rule Name */
     ogs_qos_t       qos;            /* QoS Infomration */
@@ -197,7 +195,6 @@ int upf_bearer_remove(upf_bearer_t *bearer);
 void upf_bearer_remove_all(upf_sess_t *sess);
 upf_bearer_t *upf_bearer_find(uint32_t index);
 upf_bearer_t *upf_bearer_find_by_upf_s5u_teid(uint32_t upf_s5u_teid);
-upf_bearer_t *upf_bearer_find_by_ebi(upf_sess_t *sess, uint8_t ebi);
 upf_bearer_t *upf_bearer_find_by_name(upf_sess_t *sess, char *name);
 upf_bearer_t *upf_bearer_find_by_qci_arp(upf_sess_t *sess, 
                                 uint8_t qci,

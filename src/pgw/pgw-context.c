@@ -803,13 +803,6 @@ pgw_sess_t *pgw_sess_add(
     /* Set APN */
     ogs_cpystrn(sess->pdn.apn, apn, OGS_MAX_APN_LEN+1);
 
-    /* Set Default Bearer */
-    ogs_list_init(&sess->bearer_list);
-
-    bearer = pgw_bearer_add(sess);
-    ogs_assert(bearer);
-    bearer->ebi = ebi;
-
     /* Set UE IP Address */
     sess->pdn.paa.pdn_type = pdn_type;
     ogs_assert(pdn_type == paa->pdn_type);
@@ -855,6 +848,13 @@ pgw_sess_t *pgw_sess_add(
     sess_hash_keygen(sess->hash_keybuf, &sess->hash_keylen,
             imsi, imsi_len, apn);
     ogs_hash_set(self.sess_hash, sess->hash_keybuf, sess->hash_keylen, sess);
+
+    /* Set Default Bearer */
+    ogs_list_init(&sess->bearer_list);
+
+    bearer = pgw_bearer_add(sess);
+    ogs_assert(bearer);
+    bearer->ebi = ebi;
 
     ogs_list_add(&self.sess_list, sess);
     

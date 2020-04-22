@@ -410,6 +410,7 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
     char buf1[OGS_ADDRSTRLEN];
     char buf2[OGS_ADDRSTRLEN];
     upf_sess_t *sess = NULL;
+    upf_bearer_t *bearer = NULL;
 
     ogs_assert(cp_f_seid);
     ogs_assert(apn);
@@ -470,6 +471,12 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
                 pdn_type, ue_ip->ipv4, ue_ip->ipv6);
         goto cleanup;
     }
+
+    /* Set Default Bearer */
+    ogs_list_init(&sess->bearer_list);
+
+    bearer = upf_bearer_add(sess);
+    ogs_assert(bearer);
 
     ogs_info("UE F-SEID[CP:%ld,UP:%ld] APN[%s] PDN-Type[%d] IPv4[%s] IPv6[%s]",
         (long)sess->pfcp.local_n4_seid, (long)sess->pfcp.remote_n4_seid,
@@ -685,23 +692,6 @@ upf_bearer_t *upf_bearer_find(uint32_t index)
 upf_bearer_t *upf_bearer_find_by_upf_s5u_teid(uint32_t upf_s5u_teid)
 {
     return upf_bearer_find(upf_s5u_teid);
-}
-
-upf_bearer_t *upf_bearer_find_by_ebi(upf_sess_t *sess, uint8_t ebi)
-{
-    upf_bearer_t *bearer = NULL;
-    
-    ogs_assert(sess);
-
-    bearer = upf_bearer_first(sess);
-    while (bearer) {
-        if (bearer->ebi == ebi)
-            break;
-
-        bearer = upf_bearer_next(bearer);
-    }
-
-    return bearer;
 }
 
 upf_bearer_t *upf_bearer_find_by_name(upf_sess_t *sess, char *name)

@@ -62,6 +62,7 @@ void upf_n4_handle_session_establishment_request(
         upf_sess_t *sess, ogs_pfcp_xact_t *xact, 
         ogs_pfcp_session_establishment_request_t *req)
 {
+    upf_bearer_t *bearer = NULL;
     uint8_t cause_value = 0;
     uint8_t offending_ie_value = 0;
     int i;
@@ -80,6 +81,9 @@ void upf_n4_handle_session_establishment_request(
                 OGS_PFCP_CAUSE_SESSION_CONTEXT_NOT_FOUND, 0);
         return;
     }
+
+    bearer = upf_default_bearer_in_sess(sess);
+    ogs_assert(bearer);
 
     for (i = 0; i < OGS_MAX_NUM_OF_PDR; i++) {
         ogs_pfcp_tlv_create_pdr_t *message = &req->create_pdr[i];
