@@ -71,6 +71,10 @@ ogs_gtp_node_t *ogs_gtp_node_find_by_addr(
 ogs_gtp_node_t *ogs_gtp_node_find_by_f_teid(
         ogs_list_t *list, ogs_gtp_f_teid_t *f_teid);
 
+ogs_gtp_node_t *ogs_gtp_node_add_by_ip(ogs_list_t *list, ogs_ip_t *ip,
+        uint16_t port, int no_ipv4, int no_ipv6, int prefer_ipv4);
+ogs_gtp_node_t *ogs_gtp_node_find_by_ip(ogs_list_t *list, ogs_ip_t *ip);
+
 #ifdef __cplusplus
 }
 #endif

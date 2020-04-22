@@ -164,7 +164,28 @@ ogs_gtp_node_t *ogs_gtp_node_find_by_f_teid(
     ogs_assert(rv == OGS_OK);
 
     ogs_list_for_each(list, node) {
-        if (memcmp(&node->ip, &ip, ip.len) == 0)
+        if (memcmp(&node->ip, &ip, sizeof(ip)) == 0)
+            break;
+    }
+
+    return node;
+}
+
+ogs_gtp_node_t *ogs_gtp_node_add_by_ip(ogs_list_t *list, ogs_ip_t *ip,
+        uint16_t port, int no_ipv4, int no_ipv6, int prefer_ipv4)
+{
+    return NULL;
+}
+
+ogs_gtp_node_t *ogs_gtp_node_find_by_ip(ogs_list_t *list, ogs_ip_t *ip)
+{
+    ogs_gtp_node_t *node = NULL;
+
+    ogs_assert(list);
+    ogs_assert(ip);
+
+    ogs_list_for_each(list, node) {
+        if (memcmp(&node->ip, ip, sizeof(*ip)) == 0)
             break;
     }
 

@@ -345,3 +345,38 @@ int ogs_pfcp_ip_to_outer_header_creation(ogs_ip_t *ip,
 
     return OGS_OK;
 }
+
+int ogs_pfcp_outer_header_creation_to_ip(
+        ogs_pfcp_outer_header_creation_t *outer_header_creation, ogs_ip_t *ip)
+{
+    ogs_assert(outer_header_creation);
+    ogs_assert(ip);
+    memset(ip, 0, sizeof *ip);
+
+    if ((outer_header_creation->gtpu4 ||
+        outer_header_creation->ip4 ||
+        outer_header_creation->udp4) &&
+        (outer_header_creation->gtpu6 ||
+        outer_header_creation->ip6 ||
+        outer_header_creation->udp6)) {
+        ip->ipv4 = 1; ip->ipv6 = 1;
+        ip->len = OGS_IPV4V6_LEN;
+        ip->both.addr = outer_header_creation->both.addr;
+        memcpy(ip->both.addr6, outer_header_creation->both.addr6, OGS_IPV6_LEN);
+    } else if (outer_header_creation->gtpu4 ||
+                outer_header_creation->ip4 ||
+                outer_header_creation->udp4) {
+        ip->ipv4 = 1;
+        ip->len = OGS_IPV4_LEN;
+        ip->addr = outer_header_creation->addr;
+    } else if (outer_header_creation->gtpu6 ||
+                outer_header_creation->ip6 ||
+                outer_header_creation->udp6) {
+        ip->ipv6 = 1;
+        ip->len = OGS_IPV6_LEN;
+        memcpy(ip->addr6, outer_header_creation->addr6, OGS_IPV6_LEN);
+    } else
+        ogs_assert_if_reached();
+
+    return OGS_OK;
+}
