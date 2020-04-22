@@ -376,7 +376,7 @@ int ogs_pfcp_outer_header_creation_to_ip(
         ip->len = OGS_IPV6_LEN;
         memcpy(ip->addr6, outer_header_creation->addr6, OGS_IPV6_LEN);
     } else
-        ogs_assert_if_reached();
+        return OGS_ERROR;
 
     return OGS_OK;
 }

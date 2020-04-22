@@ -213,6 +213,10 @@ void upf_n4_handle_session_establishment_request(
         far->dst_if = message->forwarding_parameters.destination_interface.u8;
 
         if (far->dst_if == OGS_PFCP_INTERFACE_ACCESS) { /* Downlink */
+            int rv;
+            ogs_ip_t ip;
+            ogs_gtp_node_t *gnode = NULL;
+
             if (message->forwarding_parameters.
                     outer_header_creation.presence == 0) {
                 ogs_warn("No Outer Header Creation in PDI");
@@ -227,6 +231,25 @@ void upf_n4_handle_session_establishment_request(
             far->outer_header_creation.teid =
                 be32toh(far->outer_header_creation.teid);
 
+            rv = ogs_pfcp_outer_header_creation_to_ip(
+                    &far->outer_header_creation, &ip);
+            ogs_assert(rv == OGS_OK);
+
+            gnode = ogs_gtp_node_find_by_ip(&upf_self()->sgw_s5u_list, &ip);
+            if (!gnode) {
+                gnode = ogs_gtp_node_add_by_ip(
+                    &upf_self()->sgw_s5u_list, &ip, upf_self()->gtpu_port,
+                    ogs_config()->parameter.no_ipv4,
+                    ogs_config()->parameter.no_ipv6,
+                    ogs_config()->parameter.prefer_ipv4);
+                ogs_assert(gnode);
+
+                rv = ogs_gtp_connect(
+                        upf_self()->gtpu_sock, upf_self()->gtpu_sock6, gnode);
+                ogs_assert(rv == OGS_OK);
+            }
+            /* Setup GTP Node */
+            OGS_SETUP_GTP_NODE(bearer, gnode);
         } else if (far->dst_if == OGS_PFCP_INTERFACE_CORE) {  /* Uplink */
 
             /* Nothing */

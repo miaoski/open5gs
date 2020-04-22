@@ -174,7 +174,31 @@ ogs_gtp_node_t *ogs_gtp_node_find_by_f_teid(
 ogs_gtp_node_t *ogs_gtp_node_add_by_ip(ogs_list_t *list, ogs_ip_t *ip,
         uint16_t port, int no_ipv4, int no_ipv6, int prefer_ipv4)
 {
-    return NULL;
+    int rv;
+    ogs_gtp_node_t *node = NULL;
+    ogs_sockaddr_t *addr = NULL;
+
+    ogs_assert(list);
+    ogs_assert(ip);
+    ogs_assert(port);
+
+    rv = ogs_ip_to_sockaddr(ip, port, &addr);
+    ogs_assert(rv == OGS_OK);
+
+    rv = ogs_filter_ip_version(&addr, no_ipv4, no_ipv6, prefer_ipv4);
+    ogs_assert(addr);
+
+    rv = ogs_socknode_fill_scope_id_in_local(addr);
+    ogs_assert(rv == OGS_OK);
+
+    node = ogs_gtp_node_new(addr);
+    ogs_assert(node);
+
+    memcpy(&node->ip, ip, sizeof(*ip));
+
+    ogs_list_add(list, node);
+
+    return node;
 }
 
 ogs_gtp_node_t *ogs_gtp_node_find_by_ip(ogs_list_t *list, ogs_ip_t *ip)

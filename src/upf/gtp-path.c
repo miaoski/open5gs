@@ -178,9 +178,16 @@ int upf_gtp_open(void)
         sock = ogs_gtp_server(node);
         ogs_assert(sock);
 
+        if (sock->family == AF_INET)
+            upf_self()->gtpu_sock = sock;
+        else if (sock->family == AF_INET6)
+            upf_self()->gtpu_sock6 = sock;
+
         node->poll = ogs_pollset_add(upf_self()->pollset,
                 OGS_POLLIN, sock->fd, _gtpv1_u_recv_cb, sock);
     }
+
+    ogs_assert(upf_self()->gtpu_sock || upf_self()->gtpu_sock6);
 
     /* NOTE : tun device can be created via following command.
      *

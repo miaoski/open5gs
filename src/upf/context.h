@@ -41,20 +41,11 @@ extern int __upf_log_domain;
 #define OGS_LOG_DOMAIN __upf_log_domain
 
 typedef struct upf_context_s {
-    const char*         diam_conf_path;   /* UPF Diameter conf path */
-    ogs_diam_config_t   *diam_config;     /* UPF Diameter config */
-
-    uint32_t        gtpc_port;      /* Default: UPF GTP-C local port */
     uint32_t        gtpu_port;      /* Default: UPF GTP-U local port */
 
-    ogs_list_t      gtpc_list;      /* UPF GTPC IPv4 Server List */
-    ogs_list_t      gtpc_list6;     /* UPF GTPC IPv6 Server List */
-    ogs_sock_t      *gtpc_sock;     /* UPF GTPC IPv4 Socket */
-    ogs_sock_t      *gtpc_sock6;    /* UPF GTPC IPv6 Socket */
-    ogs_sockaddr_t  *gtpc_addr;     /* UPF GTPC IPv4 Address */
-    ogs_sockaddr_t  *gtpc_addr6;    /* UPF GTPC IPv6 Address */
-
     ogs_list_t      gtpu_list;      /* UPF GTPU Server List */
+    ogs_sock_t      *gtpu_sock;     /* UPF GTPU IPv4 Socket */
+    ogs_sock_t      *gtpu_sock6;    /* UPF GTPU IPv6 Socket */
     ogs_list_t      gtpu_resource_list; /* UP IP Resource List */
     uint16_t        function_features; /* UP Function Features */
 

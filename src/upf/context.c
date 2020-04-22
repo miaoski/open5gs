@@ -20,7 +20,6 @@
 #include "context.h"
 
 static upf_context_t self;
-static ogs_diam_config_t g_diam_conf;
 
 int __upf_log_domain;
 
@@ -48,23 +47,15 @@ void upf_context_init(void)
 {
     ogs_assert(context_initiaized == 0);
 
-    /* Initial FreeDiameter Config */
-    memset(&g_diam_conf, 0, sizeof(ogs_diam_config_t));
-
     /* Initialize UPF context */
     memset(&self, 0, sizeof(upf_context_t));
-    self.diam_config = &g_diam_conf;
 
     ogs_log_install_domain(&__ogs_gtp_domain, "gtp", ogs_core()->log.level);
-    ogs_log_install_domain(&__ogs_diam_domain, "diam", ogs_core()->log.level);
     ogs_log_install_domain(&__upf_log_domain, "upf", ogs_core()->log.level);
 
     ogs_gtp_node_init(512);
 
-    ogs_list_init(&self.gtpc_list);
-    ogs_list_init(&self.gtpc_list6);
     ogs_list_init(&self.gtpu_list);
-
     ogs_list_init(&self.gtpu_resource_list);
 
     ogs_list_init(&self.sgw_s5c_list);
@@ -115,10 +106,7 @@ upf_context_t *upf_self(void)
 
 static int upf_context_prepare(void)
 {
-    self.gtpc_port = OGS_GTPV2_C_UDP_PORT;
     self.gtpu_port = OGS_GTPV1_U_UDP_PORT;
-    self.diam_config->cnf_port = DIAMETER_PORT;
-    self.diam_config->cnf_port_tls = DIAMETER_SECURE_PORT;
 
     return OGS_OK;
 }
