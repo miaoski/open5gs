@@ -178,7 +178,7 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
             ogs_pfcp_sockaddr_to_f_teid(
                     bearer->gtpu_addr, bearer->gtpu_addr6,
                     &f_teid[i], &len);
-            f_teid[i].teid = htobe32(bearer->upf_s5u_teid);
+            f_teid[i].teid = htobe32(bearer->upf_n3_teid);
 
             message->pdi.local_f_teid.presence = 1;
             message->pdi.local_f_teid.data = &f_teid[i];
@@ -251,10 +251,9 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
 
         if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
             far->dst_if == OGS_PFCP_INTERFACE_ACCESS) {  /* Downlink */
-            ogs_assert(bearer->gnode);
             ogs_pfcp_ip_to_outer_header_creation(
-                    &bearer->gnode->ip, &outer_header_creation[i], &len);
-            outer_header_creation[i].teid = htobe32(bearer->sgw_s5u_teid);
+                    &bearer->gnb_ip, &outer_header_creation[i], &len);
+            outer_header_creation[i].teid = htobe32(bearer->gnb_n3_teid);
 
             message->forwarding_parameters.outer_header_creation.presence = 1;
             message->forwarding_parameters.outer_header_creation.data =

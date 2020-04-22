@@ -131,11 +131,12 @@ typedef struct smf_bearer_s {
     (__tEID & ~(__rANGE << (32 - __iND)))
 #define UPF_S5U_INDEX_TO_TEID(__iNDEX, __iND, __rANGE) \
     (__iNDEX | (__rANGE << (32 - __iND)))
-    uint32_t        upf_s5u_teid;   /* UPF_S5U TEID */
-    ogs_sockaddr_t  *gtpu_addr;  /* UPF_S5U IPv4 */
-    ogs_sockaddr_t  *gtpu_addr6; /* UPF_S5U IPv6 */
+    uint32_t        upf_n3_teid;    /* UPF_N3 TEID */
+    ogs_sockaddr_t  *gtpu_addr;     /* UPF_N3 IPv4 */
+    ogs_sockaddr_t  *gtpu_addr6;    /* UPF_N3 IPv6 */
 
-    uint32_t        sgw_s5u_teid;   /* SGW_S5U is allocated by SGW */
+    uint32_t        gnb_n3_teid;    /* gNB_N3 TEID */
+    ogs_ip_t        gnb_ip;         /* gNB_N3 IP */
 
     char            *name;          /* PCC Rule Name */
     ogs_qos_t       qos;            /* QoS Infomration */

@@ -48,9 +48,9 @@ void smf_s5c_handle_create_session_request(
         smf_sess_t *sess, ogs_gtp_xact_t *xact,
         ogs_gtp_create_session_request_t *req)
 {
+    int rv;
     uint8_t cause_value = 0;
-    ogs_gtp_f_teid_t *sgw_s5c_teid, *sgw_s5u_teid;
-    ogs_gtp_node_t *sgw = NULL;
+    ogs_gtp_f_teid_t *sgw_s5c_teid, *gnb_n3_teid;
     smf_bearer_t *bearer = NULL;
     ogs_gtp_bearer_qos_t bearer_qos;
     ogs_gtp_ambr_t *ambr = NULL;
@@ -114,27 +114,17 @@ void smf_s5c_handle_create_session_request(
     ogs_assert(sgw_s5c_teid);
     sess->sgw_s5c_teid = be32toh(sgw_s5c_teid->teid);
 
-    /* Control Plane(DL) : SGW-S5U */
-    sgw_s5u_teid = req->bearer_contexts_to_be_created.s5_s8_u_sgw_f_teid.data;
-    ogs_assert(sgw_s5u_teid);
-    bearer->sgw_s5u_teid = be32toh(sgw_s5u_teid->teid);
+    /* Data Plane(DL) : gNB-N3 */
+    gnb_n3_teid = req->bearer_contexts_to_be_created.s5_s8_u_sgw_f_teid.data;
+    ogs_assert(gnb_n3_teid);
+    bearer->gnb_n3_teid = be32toh(gnb_n3_teid->teid);
+    rv = ogs_gtp_f_teid_to_ip(gnb_n3_teid, &bearer->gnb_ip);
+    ogs_assert(rv == OGS_OK);
 
     ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
             sess->sgw_s5c_teid, sess->smf_s5c_teid);
-    ogs_debug("    SGW_S5U_TEID[0x%x] UPF_S5U_TEID[0x%x]",
-            bearer->sgw_s5u_teid, bearer->upf_s5u_teid);
-
-    sgw = ogs_gtp_node_find_by_f_teid(&smf_self()->sgw_s5u_list, sgw_s5u_teid);
-    if (!sgw) {
-        sgw = ogs_gtp_node_add_by_f_teid(
-            &smf_self()->sgw_s5u_list, sgw_s5u_teid, smf_self()->gtpu_port,
-            ogs_config()->parameter.no_ipv4,
-            ogs_config()->parameter.no_ipv6,
-            ogs_config()->parameter.prefer_ipv4);
-        ogs_assert(sgw);
-    }
-    /* Setup GTP Node */
-    OGS_SETUP_GTP_NODE(bearer, sgw);
+    ogs_debug("    gNB_N3_TEID[0x%x] UPF_N3_TEID[0x%x]",
+            bearer->gnb_n3_teid, bearer->upf_n3_teid);
 
     decoded = ogs_gtp_parse_bearer_qos(&bearer_qos,
         &req->bearer_contexts_to_be_created.bearer_level_qos);
@@ -222,8 +212,7 @@ void smf_s5c_handle_create_bearer_response(
         ogs_gtp_create_bearer_response_t *rsp)
 {
     int rv;
-    ogs_gtp_f_teid_t *sgw_s5u_teid, *smf_s5u_teid;
-    ogs_gtp_node_t *sgw = NULL;
+    ogs_gtp_f_teid_t *gnb_n3_teid, *smf_s5u_teid;
     smf_bearer_t *bearer = NULL;
 
     ogs_assert(xact);
@@ -280,20 +269,12 @@ void smf_s5c_handle_create_bearer_response(
     /* Set EBI */
     bearer->ebi = rsp->bearer_contexts.eps_bearer_id.u8;
 
-    /* Data Plane(DL) : SGW-S5U */
-    sgw_s5u_teid = rsp->bearer_contexts.s5_s8_u_sgw_f_teid.data;
-    bearer->sgw_s5u_teid = be32toh(sgw_s5u_teid->teid);
-    sgw = ogs_gtp_node_find_by_f_teid(&smf_self()->sgw_s5u_list, sgw_s5u_teid);
-    if (!sgw) {
-        sgw = ogs_gtp_node_add_by_f_teid(
-            &smf_self()->sgw_s5u_list, sgw_s5u_teid, smf_self()->gtpu_port,
-            ogs_config()->parameter.no_ipv4,
-            ogs_config()->parameter.no_ipv6,
-            ogs_config()->parameter.prefer_ipv4);
-        ogs_assert(sgw);
-    }
-    /* Setup GTP Node */
-    OGS_SETUP_GTP_NODE(bearer, sgw);
+    /* Data Plane(DL) : gNB-N3 */
+    gnb_n3_teid =  rsp->bearer_contexts.s5_s8_u_sgw_f_teid.data;
+    ogs_assert(gnb_n3_teid);
+    bearer->gnb_n3_teid = be32toh(gnb_n3_teid->teid);
+    rv = ogs_gtp_f_teid_to_ip(gnb_n3_teid, &bearer->gnb_ip);
+    ogs_assert(rv == OGS_OK);
 
     ogs_debug("[SMF] Create Bearer Response : SGW[0x%x] --> SMF[0x%x]",
             sess->sgw_s5c_teid, sess->smf_s5c_teid);

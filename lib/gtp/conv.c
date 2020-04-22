@@ -146,7 +146,7 @@ int ogs_gtp_f_teid_to_ip(ogs_gtp_f_teid_t *f_teid, ogs_ip_t *ip)
         memcpy(ip->addr6, f_teid->addr6, OGS_IPV6_LEN);
         ip->len = OGS_IPV6_LEN;
     } else
-        ogs_assert_if_reached();
+        return OGS_ERROR;
 
     return OGS_OK;
 }
