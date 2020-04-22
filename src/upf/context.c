@@ -636,8 +636,6 @@ upf_bearer_t *upf_bearer_add(upf_sess_t *sess)
 
     ogs_list_init(&bearer->pf_list);
 
-    bearer->upf_s5u_teid = bearer->index;
-    
     bearer->sess = sess;
 
     ogs_list_add(&sess->bearer_list, bearer);
@@ -677,9 +675,9 @@ upf_bearer_t *upf_bearer_find(uint32_t index)
     return ogs_pool_find(&upf_bearer_pool, index);
 }
 
-upf_bearer_t *upf_bearer_find_by_upf_s5u_teid(uint32_t upf_s5u_teid)
+upf_bearer_t *upf_bearer_find_by_upf_n3_teid(uint32_t upf_n3_teid)
 {
-    return upf_bearer_find(upf_s5u_teid);
+    return upf_bearer_find(upf_n3_teid);
 }
 
 upf_bearer_t *upf_bearer_find_by_name(upf_sess_t *sess, char *name)

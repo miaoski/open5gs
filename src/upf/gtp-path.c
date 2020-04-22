@@ -128,9 +128,9 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
     ip_h = (struct ip *)pkbuf->data;
     ogs_assert(ip_h);
 
-    bearer = upf_bearer_find_by_upf_s5u_teid(teid);
+    bearer = upf_bearer_find_by_upf_n3_teid(teid);
     if (!bearer) {
-        ogs_warn("[DROP] Cannot find UPF S5U bearer : TEID[0x%x]", teid);
+        ogs_warn("[DROP] Cannot find bearer : UPF-N3-TEID[0x%x]", teid);
         goto cleanup;
     }
     sess = bearer->sess;

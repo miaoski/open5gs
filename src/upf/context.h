@@ -72,6 +72,7 @@ typedef struct upf_context_s {
     ogs_hash_t      *sess_hash;     /* hash table (F-SEID) */
     ogs_hash_t      *ipv4_hash;     /* hash table (IPv4 Address) */
     ogs_hash_t      *ipv6_hash;     /* hash table (IPv6 Address) */
+    ogs_hash_t      *_hash;     /* hash table (IPv6 Address) */
 } upf_context_t;
 
 typedef struct upf_sess_s {
@@ -107,7 +108,7 @@ typedef struct upf_bearer_s {
     ogs_lnode_t     lnode; /**< A node of list_t */
     uint32_t        index;
 
-    uint32_t        upf_s5u_teid;
+    uint32_t        upf_n3_teid;
     uint32_t        sgw_s5u_teid;
 
     char            *name;          /* PCC Rule Name */
@@ -185,7 +186,7 @@ upf_bearer_t *upf_bearer_add(upf_sess_t *sess);
 int upf_bearer_remove(upf_bearer_t *bearer);
 void upf_bearer_remove_all(upf_sess_t *sess);
 upf_bearer_t *upf_bearer_find(uint32_t index);
-upf_bearer_t *upf_bearer_find_by_upf_s5u_teid(uint32_t upf_s5u_teid);
+upf_bearer_t *upf_bearer_find_by_upf_n3_teid(uint32_t upf_n3_teid);
 upf_bearer_t *upf_bearer_find_by_name(upf_sess_t *sess, char *name);
 upf_bearer_t *upf_bearer_find_by_qci_arp(upf_sess_t *sess, 
                                 uint8_t qci,

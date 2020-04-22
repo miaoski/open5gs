@@ -302,15 +302,15 @@ upf_bearer_t *upf_bearer_find_by_packet(ogs_pkbuf_t *pkt)
         ogs_assert(default_bearer);
 
         /* Found */
-        ogs_debug("[UPF] Found Session : UPF-S5U-TEID[%d]",
-                default_bearer->upf_s5u_teid);
+        ogs_debug("[UPF] Found Session : UPF-N3-TEID[0x%x]",
+                default_bearer->upf_n3_teid);
 
         bearer = upf_bearer_next(default_bearer);
         /* Find the bearer with matched */
         for (; bearer; bearer = upf_bearer_next(bearer)) {
             upf_pf_t *pf = NULL;
 
-            if (bearer->upf_s5u_teid == 0) {
+            if (bearer->upf_n3_teid == 0) {
                 /* Create Bearer Response is not received */
                 continue;
             }
@@ -443,8 +443,8 @@ upf_bearer_t *upf_bearer_find_by_packet(ogs_pkbuf_t *pkt)
 
             if (pf) {
                 bearer = pf->bearer;
-                ogs_debug("Found Dedicated Bearer : UPF-S5U-TEID[%d]",
-                        bearer->upf_s5u_teid);
+                ogs_debug("Found Dedicated Bearer : UPF-N3-TEID[0x%x]",
+                        bearer->upf_n3_teid);
                 break;
             }
 
