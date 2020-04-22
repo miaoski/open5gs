@@ -343,7 +343,8 @@ void pgw_gx_send_ccr(pgw_sess_t *sess, ogs_gtp_xact_t *xact,
         ret = fd_msg_avp_add (avp, MSG_BRW_LAST_CHILD, avpch1);
         ogs_assert(ret == 0);
 
-        ret = fd_msg_avp_new(ogs_diam_gx_allocation_retention_priority, 0, &avpch1);
+        ret = fd_msg_avp_new(
+                ogs_diam_gx_allocation_retention_priority, 0, &avpch1);
         ogs_assert(ret == 0);
 
         ret = fd_msg_avp_new(ogs_diam_gx_priority_level, 0, &avpch2);
@@ -605,14 +606,16 @@ static void pgw_gx_cca_cb(void *data, struct msg **msg)
     ret = fd_msg_search_avp(*msg, ogs_diam_gx_qos_information, &avp);
     ogs_assert(ret == 0);
     if (avp) {
-        ret = fd_avp_search_avp(avp, ogs_diam_gx_apn_aggregate_max_bitrate_ul, &avpch1);
+        ret = fd_avp_search_avp(
+                avp, ogs_diam_gx_apn_aggregate_max_bitrate_ul, &avpch1);
         ogs_assert(ret == 0);
         if (avpch1) {
             ret = fd_msg_avp_hdr(avpch1, &hdr);
             ogs_assert(ret == 0);
             gx_message->pdn.ambr.uplink = hdr->avp_value->u32;
         }
-        ret = fd_avp_search_avp(avp, ogs_diam_gx_apn_aggregate_max_bitrate_dl, &avpch1);
+        ret = fd_avp_search_avp(
+                avp, ogs_diam_gx_apn_aggregate_max_bitrate_dl, &avpch1);
         ogs_assert(ret == 0);
         if (avpch1) {
             ret = fd_msg_avp_hdr(avpch1, &hdr);
@@ -632,7 +635,8 @@ static void pgw_gx_cca_cb(void *data, struct msg **msg)
             gx_message->pdn.qos.qci = hdr->avp_value->u32;
         }
 
-        ret = fd_avp_search_avp(avp, ogs_diam_gx_allocation_retention_priority, &avpch1);
+        ret = fd_avp_search_avp(
+                avp, ogs_diam_gx_allocation_retention_priority, &avpch1);
         ogs_assert(ret == 0);
         if (avpch1) {
             ret = fd_avp_search_avp(avpch1, ogs_diam_gx_priority_level, &avpch2);
@@ -643,7 +647,8 @@ static void pgw_gx_cca_cb(void *data, struct msg **msg)
                 gx_message->pdn.qos.arp.priority_level = hdr->avp_value->u32;
             }
 
-            ret = fd_avp_search_avp(avpch1, ogs_diam_gx_pre_emption_capability, &avpch2);
+            ret = fd_avp_search_avp(
+                    avpch1, ogs_diam_gx_pre_emption_capability, &avpch2);
             ogs_assert(ret == 0);
             if (avpch2) {
                 ret = fd_msg_avp_hdr(avpch2, &hdr);
@@ -781,7 +786,8 @@ out:
     ogs_debug("    CC-Request-Type[%d] Number[%d] in Session Data", 
         sess_data->cc_request_type, sess_data->cc_request_number);
     ogs_debug("    Current CC-Request-Number[%d]", cc_request_number);
-    if (sess_data->cc_request_type == OGS_DIAM_GX_CC_REQUEST_TYPE_TERMINATION_REQUEST &&
+    if (sess_data->cc_request_type ==
+            OGS_DIAM_GX_CC_REQUEST_TYPE_TERMINATION_REQUEST &&
         sess_data->cc_request_number <= cc_request_number) {
         ogs_debug("    [LAST] state_cleanup(): [%s]", sess_data->gx_sid);
         state_cleanup(sess_data, NULL, NULL);
@@ -1106,7 +1112,8 @@ static int decode_pcc_rule_definition(
                 flow->direction = hdr->avp_value->i32;
             }
 
-            ret = fd_avp_search_avp(avpch2, ogs_diam_gx_flow_description, &avpch3);
+            ret = fd_avp_search_avp(
+                    avpch2, ogs_diam_gx_flow_description, &avpch3);
             ogs_assert(ret == 0);
             if (avpch3)
             {
@@ -1141,7 +1148,8 @@ static int decode_pcc_rule_definition(
                 ogs_diam_gx_allocation_retention_priority, &avpch3);
             ogs_assert(ret == 0);
             if (avpch3) {
-                ret = fd_avp_search_avp(avpch3, ogs_diam_gx_priority_level, &avpch4);
+                ret = fd_avp_search_avp(
+                        avpch3, ogs_diam_gx_priority_level, &avpch4);
                 ogs_assert(ret == 0);
                 if (avpch4) {
                     ret = fd_msg_avp_hdr(avpch4, &hdr);
