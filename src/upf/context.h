@@ -53,20 +53,7 @@ typedef struct upf_context_s {
     ogs_timer_mgr_t *timer_mgr;     /* Timer Manager */
     ogs_pollset_t   *pollset;       /* Poll Set for I/O Multiplexing */
 
-#define MAX_NUM_OF_DNS              2
-    const char      *dns[MAX_NUM_OF_DNS];
-    const char      *dns6[MAX_NUM_OF_DNS];
-
-#define MAX_NUM_OF_P_CSCF           16
-    const char      *p_cscf[MAX_NUM_OF_P_CSCF];
-    int             num_of_p_cscf;
-    int             p_cscf_index;
-    const char      *p_cscf6[MAX_NUM_OF_P_CSCF];
-    int             num_of_p_cscf6;
-    int             p_cscf6_index;
-
-    ogs_list_t      sgw_s5c_list;   /* SGW GTPC Node List */
-    ogs_list_t      sgw_s5u_list;   /* SGW GTPU Node List */
+    ogs_list_t      gnb_n3_list;    /* gNB N3 Node List */
     ogs_list_t      ip_pool_list;
 
     ogs_hash_t      *sess_hash;     /* hash table (F-SEID) */
@@ -79,8 +66,6 @@ typedef struct upf_sess_s {
     ogs_lnode_t     lnode;
     uint32_t        index;          /**< An index of this node */
 
-    uint32_t        sgw_s5c_teid;   /* SGW-S5C-TEID is received from SGW */
-
     char            *gx_sid;        /* Gx Session ID */
 
     ogs_pfcp_sess_t pfcp;
@@ -89,14 +74,6 @@ typedef struct upf_sess_s {
     ogs_pdn_t       pdn;
     ogs_pfcp_ue_ip_t *ipv4;
     ogs_pfcp_ue_ip_t *ipv6;
-
-    /* User-Lication-Info */
-    ogs_tai_t       tai;
-    ogs_e_cgi_t     e_cgi;
-
-    /* Stored GTP message */
-    ogs_gtp_create_session_request_t *create_session_request;
-    ogs_gtp_delete_session_request_t *delete_session_request;
 
     ogs_list_t      bearer_list;
 
@@ -109,7 +86,7 @@ typedef struct upf_bearer_s {
     uint32_t        index;
 
     uint32_t        upf_n3_teid;
-    uint32_t        sgw_s5u_teid;
+    uint32_t        gnb_n3_teid;
 
     char            *name;          /* PCC Rule Name */
     ogs_qos_t       qos;            /* QoS Infomration */

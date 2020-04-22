@@ -58,8 +58,7 @@ void upf_context_init(void)
     ogs_list_init(&self.gtpu_list);
     ogs_list_init(&self.gtpu_resource_list);
 
-    ogs_list_init(&self.sgw_s5c_list);
-    ogs_list_init(&self.sgw_s5u_list);
+    ogs_list_init(&self.gnb_n3_list);
 
     ogs_pool_init(&upf_sess_pool, ogs_config()->pool.sess);
     ogs_pool_init(&upf_bearer_pool, ogs_config()->pool.bearer);
@@ -93,8 +92,7 @@ void upf_context_final(void)
     ogs_pool_final(&upf_sess_pool);
     ogs_pool_final(&upf_pf_pool);
 
-    ogs_gtp_node_remove_all(&self.sgw_s5c_list);
-    ogs_gtp_node_remove_all(&self.sgw_s5u_list);
+    ogs_gtp_node_remove_all(&self.gnb_n3_list);
 
     ogs_gtp_node_final();
     ogs_pfcp_gtpu_resource_remove_all(&self.gtpu_resource_list);
@@ -492,9 +490,6 @@ int upf_sess_remove(upf_sess_t *sess)
 
     ogs_list_remove(&ogs_pfcp_self()->sess_list, sess);
     ogs_pfcp_sess_clear(&sess->pfcp);
-
-    OGS_MEM_CLEAR(sess->create_session_request);
-    OGS_MEM_CLEAR(sess->delete_session_request);
 
     ogs_hash_set(self.sess_hash, &sess->pfcp.remote_n4_seid,
             sizeof(sess->pfcp.remote_n4_seid), NULL);

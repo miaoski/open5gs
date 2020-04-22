@@ -176,7 +176,7 @@ int testenb_gtpu_send(ogs_socknode_t *node, ogs_pkbuf_t *sendbuf)
 
     memset(&sgw, 0, sizeof(ogs_sockaddr_t));
     sgw.ogs_sin_port = htons(OGS_GTPV1_U_UDP_PORT);
-#if 1 /* For testing VoLTE */
+#if 0 /* For testing VoLTE */
     sgw.ogs_sa_family = AF_INET;
     sgw.sin.sin_addr.s_addr = inet_addr("127.0.0.2");
 #else

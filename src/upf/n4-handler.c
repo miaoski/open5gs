@@ -236,18 +236,18 @@ void upf_n4_handle_session_establishment_request(
             far->outer_header_creation.teid =
                 be32toh(far->outer_header_creation.teid);
 
-            /* Setup SGW-S5U-TEID */
-            bearer->sgw_s5u_teid = far->outer_header_creation.teid;
+            /* Setup gNB-N3-TEID */
+            bearer->gnb_n3_teid = far->outer_header_creation.teid;
 
             /* Setup GTP Node */
             rv = ogs_pfcp_outer_header_creation_to_ip(
                     &far->outer_header_creation, &ip);
             ogs_assert(rv == OGS_OK);
 
-            gnode = ogs_gtp_node_find_by_ip(&upf_self()->sgw_s5u_list, &ip);
+            gnode = ogs_gtp_node_find_by_ip(&upf_self()->gnb_n3_list, &ip);
             if (!gnode) {
                 gnode = ogs_gtp_node_add_by_ip(
-                    &upf_self()->sgw_s5u_list, &ip, upf_self()->gtpu_port,
+                    &upf_self()->gnb_n3_list, &ip, upf_self()->gtpu_port,
                     ogs_config()->parameter.no_ipv4,
                     ogs_config()->parameter.no_ipv6,
                     ogs_config()->parameter.prefer_ipv4);

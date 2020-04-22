@@ -45,8 +45,8 @@ ogs_pkbuf_t *smf_s5c_build_create_session_response(
     bearer = smf_default_bearer_in_sess(sess);
     ogs_assert(bearer);
 
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
     ogs_debug("    gNB_N3_TEID[0x%x] UPF_N3_TEID[0x%x]",
             bearer->gnb_n3_teid, bearer->upf_n3_teid);
 
@@ -63,7 +63,7 @@ ogs_pkbuf_t *smf_s5c_build_create_session_response(
     /* Control Plane(UL) : SMF-S5C */
     memset(&smf_s5c_teid, 0, sizeof(ogs_gtp_f_teid_t));
     smf_s5c_teid.interface_type = OGS_GTP_F_TEID_S5_S8_PGW_GTP_C;
-    smf_s5c_teid.teid = htobe32(sess->smf_s5c_teid);
+    smf_s5c_teid.teid = htobe32(sess->smf_n4_teid);
     rv = ogs_gtp_sockaddr_to_f_teid(
         smf_self()->gtpc_addr, smf_self()->gtpc_addr6, &smf_s5c_teid, &len);
     ogs_assert(rv == OGS_OK);
@@ -120,7 +120,7 @@ ogs_pkbuf_t *smf_s5c_build_create_session_response(
     upf_n3_teid.interface_type = OGS_GTP_F_TEID_S5_S8_PGW_GTP_U;
     upf_n3_teid.teid = htobe32(bearer->upf_n3_teid);
     rv = ogs_gtp_sockaddr_to_f_teid(
-        bearer->gtpu_addr, bearer->gtpu_addr6, &upf_n3_teid, &len);
+        bearer->upf_addr, bearer->upf_addr6, &upf_n3_teid, &len);
     ogs_assert(rv == OGS_OK);
     rsp->bearer_contexts_created.s5_s8_u_sgw_f_teid.presence = 1;
     rsp->bearer_contexts_created.s5_s8_u_sgw_f_teid.data = &upf_n3_teid;
@@ -193,8 +193,8 @@ ogs_pkbuf_t *smf_s5c_build_create_bearer_request(
     ogs_assert(linked_bearer);
 
     ogs_debug("[SMF] Create Bearer Request");
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     req = &gtp_message.create_bearer_request;
     memset(&gtp_message, 0, sizeof(ogs_gtp_message_t));
@@ -213,7 +213,7 @@ ogs_pkbuf_t *smf_s5c_build_create_bearer_request(
     upf_n3_teid.interface_type = OGS_GTP_F_TEID_S5_S8_PGW_GTP_U;
     upf_n3_teid.teid = htobe32(bearer->upf_n3_teid);
     rv = ogs_gtp_sockaddr_to_f_teid(
-        bearer->gtpu_addr, bearer->gtpu_addr6, &upf_n3_teid, &len);
+        bearer->upf_addr, bearer->upf_addr6, &upf_n3_teid, &len);
     ogs_assert(rv == OGS_OK);
     req->bearer_contexts.s5_s8_u_sgw_f_teid.presence = 1;
     req->bearer_contexts.s5_s8_u_sgw_f_teid.data = &upf_n3_teid;
@@ -266,8 +266,8 @@ ogs_pkbuf_t *smf_s5c_build_update_bearer_request(
     ogs_assert(sess);
 
     ogs_debug("[SMF] Update Bearer Request");
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
     req = &gtp_message.update_bearer_request;
     memset(&gtp_message, 0, sizeof(ogs_gtp_message_t));
  
@@ -344,8 +344,8 @@ ogs_pkbuf_t *smf_s5c_build_delete_bearer_request(
     ogs_assert(linked_bearer);
 
     ogs_debug("[SMF] Delete Bearer Request");
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
     req = &gtp_message.delete_bearer_request;
     memset(&gtp_message, 0, sizeof(ogs_gtp_message_t));
  

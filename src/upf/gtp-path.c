@@ -343,12 +343,12 @@ static int upf_gtp_send_to_bearer(upf_bearer_t *bearer, ogs_pkbuf_t *sendbuf)
     gtp_h->flags = 0x30;
     gtp_h->type = OGS_GTPU_MSGTYPE_GPDU;
     gtp_h->length = htobe16(sendbuf->len - OGS_GTPV1U_HEADER_LEN);
-    gtp_h->teid = htobe32(bearer->sgw_s5u_teid);
+    gtp_h->teid = htobe32(bearer->gnb_n3_teid);
 
     /* Send to SGW */
-    ogs_debug("[UPF] SEND GPU-U to SGW[%s] : TEID[0x%x]",
+    ogs_debug("[UPF] SEND GPU-U to gNB[%s] : TEID[0x%x]",
         OGS_ADDR(&bearer->gnode->addr, buf),
-        bearer->sgw_s5u_teid);
+        bearer->gnb_n3_teid);
     rv =  ogs_gtp_sendto(bearer->gnode, sendbuf);
 
     return rv;

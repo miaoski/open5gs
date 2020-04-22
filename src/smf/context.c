@@ -64,7 +64,6 @@ void smf_context_init(void)
     ogs_list_init(&self.gtpc_list6);
 
     ogs_list_init(&self.sgw_s5c_list);
-    ogs_list_init(&self.sgw_s5u_list);
 
     ogs_pool_init(&smf_sess_pool, ogs_config()->pool.sess);
     ogs_pool_init(&smf_bearer_pool, ogs_config()->pool.bearer);
@@ -97,7 +96,6 @@ void smf_context_final(void)
     ogs_pool_final(&smf_pf_pool);
 
     ogs_gtp_node_remove_all(&self.sgw_s5c_list);
-    ogs_gtp_node_remove_all(&self.sgw_s5u_list);
 
     ogs_gtp_node_final();
 
@@ -112,7 +110,6 @@ smf_context_t *smf_self(void)
 static int smf_context_prepare(void)
 {
     self.gtpc_port = OGS_GTPV2_C_UDP_PORT;
-    self.gtpu_port = OGS_GTPV1_U_UDP_PORT;
     self.diam_config->cnf_port = DIAMETER_PORT;
     self.diam_config->cnf_port_tls = DIAMETER_SECURE_PORT;
 
@@ -550,7 +547,7 @@ smf_sess_t *smf_sess_add(
     ogs_assert(sess->index > 0 && sess->index <= ogs_config()->pool.sess);
 
     /* Set TEID & SEID */
-    sess->smf_s5c_teid = sess->index;
+    sess->smf_n4_teid = sess->index;
     sess->pfcp.local_n4_seid = sess->index;
 
     /* Set IMSI */
@@ -839,8 +836,8 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
             sess->pdn.apn, OGS_PFCP_INTERFACE_ACCESS);
     if (resource) {
         ogs_pfcp_user_plane_ip_resource_info_to_sockaddr(&resource->info,
-            &bearer->gtpu_addr, &bearer->gtpu_addr6);
-        ogs_assert(bearer->gtpu_addr || bearer->gtpu_addr6);
+            &bearer->upf_addr, &bearer->upf_addr6);
+        ogs_assert(bearer->upf_addr || bearer->upf_addr6);
         if (resource->info.teidri)
             bearer->upf_n3_teid = UPF_S5U_INDEX_TO_TEID(
                     bearer->index, resource->info.teidri,
@@ -849,12 +846,12 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
             bearer->upf_n3_teid = bearer->index;
     } else {
         if (sess->pfcp.node->addr.ogs_sa_family == AF_INET)
-            ogs_copyaddrinfo(&bearer->gtpu_addr, &sess->pfcp.node->addr);
+            ogs_copyaddrinfo(&bearer->upf_addr, &sess->pfcp.node->addr);
         else if (sess->pfcp.node->addr.ogs_sa_family == AF_INET6)
-            ogs_copyaddrinfo(&bearer->gtpu_addr6, &sess->pfcp.node->addr);
+            ogs_copyaddrinfo(&bearer->upf_addr6, &sess->pfcp.node->addr);
         else
             ogs_assert_if_reached();
-        ogs_assert(bearer->gtpu_addr || bearer->gtpu_addr6);
+        ogs_assert(bearer->upf_addr || bearer->upf_addr6);
 
         bearer->upf_n3_teid = bearer->index;
     }
@@ -875,10 +872,10 @@ int smf_bearer_remove(smf_bearer_t *bearer)
 
     if (bearer->name)
         ogs_free(bearer->name);
-    if (bearer->gtpu_addr)
-        ogs_freeaddrinfo(bearer->gtpu_addr);
-    if (bearer->gtpu_addr6)
-        ogs_freeaddrinfo(bearer->gtpu_addr6);
+    if (bearer->upf_addr)
+        ogs_freeaddrinfo(bearer->upf_addr);
+    if (bearer->upf_addr6)
+        ogs_freeaddrinfo(bearer->upf_addr6);
 
     smf_pf_remove_all(bearer);
 

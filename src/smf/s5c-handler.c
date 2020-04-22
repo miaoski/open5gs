@@ -121,8 +121,8 @@ void smf_s5c_handle_create_session_request(
     rv = ogs_gtp_f_teid_to_ip(gnb_n3_teid, &bearer->gnb_ip);
     ogs_assert(rv == OGS_OK);
 
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
     ogs_debug("    gNB_N3_TEID[0x%x] UPF_N3_TEID[0x%x]",
             bearer->gnb_n3_teid, bearer->upf_n3_teid);
 
@@ -200,8 +200,8 @@ void smf_s5c_handle_delete_session_request(
         return;
     }
 
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     smf_gx_send_ccr(sess, xact,
         OGS_DIAM_GX_CC_REQUEST_TYPE_TERMINATION_REQUEST);
@@ -228,8 +228,8 @@ void smf_s5c_handle_create_bearer_response(
         return;
     }
 
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     if (rsp->cause.presence) {
         ogs_gtp_cause_t *cause = rsp->cause.data;
@@ -277,7 +277,7 @@ void smf_s5c_handle_create_bearer_response(
     ogs_assert(rv == OGS_OK);
 
     ogs_debug("[SMF] Create Bearer Response : SGW[0x%x] --> SMF[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 }
 
 void smf_s5c_handle_update_bearer_response(
@@ -299,8 +299,8 @@ void smf_s5c_handle_update_bearer_response(
         return;
     }
 
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     if (rsp->cause.presence) {
         ogs_gtp_cause_t *cause = rsp->cause.data;
@@ -322,7 +322,7 @@ void smf_s5c_handle_update_bearer_response(
     }
 
     ogs_debug("[SMF] Update Bearer Response : SGW[0x%x] --> SMF[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 }
 
 void smf_s5c_handle_delete_bearer_response(
@@ -345,8 +345,8 @@ void smf_s5c_handle_delete_bearer_response(
         return;
     }
 
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     if (rsp->cause.presence) {
         ogs_gtp_cause_t *cause = rsp->cause.data;
@@ -372,7 +372,7 @@ void smf_s5c_handle_delete_bearer_response(
     ogs_assert(bearer);
 
     ogs_debug("[SMF] Delete Bearer Response : SGW[0x%x] --> SMF[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     smf_bearer_remove(bearer);
 }
@@ -483,7 +483,7 @@ void smf_s5c_handle_bearer_resource_command(
 
     ogs_debug("[PGW] Bearer Resource Command");
     ogs_debug("    SGW_S5C_TEID[0x%x] PGW_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     cause_value = OGS_GTP_CAUSE_REQUEST_ACCEPTED;
 

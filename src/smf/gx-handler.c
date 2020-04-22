@@ -39,8 +39,8 @@ static void timeout(ogs_gtp_xact_t *xact, void *data)
 
     type = xact->seq[0].type;
 
-    ogs_debug("GTP Timeout : SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x] "
-            "Message-Type[%d]", sess->sgw_s5c_teid, sess->smf_s5c_teid, type);
+    ogs_debug("GTP Timeout : SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x] "
+            "Message-Type[%d]", sess->sgw_s5c_teid, sess->smf_n4_teid, type);
 }
 
 static uint8_t gtp_cause_from_diameter(
@@ -71,7 +71,7 @@ void smf_gx_handle_cca_initial_request(
 
     ogs_debug("[PGW] Create Session Response");
     ogs_debug("    SGW_S5C_TEID[0x%x] PGW_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     if (gx_message->result_code != ER_DIAMETER_SUCCESS) {
         uint8_t cause_value = gtp_cause_from_diameter(
@@ -96,8 +96,8 @@ void smf_gx_handle_cca_termination_request(
     ogs_assert(gtp_xact);
 
     ogs_debug("[SMF] Delete Session Response");
-    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_S5C_TEID[0x%x]",
-            sess->sgw_s5c_teid, sess->smf_s5c_teid);
+    ogs_debug("    SGW_S5C_TEID[0x%x] SMF_N4_TEID[0x%x]",
+            sess->sgw_s5c_teid, sess->smf_n4_teid);
 
     smf_pfcp_send_session_deletion_request(sess, gtp_xact);
 }

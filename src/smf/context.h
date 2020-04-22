@@ -45,7 +45,6 @@ typedef struct smf_context_s {
     ogs_diam_config_t   *diam_config;     /* SMF Diameter config */
 
     uint32_t        gtpc_port;      /* Default: SMF GTP-C local port */
-    uint32_t        gtpu_port;      /* Default: UPF GTP-U local port */
 
     ogs_list_t      gtpc_list;      /* SMF GTPC IPv4 Server List */
     ogs_list_t      gtpc_list6;     /* SMF GTPC IPv6 Server List */
@@ -73,7 +72,6 @@ typedef struct smf_context_s {
     int             p_cscf6_index;
 
     ogs_list_t      sgw_s5c_list;   /* SGW GTPC Node List */
-    ogs_list_t      sgw_s5u_list;   /* SGW GTPU Node List */
     ogs_list_t      ip_pool_list;
 
     ogs_hash_t      *sess_hash;     /* hash table (IMSI+APN) */
@@ -87,7 +85,7 @@ typedef struct smf_sess_s {
     ogs_lnode_t     lnode;
     uint32_t        index;          /**< An index of this node */
 
-    uint32_t        smf_s5c_teid;   /* SMF-S5C-TEID is derived from INDEX */
+    uint32_t        smf_n4_teid;    /* SMF-N4-TEID is derived from INDEX */
     uint32_t        sgw_s5c_teid;   /* SGW-S5C-TEID is received from SGW */
 
     char            *gx_sid;        /* Gx Session ID */
@@ -132,8 +130,8 @@ typedef struct smf_bearer_s {
 #define UPF_S5U_INDEX_TO_TEID(__iNDEX, __iND, __rANGE) \
     (__iNDEX | (__rANGE << (32 - __iND)))
     uint32_t        upf_n3_teid;    /* UPF_N3 TEID */
-    ogs_sockaddr_t  *gtpu_addr;     /* UPF_N3 IPv4 */
-    ogs_sockaddr_t  *gtpu_addr6;    /* UPF_N3 IPv6 */
+    ogs_sockaddr_t  *upf_addr;      /* UPF_N3 IPv4 */
+    ogs_sockaddr_t  *upf_addr6;     /* UPF_N3 IPv6 */
 
     uint32_t        gnb_n3_teid;    /* gNB_N3 TEID */
     ogs_ip_t        gnb_ip;         /* gNB_N3 IP */
@@ -147,7 +145,6 @@ typedef struct smf_bearer_s {
     ogs_list_t      pf_list;
 
     smf_sess_t      *sess;
-    ogs_gtp_node_t  *gnode;
 } smf_bearer_t;
 
 typedef struct smf_rule_s {
