@@ -67,6 +67,7 @@ void upf_context_init(void)
     ogs_pool_init(&upf_pf_pool, ogs_config()->pool.pf);
 
     self.sess_hash = ogs_hash_make();
+    self.bearer_hash = ogs_hash_make();
     self.ipv4_hash = ogs_hash_make();
     self.ipv6_hash = ogs_hash_make();
 
@@ -81,6 +82,8 @@ void upf_context_final(void)
 
     ogs_assert(self.sess_hash);
     ogs_hash_destroy(self.sess_hash);
+    ogs_assert(self.bearer_hash);
+    ogs_hash_destroy(self.bearer_hash);
     ogs_assert(self.ipv4_hash);
     ogs_hash_destroy(self.ipv4_hash);
     ogs_assert(self.ipv6_hash);
@@ -528,11 +531,6 @@ upf_sess_t *upf_sess_find(uint32_t index)
     return ogs_pool_find(&upf_sess_pool, index);
 }
 
-upf_sess_t *upf_sess_find_by_teid(uint32_t teid)
-{
-    return upf_sess_find(teid);
-}
-
 upf_sess_t *upf_sess_find_by_cp_seid(uint64_t seid)
 {
     return (upf_sess_t *)ogs_hash_get(self.sess_hash, &seid, sizeof(seid));
@@ -650,6 +648,11 @@ int upf_bearer_remove(upf_bearer_t *bearer)
 
     ogs_list_remove(&bearer->sess->bearer_list, bearer);
 
+    if (bearer->upf_n3_teid) {
+        ogs_hash_set(self.bearer_hash, &bearer->upf_n3_teid,
+                sizeof(bearer->upf_n3_teid), NULL);
+    }
+
     if (bearer->name)
         ogs_free(bearer->name);
 
@@ -669,15 +672,9 @@ void upf_bearer_remove_all(upf_sess_t *sess)
         upf_bearer_remove(bearer);
 }
 
-upf_bearer_t *upf_bearer_find(uint32_t index)
+upf_bearer_t *upf_bearer_find_by_upf_n3_teid(uint32_t teid)
 {
-    ogs_assert(index);
-    return ogs_pool_find(&upf_bearer_pool, index);
-}
-
-upf_bearer_t *upf_bearer_find_by_upf_n3_teid(uint32_t upf_n3_teid)
-{
-    return upf_bearer_find(upf_n3_teid);
+    return (upf_bearer_t *)ogs_hash_get(self.bearer_hash, &teid, sizeof(teid));
 }
 
 upf_bearer_t *upf_bearer_find_by_name(upf_sess_t *sess, char *name)

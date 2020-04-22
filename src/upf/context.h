@@ -70,9 +70,9 @@ typedef struct upf_context_s {
     ogs_list_t      ip_pool_list;
 
     ogs_hash_t      *sess_hash;     /* hash table (F-SEID) */
+    ogs_hash_t      *bearer_hash;   /* hash table (UPF-N3-TEID) */
     ogs_hash_t      *ipv4_hash;     /* hash table (IPv4 Address) */
     ogs_hash_t      *ipv6_hash;     /* hash table (IPv6 Address) */
-    ogs_hash_t      *_hash;     /* hash table (IPv6 Address) */
 } upf_context_t;
 
 typedef struct upf_sess_s {
@@ -176,7 +176,6 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *f_seid,
 int upf_sess_remove(upf_sess_t *sess);
 void upf_sess_remove_all(void);
 upf_sess_t *upf_sess_find(uint32_t index);
-upf_sess_t *upf_sess_find_by_teid(uint32_t teid);
 upf_sess_t *upf_sess_find_by_cp_seid(uint64_t seid);
 upf_sess_t *upf_sess_find_by_up_seid(uint64_t seid);
 upf_sess_t *upf_sess_find_by_ipv4(uint32_t addr);

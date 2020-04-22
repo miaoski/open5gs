@@ -175,7 +175,11 @@ int testenb_gtpu_send(ogs_socknode_t *node, ogs_pkbuf_t *sendbuf)
     ogs_assert(node->sock);
 
     memset(&sgw, 0, sizeof(ogs_sockaddr_t));
-#if 0
+#if 0 /* For testing VoLTE */
+    sgw.ogs_sin_port = htons(OGS_GTPV1_U_UDP_PORT);
+    sgw.ogs_sa_family = AF_INET;
+    sgw.sin.sin_addr.s_addr = inet_addr("127.0.0.2");
+#else
     mme_ue = ogs_list_first(&mme_self()->mme_ue_list);
     ogs_assert(mme_ue);
     sess = mme_sess_first(mme_ue);
@@ -198,10 +202,6 @@ int testenb_gtpu_send(ogs_socknode_t *node, ogs_pkbuf_t *sendbuf)
         sgw.ogs_sa_family = AF_INET;
         sgw.sin.sin_addr.s_addr = bearer->sgw_s1u_ip.addr;
     }
-#else
-    sgw.ogs_sin_port = htons(OGS_GTPV1_U_UDP_PORT);
-    sgw.ogs_sa_family = AF_INET;
-    sgw.sin.sin_addr.s_addr = inet_addr("127.0.0.2");
 #endif
 
     sent = ogs_sendto(node->sock->fd, sendbuf->data, sendbuf->len, 0, &sgw);
