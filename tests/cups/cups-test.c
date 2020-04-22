@@ -207,9 +207,9 @@ static void cups_test1(abts_case *tc, void *data)
     ABTS_PTR_NOTNULL(tc, recvbuf);
     ogs_pkbuf_free(recvbuf);
 
-#if 0
+#if 0 /* For Testing */
     /* Send GTP-U ICMP Packet */
-    rv = testgtpu_build_ping(&sendbuf, "10.45.0.2", "10.45.0.1");
+    rv = testgtpu_build_ping(&sendbuf, 1, "10.45.0.2", "10.45.0.1");
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
     rv = testenb_gtpu_send(gtpu, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
@@ -220,7 +220,6 @@ static void cups_test1(abts_case *tc, void *data)
     ogs_pkbuf_free(recvbuf);
 #endif
 
-#if 0
     /* Send PDN Connectivity Request */
     rv = tests1ap_build_pdn_connectivity_request(&sendbuf, msgindex);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
@@ -245,6 +244,16 @@ static void cups_test1(abts_case *tc, void *data)
     rv = testenb_s1ap_send(s1ap, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
 
+#if 0 /* For Testing */
+    ogs_msleep(300);
+    /* Send GTP-U ICMP Packet */
+    rv = testgtpu_build_ping(&sendbuf, 3, "10.45.0.3", "10.45.0.1");
+    ABTS_INT_EQUAL(tc, OGS_OK, rv);
+    rv = testenb_gtpu_send(gtpu, sendbuf);
+    ABTS_INT_EQUAL(tc, OGS_OK, rv);
+#endif
+
+#if 0
     /* Send AA-Request */
     ogs_msleep(300);
     pcscf_rx_send_aar(&rx_sid, "45.45.0.3", 1, 1);
@@ -394,8 +403,6 @@ static void cups_test1(abts_case *tc, void *data)
     rv = testenb_s1ap_send(s1ap, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
 
-#endif
-
     ogs_msleep(50);
 
     /* Send Detach Request */
@@ -414,6 +421,8 @@ static void cups_test1(abts_case *tc, void *data)
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
     rv = testenb_s1ap_send(s1ap, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
+
+#endif
 
     ogs_msleep(300);
 

@@ -175,8 +175,8 @@ int testenb_gtpu_send(ogs_socknode_t *node, ogs_pkbuf_t *sendbuf)
     ogs_assert(node->sock);
 
     memset(&sgw, 0, sizeof(ogs_sockaddr_t));
-#if 0 /* For testing VoLTE */
     sgw.ogs_sin_port = htons(OGS_GTPV1_U_UDP_PORT);
+#if 0 /* For testing VoLTE */
     sgw.ogs_sa_family = AF_INET;
     sgw.sin.sin_addr.s_addr = inet_addr("127.0.0.2");
 #else
@@ -187,7 +187,6 @@ int testenb_gtpu_send(ogs_socknode_t *node, ogs_pkbuf_t *sendbuf)
     bearer = mme_bearer_first(sess);
     ogs_assert(bearer);
 
-    sgw.ogs_sin_port = htons(OGS_GTPV1_U_UDP_PORT);
     if (bearer->sgw_s1u_ip.ipv6) {
         sgw.ogs_sa_family = AF_INET6;
         if (bearer->sgw_s1u_ip.ipv4)
@@ -3525,8 +3524,8 @@ int tests1ap_build_uplink_nas_transport(ogs_pkbuf_t **pkbuf, int i)
 
 uint16_t in_cksum(uint16_t *addr, int len); /* from pgw_gtp_path.c */
 
-int testgtpu_build_ping(
-        ogs_pkbuf_t **sendbuf, const char *src_ip, const char *dst_ip)
+int testgtpu_build_ping(ogs_pkbuf_t **sendbuf,
+        const uint32_t teid, const char *src_ip, const char *dst_ip)
 {
     int rv;
     ogs_pkbuf_t *pkbuf = NULL;
@@ -3548,7 +3547,7 @@ int testgtpu_build_ping(
     gtp_h = (ogs_gtp_header_t *)pkbuf->data;
     gtp_h->flags = 0x30;
     gtp_h->type = OGS_GTPU_MSGTYPE_GPDU;
-    gtp_h->teid = htonl(1);
+    gtp_h->teid = htonl(teid);
 
     if (dst_ipsub.family == AF_INET) {
         struct ip *ip_h = NULL;
