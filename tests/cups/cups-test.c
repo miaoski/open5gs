@@ -253,11 +253,12 @@ static void cups_test1(abts_case *tc, void *data)
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
 #endif
 
-#if 0
     /* Send AA-Request */
     ogs_msleep(300);
-    pcscf_rx_send_aar(&rx_sid, "45.45.0.3", 1, 1);
+    pcscf_rx_send_aar(&rx_sid, "10.45.0.3", 1, 1);
 
+    ogs_msleep(300);
+#if 0
     /* Receive E-RAB Setup Request +
      * Activate dedicated EPS bearer context request */
     recvbuf = testenb_s1ap_read(s1ap);

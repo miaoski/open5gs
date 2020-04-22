@@ -236,7 +236,8 @@ void pcscf_rx_send_aar(uint8_t **rx_sid, const char *ip,
     ogs_assert(ret == 0);
 
     if (qos_type == 1) {
-        ret = fd_msg_avp_new(ogs_diam_rx_max_requested_bandwidth_dl, 0, &avpch1);
+        ret = fd_msg_avp_new(
+                ogs_diam_rx_max_requested_bandwidth_dl, 0, &avpch1);
         ogs_assert(ret == 0);
         val.i32 = 96000;
         ret = fd_msg_avp_setvalue (avpch1, &val);
@@ -244,7 +245,8 @@ void pcscf_rx_send_aar(uint8_t **rx_sid, const char *ip,
         ret = fd_msg_avp_add (avp, MSG_BRW_LAST_CHILD, avpch1);
         ogs_assert(ret == 0);
 
-        ret = fd_msg_avp_new(ogs_diam_rx_max_requested_bandwidth_ul, 0, &avpch1);
+        ret = fd_msg_avp_new(
+                ogs_diam_rx_max_requested_bandwidth_ul, 0, &avpch1);
         ogs_assert(ret == 0);
         val.i32 = 96000;
         ret = fd_msg_avp_setvalue (avpch1, &val);
@@ -268,7 +270,8 @@ void pcscf_rx_send_aar(uint8_t **rx_sid, const char *ip,
         ret = fd_msg_avp_add (avp, MSG_BRW_LAST_CHILD, avpch1);
         ogs_assert(ret == 0);
     } else if (qos_type == 2) {
-        ret = fd_msg_avp_new(ogs_diam_rx_max_requested_bandwidth_dl, 0, &avpch1);
+        ret = fd_msg_avp_new(
+                ogs_diam_rx_max_requested_bandwidth_dl, 0, &avpch1);
         ogs_assert(ret == 0);
         val.i32 = 96000;
         ret = fd_msg_avp_setvalue (avpch1, &val);
@@ -276,7 +279,8 @@ void pcscf_rx_send_aar(uint8_t **rx_sid, const char *ip,
         ret = fd_msg_avp_add (avp, MSG_BRW_LAST_CHILD, avpch1);
         ogs_assert(ret == 0);
 
-        ret = fd_msg_avp_new(ogs_diam_rx_max_requested_bandwidth_ul, 0, &avpch1);
+        ret = fd_msg_avp_new(
+                ogs_diam_rx_max_requested_bandwidth_ul, 0, &avpch1);
         ogs_assert(ret == 0);
         val.i32 = 96000;
         ret = fd_msg_avp_setvalue (avpch1, &val);
@@ -284,7 +288,8 @@ void pcscf_rx_send_aar(uint8_t **rx_sid, const char *ip,
         ret = fd_msg_avp_add (avp, MSG_BRW_LAST_CHILD, avpch1);
         ogs_assert(ret == 0);
 
-        ret = fd_msg_avp_new(ogs_diam_rx_min_requested_bandwidth_dl, 0, &avpch1);
+        ret = fd_msg_avp_new(
+                ogs_diam_rx_min_requested_bandwidth_dl, 0, &avpch1);
         ogs_assert(ret == 0);
         val.i32 = 88000;
         ret = fd_msg_avp_setvalue (avpch1, &val);
@@ -292,7 +297,8 @@ void pcscf_rx_send_aar(uint8_t **rx_sid, const char *ip,
         ret = fd_msg_avp_add (avp, MSG_BRW_LAST_CHILD, avpch1);
         ogs_assert(ret == 0);
 
-        ret = fd_msg_avp_new(ogs_diam_rx_min_requested_bandwidth_ul, 0, &avpch1);
+        ret = fd_msg_avp_new(
+                ogs_diam_rx_min_requested_bandwidth_ul, 0, &avpch1);
         ogs_assert(ret == 0);
         val.i32 = 88000;
         ret = fd_msg_avp_setvalue (avpch1, &val);
@@ -447,7 +453,8 @@ static void pcscf_rx_aaa_cb(void *data, struct msg **msg)
         ret = fd_msg_search_avp(*msg, ogs_diam_experimental_result, &avp);
         ogs_assert(ret == 0);
         if (avp) {
-            ret = fd_avp_search_avp(avp, ogs_diam_experimental_result_code, &avpch1);
+            ret = fd_avp_search_avp(
+                    avp, ogs_diam_experimental_result_code, &avpch1);
             ogs_assert(ret == 0);
             if (avpch1) {
                 ret = fd_msg_avp_hdr(avpch1, &hdr);
@@ -754,7 +761,8 @@ static void pcscf_rx_sta_cb(void *data, struct msg **msg)
         ret = fd_msg_search_avp(*msg, ogs_diam_experimental_result, &avp);
         ogs_assert(ret == 0);
         if (avp) {
-            ret = fd_avp_search_avp(avp, ogs_diam_experimental_result_code, &avpch1);
+            ret = fd_avp_search_avp(
+                    avp, ogs_diam_experimental_result_code, &avpch1);
             ogs_assert(ret == 0);
             if (avpch1) {
                 ret = fd_msg_avp_hdr(avpch1, &hdr);
