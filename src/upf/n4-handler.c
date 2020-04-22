@@ -231,6 +231,10 @@ void upf_n4_handle_session_establishment_request(
             far->outer_header_creation.teid =
                 be32toh(far->outer_header_creation.teid);
 
+            /* Setup SGW-S5U-TEID */
+            bearer->sgw_s5u_teid = far->outer_header_creation.teid;
+
+            /* Setup GTP Node */
             rv = ogs_pfcp_outer_header_creation_to_ip(
                     &far->outer_header_creation, &ip);
             ogs_assert(rv == OGS_OK);
@@ -248,7 +252,6 @@ void upf_n4_handle_session_establishment_request(
                         upf_self()->gtpu_sock, upf_self()->gtpu_sock6, gnode);
                 ogs_assert(rv == OGS_OK);
             }
-            /* Setup GTP Node */
             OGS_SETUP_GTP_NODE(bearer, gnode);
         } else if (far->dst_if == OGS_PFCP_INTERFACE_CORE) {  /* Uplink */
 
