@@ -734,6 +734,16 @@ static ogs_pfcp_pdr_t *ogs_pfcp_pdr_new(ogs_pfcp_sess_t *sess)
     return pdr;
 }
 
+static int precedence_compare(ogs_pfcp_pdr_t *pdr1, ogs_pfcp_pdr_t *pdr2)
+{
+    if (pdr1->precedence == pdr2->precedence)
+        return 0;
+    else if (pdr1->precedence < pdr2->precedence)
+        return -1;
+    else
+        return 1;
+}
+
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess,
         ogs_pfcp_precedence_t precedence)
 {
@@ -747,7 +757,7 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess,
     pdr->id = OGS_NEXT_ID(sess->pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
     pdr->precedence = precedence;
 
-    ogs_list_add(&sess->pdr_list, pdr);
+    ogs_list_insert_sorted(&sess->pdr_list, pdr, precedence_compare);
 
     return pdr;
 }
@@ -783,7 +793,7 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(ogs_pfcp_sess_t *sess,
     }
 
     pdr->precedence = precedence;
-    ogs_list_add(&sess->pdr_list, pdr);
+    ogs_list_insert_sorted(&sess->pdr_list, pdr, precedence_compare);
 
     return pdr;
 }

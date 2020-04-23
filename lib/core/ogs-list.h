@@ -146,14 +146,18 @@ static ogs_inline void ogs_list_insert_next(
     prev->next = node;
 }
 
-static ogs_inline void ogs_list_insert_sorted(
-    ogs_list_t *list, void *lnode, int (*cb)(ogs_lnode_t *n1, ogs_lnode_t *n2))
+typedef int (*ogs_list_compare_f)(ogs_lnode_t *n1, ogs_lnode_t *n2);
+#define ogs_list_insert_sorted(__list, __lnode, __compare) \
+    __ogs_list_insert_sorted(__list, __lnode, (ogs_list_compare_f)__compare);
+
+static ogs_inline void __ogs_list_insert_sorted(
+    ogs_list_t *list, void *lnode, ogs_list_compare_f compare)
 {
     ogs_list_t *node = lnode;
     ogs_list_t *iter = NULL;
 
     ogs_list_for_each(list, iter) {
-        if ((*cb)(node, iter) < 0) {
+        if ((*compare)(node, iter) < 0) {
             ogs_list_insert_prev(list, iter, node);
             break;
         }
