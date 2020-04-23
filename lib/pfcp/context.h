@@ -235,11 +235,12 @@ void ogs_pfcp_gtpu_resource_remove_all(ogs_list_t *list);
 
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess);
 
-ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess);
+ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess,
+        ogs_pfcp_precedence_t precedence);
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_by_id(
         ogs_pfcp_sess_t *sess, ogs_pfcp_pdr_id_t id);
-ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(
-        ogs_pfcp_sess_t *sess, ogs_pfcp_pdr_id_t id);
+ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(ogs_pfcp_sess_t *sess,
+        ogs_pfcp_pdr_id_t id, ogs_pfcp_precedence_t precedence);
 void ogs_pfcp_pdr_remove(ogs_pfcp_pdr_t *pdr);
 void ogs_pfcp_pdr_remove_all(ogs_pfcp_sess_t *sess);
 

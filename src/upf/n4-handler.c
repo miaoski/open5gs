@@ -99,15 +99,16 @@ void upf_n4_handle_session_establishment_request(
             break;
         }
 
-        pdr = ogs_pfcp_pdr_find_or_add(&sess->pfcp, message->pdr_id.u16);
-        ogs_assert(pdr);
-
         if (message->precedence.presence == 0) {
             ogs_warn("No Presence in PDR");
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
             offending_ie_value = OGS_PFCP_PRECEDENCE_TYPE;
             break;
         }
+
+        pdr = ogs_pfcp_pdr_find_or_add(
+                &sess->pfcp, message->pdr_id.u16, message->precedence.u32);
+        ogs_assert(pdr);
 
         if (message->pdi.presence == 0) {
             ogs_warn("No PDI in PDR");

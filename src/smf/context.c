@@ -797,6 +797,7 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 {
     smf_bearer_t *bearer = NULL;
     ogs_pfcp_gtpu_resource_t *resource = NULL;
+    ogs_pfcp_precedence_t precedence = 0;
 
     ogs_pfcp_pdr_t *dl_pdr = NULL;
     ogs_pfcp_pdr_t *ul_pdr = NULL;
@@ -815,30 +816,22 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 
     ogs_list_init(&bearer->pf_list);
 
-    /* Set PFCP Context */
-    dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
+    /* First PDR(highest procedence value) is lowest precedence */
+    precedence = OGS_MAX_NUM_OF_PDR;
+
+    dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp, precedence);
     ogs_assert(dl_pdr);
-    ul_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
+    ul_pdr = ogs_pfcp_pdr_add(&sess->pfcp, precedence);
     ogs_assert(ul_pdr);
     dl_far = ogs_pfcp_far_add(dl_pdr);
     ogs_assert(dl_far);
     ul_far = ogs_pfcp_far_add(ul_pdr);
     ogs_assert(ul_far);
 
-    dl_pdr->id = OGS_NEXT_ID(sess->pfcp.pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
-    dl_pdr->precedence = dl_pdr->id; /* TODO : it will be fixed */
     dl_pdr->src_if = OGS_PFCP_INTERFACE_CORE;
-
-    dl_far->id = OGS_NEXT_ID(sess->pfcp.far_id, 1, OGS_MAX_NUM_OF_FAR+1);
-    dl_far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
     dl_far->dst_if = OGS_PFCP_INTERFACE_ACCESS;
 
-    ul_pdr->id = OGS_NEXT_ID(sess->pfcp.pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
-    ul_pdr->precedence = ul_pdr->id; /* TODO : it will be fixed */
     ul_pdr->src_if = OGS_PFCP_INTERFACE_ACCESS;
-
-    ul_far->id = OGS_NEXT_ID(sess->pfcp.far_id, 1, OGS_MAX_NUM_OF_FAR+1);
-    ul_far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
     ul_far->dst_if = OGS_PFCP_INTERFACE_CORE;
 
     resource = ogs_pfcp_gtpu_resource_find(

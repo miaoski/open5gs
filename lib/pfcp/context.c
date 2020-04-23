@@ -719,7 +719,7 @@ void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess)
     if (sess->bar) ogs_pfcp_bar_delete(sess->bar);
 }
 
-ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess)
+static ogs_pfcp_pdr_t *ogs_pfcp_pdr_new(ogs_pfcp_sess_t *sess)
 {
     ogs_pfcp_pdr_t *pdr = NULL;
 
@@ -730,6 +730,22 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess)
     memset(pdr, 0, sizeof *pdr);
 
     pdr->sess = sess;
+
+    return pdr;
+}
+
+ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess,
+        ogs_pfcp_precedence_t precedence)
+{
+    ogs_pfcp_pdr_t *pdr = NULL;
+
+    ogs_assert(sess);
+
+    pdr = ogs_pfcp_pdr_new(sess);
+    ogs_assert(pdr);
+
+    pdr->id = OGS_NEXT_ID(sess->pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
+    pdr->precedence = precedence;
 
     ogs_list_add(&sess->pdr_list, pdr);
 
@@ -750,8 +766,8 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_by_id(
     return NULL;
 }
 
-ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(
-        ogs_pfcp_sess_t *sess, ogs_pfcp_pdr_id_t id)
+ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(ogs_pfcp_sess_t *sess,
+        ogs_pfcp_pdr_id_t id, ogs_pfcp_precedence_t precedence)
 {
     ogs_pfcp_pdr_t *pdr = NULL;
 
@@ -759,10 +775,15 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(
 
     pdr = ogs_pfcp_pdr_find_by_id(sess, id);
     if (!pdr) {
-        pdr = ogs_pfcp_pdr_add(sess);
+        pdr = ogs_pfcp_pdr_new(sess);
         ogs_assert(pdr);
         pdr->id = id;
+    } else {
+        ogs_list_remove(&sess->pdr_list, pdr);
     }
+
+    pdr->precedence = precedence;
+    ogs_list_add(&sess->pdr_list, pdr);
 
     return pdr;
 }
@@ -785,7 +806,7 @@ void ogs_pfcp_pdr_remove_all(ogs_pfcp_sess_t *sess)
         ogs_pfcp_pdr_remove(pdr);
 }
 
-ogs_pfcp_far_t *ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
+static ogs_pfcp_far_t *ogs_pfcp_far_new(ogs_pfcp_pdr_t *pdr)
 {
     ogs_pfcp_far_t *far = NULL;
     ogs_pfcp_sess_t *sess = NULL;
@@ -798,8 +819,27 @@ ogs_pfcp_far_t *ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
     ogs_assert(far);
     memset(far, 0, sizeof *far);
 
+    far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
+
     far->pdr = pdr;
     pdr->far = far;
+
+    return far;
+}
+
+ogs_pfcp_far_t *ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
+{
+    ogs_pfcp_far_t *far = NULL;
+    ogs_pfcp_sess_t *sess = NULL;
+
+    ogs_assert(pdr);
+    sess = pdr->sess;
+    ogs_assert(sess);
+
+    far = ogs_pfcp_far_new(pdr);
+    ogs_assert(far);
+
+    far->id = OGS_NEXT_ID(sess->far_id, 1, OGS_MAX_NUM_OF_FAR+1);
 
     ogs_list_add(&sess->far_list, far);
 
@@ -832,9 +872,11 @@ ogs_pfcp_far_t *ogs_pfcp_far_find_or_add(
 
     far = ogs_pfcp_far_find_by_id(sess, id);
     if (!far) {
-        far = ogs_pfcp_far_add(pdr);
+        far = ogs_pfcp_far_new(pdr);
         ogs_assert(far);
         far->id = id;
+
+        ogs_list_add(&sess->far_list, far);
     }
 
     return far;
