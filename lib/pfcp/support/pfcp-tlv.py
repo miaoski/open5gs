@@ -154,6 +154,8 @@ def get_cells(cells):
         tlv_more = "1"
     if ie_type == 'User Plane IP Resource Information':
         tlv_more = "3"
+    if ie_type == 'SDF Filter':
+        tlv_more = "3"
 
     if int(tlv_more) > int(type_list[ie_type]["max_tlv_more"]):
         type_list[ie_type]["max_tlv_more"] = tlv_more
@@ -557,8 +559,11 @@ for (k, v) in sorted_group_list:
     f.write("typedef struct ogs_pfcp_tlv_" + v_lower(k) + "_s {\n")
     f.write("    ogs_tlv_presence_t presence;\n")
     for ies in group_list[k]["ies"]:
-        f.write("    ogs_pfcp_tlv_" + v_lower(ies["ie_type"]) + "_t " + \
-                v_lower(ies["ie_value"]) + ";\n")
+        if type_list[ies["ie_type"]]["max_tlv_more"] != "0":
+            f.write("    ogs_pfcp_tlv_" + v_lower(ies["ie_type"]) + "_t " + v_lower(ies["ie_value"]) + "[" + str(int(ies["tlv_more"])+1) + "];\n")
+        else:
+            f.write("    ogs_pfcp_tlv_" + v_lower(ies["ie_type"]) + "_t " + \
+                    v_lower(ies["ie_value"]) + ";\n")
     f.write("} ogs_pfcp_tlv_" + v_lower(k) + "_t;\n")
     f.write("\n")
 
@@ -642,6 +647,8 @@ for (k, v) in sorted_group_list:
     f.write("    {\n")
     for ies in group_list[k]["ies"]:
         f.write("        &ogs_pfcp_tlv_desc_%s,\n" % v_lower(ies["ie_type"]))
+        if type_list[ies["ie_type"]]["max_tlv_more"] != "0":
+            f.write("        &ogs_tlv_desc_more" + str(int(ies["tlv_more"])+1) + ",\n")
     f.write("        NULL,\n")
     f.write("    }\n")
     f.write("};\n\n")
