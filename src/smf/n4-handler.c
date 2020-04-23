@@ -21,12 +21,16 @@
 #include "timer.h"
 #include "pfcp-path.h"
 #include "gtp-path.h"
+#if 0
 #include "s5c-build.h"
 #include "ipfw.h"
 #include "ipfw/ipfw2.h"
+#endif
 #include "n4-handler.h"
 
+#if 0 
 static void bearer_binding(smf_sess_t *sess);
+#endif
 
 static uint8_t gtp_cause_from_pfcp(uint8_t pfcp_cause)
 {
@@ -194,7 +198,9 @@ void smf_n4_handle_session_establishment_response(
 
     smf_gtp_send_create_session_response(sess, gtp_xact);
 
+#if 0
     bearer_binding(sess);
+#endif
 }
 
 void smf_n4_handle_session_deletion_response(
@@ -242,6 +248,7 @@ void smf_n4_handle_session_deletion_response(
     smf_sess_remove(sess);
 }
 
+#if 0
 static void encode_traffic_flow_template(
         ogs_gtp_tft_t *tft, smf_bearer_t *bearer)
 {
@@ -518,3 +525,4 @@ static void bearer_binding(smf_sess_t *sess)
         }
     }
 }
+#endif

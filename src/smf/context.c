@@ -221,7 +221,8 @@ int smf_context_parse_config(void)
                                             conf = ogs_yaml_iter_value(
                                                     &ext_iter);
                                         } else
-                                            ogs_warn("unknown key `%s`", ext_key);
+                                            ogs_warn("unknown key `%s`",
+                                                    ext_key);
                                     }
 
                                     if (module) {
@@ -274,7 +275,8 @@ int smf_context_parse_config(void)
                                                 ogs_yaml_iter_value(&conn_iter);
                                             if (v) port = atoi(v);
                                         } else
-                                            ogs_warn("unknown key `%s`", conn_key);
+                                            ogs_warn("unknown key `%s`",
+                                                    conn_key);
                                     }
 
                                     if (identity && addr) {
@@ -330,7 +332,8 @@ int smf_context_parse_config(void)
                                 if (v) family = atoi(v);
                                 if (family != AF_UNSPEC &&
                                     family != AF_INET && family != AF_INET6) {
-                                    ogs_warn("Ignore family(%d) : AF_UNSPEC(%d), "
+                                    ogs_warn("Ignore family(%d) : "
+                                        "AF_UNSPEC(%d), "
                                         "AF_INET(%d), AF_INET6(%d) ", 
                                         family, AF_UNSPEC, AF_INET, AF_INET6);
                                     family = AF_UNSPEC;
@@ -338,7 +341,8 @@ int smf_context_parse_config(void)
                             } else if (!strcmp(gtpc_key, "addr") ||
                                     !strcmp(gtpc_key, "name")) {
                                 ogs_yaml_iter_t hostname_iter;
-                                ogs_yaml_iter_recurse(&gtpc_iter, &hostname_iter);
+                                ogs_yaml_iter_recurse(&gtpc_iter,
+                                        &hostname_iter);
                                 ogs_assert(ogs_yaml_iter_type(&hostname_iter) !=
                                     YAML_MAPPING_NODE);
 
@@ -530,11 +534,6 @@ smf_sess_t *smf_sess_add(
     smf_bearer_t *bearer = NULL;
     ogs_pfcp_subnet_t *subnet6 = NULL;
 
-    ogs_pfcp_pdr_t *dl_pdr = NULL;
-    ogs_pfcp_pdr_t *ul_pdr = NULL;
-    ogs_pfcp_far_t *dl_far = NULL;
-    ogs_pfcp_far_t *ul_far = NULL;
-
     ogs_assert(imsi);
     ogs_assert(apn);
     ogs_assert(paa);
@@ -620,32 +619,6 @@ smf_sess_t *smf_sess_add(
             break;
         }
     }
-
-    /* Set PFCP Context */
-    dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
-    ogs_assert(dl_pdr);
-    ul_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
-    ogs_assert(ul_pdr);
-    dl_far = ogs_pfcp_far_add(dl_pdr);
-    ogs_assert(dl_far);
-    ul_far = ogs_pfcp_far_add(ul_pdr);
-    ogs_assert(ul_far);
-
-    dl_pdr->id = OGS_NEXT_ID(sess->pfcp.pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
-    dl_pdr->precedence = dl_pdr->id; /* TODO : it will be fixed */
-    dl_pdr->src_if = OGS_PFCP_INTERFACE_CORE;
-
-    dl_far->id = OGS_NEXT_ID(sess->pfcp.far_id, 1, OGS_MAX_NUM_OF_FAR+1);
-    dl_far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
-    dl_far->dst_if = OGS_PFCP_INTERFACE_ACCESS;
-
-    ul_pdr->id = OGS_NEXT_ID(sess->pfcp.pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
-    ul_pdr->precedence = ul_pdr->id; /* TODO : it will be fixed */
-    ul_pdr->src_if = OGS_PFCP_INTERFACE_ACCESS;
-
-    ul_far->id = OGS_NEXT_ID(sess->pfcp.far_id, 1, OGS_MAX_NUM_OF_FAR+1);
-    ul_far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
-    ul_far->dst_if = OGS_PFCP_INTERFACE_CORE;
 
     /* Set Default Bearer */
     ogs_list_init(&sess->bearer_list);
@@ -825,6 +798,11 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
     smf_bearer_t *bearer = NULL;
     ogs_pfcp_gtpu_resource_t *resource = NULL;
 
+    ogs_pfcp_pdr_t *dl_pdr = NULL;
+    ogs_pfcp_pdr_t *ul_pdr = NULL;
+    ogs_pfcp_far_t *dl_far = NULL;
+    ogs_pfcp_far_t *ul_far = NULL;
+
     ogs_assert(sess);
 
     ogs_pool_alloc(&smf_bearer_pool, &bearer);
@@ -861,6 +839,32 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 
         bearer->upf_n3_teid = bearer->index;
     }
+
+    /* Set PFCP Context */
+    dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
+    ogs_assert(dl_pdr);
+    ul_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
+    ogs_assert(ul_pdr);
+    dl_far = ogs_pfcp_far_add(dl_pdr);
+    ogs_assert(dl_far);
+    ul_far = ogs_pfcp_far_add(ul_pdr);
+    ogs_assert(ul_far);
+
+    dl_pdr->id = OGS_NEXT_ID(sess->pfcp.pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
+    dl_pdr->precedence = dl_pdr->id; /* TODO : it will be fixed */
+    dl_pdr->src_if = OGS_PFCP_INTERFACE_CORE;
+
+    dl_far->id = OGS_NEXT_ID(sess->pfcp.far_id, 1, OGS_MAX_NUM_OF_FAR+1);
+    dl_far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
+    dl_far->dst_if = OGS_PFCP_INTERFACE_ACCESS;
+
+    ul_pdr->id = OGS_NEXT_ID(sess->pfcp.pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
+    ul_pdr->precedence = ul_pdr->id; /* TODO : it will be fixed */
+    ul_pdr->src_if = OGS_PFCP_INTERFACE_ACCESS;
+
+    ul_far->id = OGS_NEXT_ID(sess->pfcp.far_id, 1, OGS_MAX_NUM_OF_FAR+1);
+    ul_far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
+    ul_far->dst_if = OGS_PFCP_INTERFACE_CORE;
 
     bearer->sess = sess;
 

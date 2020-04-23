@@ -700,6 +700,8 @@ static void cups_test3(abts_case *tc, void *data)
 
     ogs_msleep(50);
 
+#endif
+
     /* Send Detach Request */
     rv = tests1ap_build_detach_request(&sendbuf, msgindex+1);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
@@ -716,8 +718,6 @@ static void cups_test3(abts_case *tc, void *data)
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
     rv = testenb_s1ap_send(s1ap, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
-
-#endif
 
     ogs_msleep(300);
 
