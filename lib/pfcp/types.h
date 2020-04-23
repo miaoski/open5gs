@@ -318,7 +318,6 @@ ED4(uint8_t     spare:5;,
  * not be present. When present, it shall contain the destination Service-VLAN
  * tag to set in the Service-VLAN tag header of the outgoing packet.
  */
-
 typedef struct ogs_pfcp_outer_header_creation_s {
 ED8(uint8_t     stag:1;,
     uint8_t     ctag:1;,
@@ -419,30 +418,33 @@ int16_t ogs_pfcp_parse_user_plane_ip_resource_info(
         ogs_pfcp_user_plane_ip_resource_info_t *info,
         ogs_tlv_octet_t *octet);
 
-typedef struct ogs_pfcp_report_type_s {
-ED5(uint8_t     spare0:4;,
-    uint8_t     upir:1;,      /* User Plane Inactivity Report */
-    uint8_t     erir:1;,      /* Error Indication Report */
-    uint8_t     usar:1;,      /* Usage Report */
-    uint8_t     dldr:1;)      /* Downlink Data Report */
-} __attribute__ ((packed)) ogs_pfcp_report_type_t;
+typedef struct ogs_pfcp_sdf_filter_s {
+    union {
+        struct {
+ED6(uint8_t     spare1:3;,
+    uint8_t     bid:1;,
+    uint8_t     fl:1;,
+    uint8_t     spi:1;,
+    uint8_t     ttc:1;,
+    uint8_t     fd:1;)
+        };
+        uint8_t flags;
+    };
 
-typedef struct ogs_pfcp_downlink_data_service_information_s {
-#define OGS_PFCP_DOWNLINK_DATA_SERVICE_INFORMATION_LEN(__data) \
-    (sizeof(struct _pfcp_downlink_data_service_information_t) - \
-        (__data).ppi - (__data).qfii)
-ED3(uint8_t     spare1:6;,
-    uint8_t     ppi:1;,       /* Paging Policy Indication */
-    uint8_t     qfii:1;)
-ED2(
-    uint8_t     spare2:2;,
-    uint8_t     paging_policy_indication:6;
-)
-ED2(
-    uint8_t     spare:2;,
-    uint8_t     QFI:6;
-)
-} __attribute__ ((packed)) ogs_pfcp_downlink_data_service_information_t;
+    uint8_t     spare2;
+    uint16_t    flow_description_len;
+    char        *flow_description;
+    uint16_t    tos_traffic_class;
+    uint32_t    security_parameter_index;
+    uint32_t    flow_label;
+    uint32_t    sdf_filter_id;
+} __attribute__ ((packed)) ogs_pfcp_sdf_filter_t;
+
+int16_t ogs_pfcp_build_sdf_filter(
+        ogs_tlv_octet_t *octet, ogs_pfcp_sdf_filter_t *info,
+        void *data, int data_len);
+int16_t ogs_pfcp_parse_sdf_filter(
+        ogs_pfcp_sdf_filter_t *info, ogs_tlv_octet_t *octet);
 
 #ifdef __cplusplus
 }
