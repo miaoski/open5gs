@@ -105,9 +105,12 @@ typedef struct smf_sess_s {
     uint8_t         hash_keybuf[OGS_MAX_IMSI_LEN+OGS_MAX_APN_LEN+1];
     int             hash_keylen;
 
-    ogs_tlv_octet_t ue_pco; /* Save Protocol Configuration Options from UE */
-    ogs_tlv_octet_t user_location_information; /* User Location Information */
-    ogs_tlv_octet_t ue_timezone; /* UE Timezone */
+    ogs_tlv_octet_t ue_pco; /* Saved from S5-C */
+    ogs_tlv_octet_t user_location_information; /* Saved from S5-C */
+    ogs_tlv_octet_t ue_timezone; /* Saved from S5-C */
+
+    ogs_pcc_rule_t  pcc_rule[OGS_MAX_NUM_OF_PCC_RULE]; /* Saved from Gx */
+    int             num_of_pcc_rule;
 
     ogs_list_t      bearer_list;
 

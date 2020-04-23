@@ -248,14 +248,36 @@ typedef struct ogs_pcc_rule_s {
     ogs_qos_t  qos;
 } ogs_pcc_rule_t;
 
+#define OGS_STORE_PCC_RULE(__dST, __sRC) \
+    do { \
+        int __iNDEX; \
+        ogs_assert((__sRC)); \
+        ogs_assert((__dST)); \
+        OGS_PCC_RULE_FREE(__dST); \
+        (__dST)->type = (__sRC)->type; \
+        if ((__sRC)->name) { \
+            (__dST)->name = ogs_strdup((__sRC)->name); \
+            ogs_assert((__dST)->name); \
+        } else \
+            ogs_assert_if_reached(); \
+        for (__iNDEX = 0; __iNDEX < (__sRC)->num_of_flow; __iNDEX++) { \
+            (__dST)->flow[__iNDEX].direction = (__sRC)->flow[__iNDEX].direction; \
+            (__dST)->flow[__iNDEX].description = \
+                ogs_strdup((__sRC)->flow[__iNDEX].description);  \
+            ogs_assert((__dST)->flow[__iNDEX].description); \
+        } \
+        (__dST)->num_of_flow = (__sRC)->num_of_flow; \
+        (__dST)->flow_status = (__sRC)->flow_status; \
+        (__dST)->precedence = (__sRC)->precedence; \
+        memcpy(&(__dST)->qos, &(__sRC)->qos, sizeof(ogs_qos_t)); \
+    } while(0)
+
 #define OGS_PCC_RULE_FREE(__pCCrULE) \
     do { \
         int __pCCrULE_iNDEX; \
         ogs_assert((__pCCrULE)); \
-        if ((__pCCrULE)->name) { \
+        if ((__pCCrULE)->name) \
             ogs_free((__pCCrULE)->name); \
-        } else \
-            ogs_assert_if_reached(); \
         for (__pCCrULE_iNDEX = 0; \
             __pCCrULE_iNDEX < (__pCCrULE)->num_of_flow; __pCCrULE_iNDEX++) { \
             OGS_FLOW_FREE(&((__pCCrULE)->flow[__pCCrULE_iNDEX])); \

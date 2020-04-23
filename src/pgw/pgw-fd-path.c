@@ -1090,8 +1090,7 @@ static int decode_pcc_rule_definition(
         ogs_assert(ret == 0);
         switch (hdr->avp_code) {
         case OGS_DIAM_GX_AVP_CODE_CHARGING_RULE_NAME:
-            if (pcc_rule->name)
-            {
+            if (pcc_rule->name) {
                 ogs_error("PCC Rule Name has already been defined");
                 ogs_free(pcc_rule->name);
             }
@@ -1105,8 +1104,7 @@ static int decode_pcc_rule_definition(
 
             ret = fd_avp_search_avp(avpch2, ogs_diam_gx_flow_direction, &avpch3);
             ogs_assert(ret == 0);
-            if (avpch3)
-            {
+            if (avpch3) {
                 ret = fd_msg_avp_hdr( avpch3, &hdr);
                 ogs_assert(ret == 0);
                 flow->direction = hdr->avp_value->i32;
@@ -1115,8 +1113,7 @@ static int decode_pcc_rule_definition(
             ret = fd_avp_search_avp(
                     avpch2, ogs_diam_gx_flow_description, &avpch3);
             ogs_assert(ret == 0);
-            if (avpch3)
-            {
+            if (avpch3) {
                 ret = fd_msg_avp_hdr(avpch3, &hdr);
                 ogs_assert(ret == 0);
                 flow->description = ogs_malloc(hdr->avp_value->os.len+1);

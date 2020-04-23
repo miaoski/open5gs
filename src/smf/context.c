@@ -663,6 +663,8 @@ smf_sess_t *smf_sess_add(
 
 int smf_sess_remove(smf_sess_t *sess)
 {
+    int i;
+
     ogs_assert(sess);
 
     ogs_list_remove(&ogs_pfcp_self()->sess_list, sess);
@@ -671,6 +673,10 @@ int smf_sess_remove(smf_sess_t *sess)
     OGS_TLV_CLEAR_DATA(&sess->ue_pco);
     OGS_TLV_CLEAR_DATA(&sess->user_location_information);
     OGS_TLV_CLEAR_DATA(&sess->ue_timezone);
+
+    for (i = 0; i < sess->num_of_pcc_rule; i++)
+        OGS_PCC_RULE_FREE(&sess->pcc_rule[i]);
+    sess->num_of_pcc_rule = 0;
 
     ogs_hash_set(self.sess_hash, sess->hash_keybuf, sess->hash_keylen, NULL);
 
