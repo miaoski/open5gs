@@ -815,31 +815,6 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 
     ogs_list_init(&bearer->pf_list);
 
-    resource = ogs_pfcp_gtpu_resource_find(
-            &sess->pfcp.node->gtpu_resource_list,
-            sess->pdn.apn, OGS_PFCP_INTERFACE_ACCESS);
-    if (resource) {
-        ogs_pfcp_user_plane_ip_resource_info_to_sockaddr(&resource->info,
-            &bearer->upf_addr, &bearer->upf_addr6);
-        ogs_assert(bearer->upf_addr || bearer->upf_addr6);
-        if (resource->info.teidri)
-            bearer->upf_n3_teid = UPF_S5U_INDEX_TO_TEID(
-                    bearer->index, resource->info.teidri,
-                    resource->info.teid_range);
-        else
-            bearer->upf_n3_teid = bearer->index;
-    } else {
-        if (sess->pfcp.node->addr.ogs_sa_family == AF_INET)
-            ogs_copyaddrinfo(&bearer->upf_addr, &sess->pfcp.node->addr);
-        else if (sess->pfcp.node->addr.ogs_sa_family == AF_INET6)
-            ogs_copyaddrinfo(&bearer->upf_addr6, &sess->pfcp.node->addr);
-        else
-            ogs_assert_if_reached();
-        ogs_assert(bearer->upf_addr || bearer->upf_addr6);
-
-        bearer->upf_n3_teid = bearer->index;
-    }
-
     /* Set PFCP Context */
     dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
     ogs_assert(dl_pdr);
@@ -865,6 +840,31 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
     ul_far->id = OGS_NEXT_ID(sess->pfcp.far_id, 1, OGS_MAX_NUM_OF_FAR+1);
     ul_far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
     ul_far->dst_if = OGS_PFCP_INTERFACE_CORE;
+
+    resource = ogs_pfcp_gtpu_resource_find(
+            &sess->pfcp.node->gtpu_resource_list,
+            sess->pdn.apn, OGS_PFCP_INTERFACE_ACCESS);
+    if (resource) {
+        ogs_pfcp_user_plane_ip_resource_info_to_sockaddr(&resource->info,
+            &bearer->upf_addr, &bearer->upf_addr6);
+        ogs_assert(bearer->upf_addr || bearer->upf_addr6);
+        if (resource->info.teidri)
+            bearer->upf_n3_teid = UPF_S5U_INDEX_TO_TEID(
+                    bearer->index, resource->info.teidri,
+                    resource->info.teid_range);
+        else
+            bearer->upf_n3_teid = bearer->index;
+    } else {
+        if (sess->pfcp.node->addr.ogs_sa_family == AF_INET)
+            ogs_copyaddrinfo(&bearer->upf_addr, &sess->pfcp.node->addr);
+        else if (sess->pfcp.node->addr.ogs_sa_family == AF_INET6)
+            ogs_copyaddrinfo(&bearer->upf_addr6, &sess->pfcp.node->addr);
+        else
+            ogs_assert_if_reached();
+        ogs_assert(bearer->upf_addr || bearer->upf_addr6);
+
+        bearer->upf_n3_teid = bearer->index;
+    }
 
     bearer->sess = sess;
 
