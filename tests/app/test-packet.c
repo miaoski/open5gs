@@ -160,6 +160,8 @@ ogs_pkbuf_t *testenb_gtpu_read(ogs_socknode_t *node)
     return recvbuf;
 }
 
+bool test_no_mme_self = 0;
+
 int testenb_gtpu_send(ogs_socknode_t *node, ogs_pkbuf_t *sendbuf)
 {
     int rv;
@@ -176,32 +178,32 @@ int testenb_gtpu_send(ogs_socknode_t *node, ogs_pkbuf_t *sendbuf)
 
     memset(&sgw, 0, sizeof(ogs_sockaddr_t));
     sgw.ogs_sin_port = htons(OGS_GTPV1_U_UDP_PORT);
-#if 0 /* For testing VoLTE */
-    sgw.ogs_sa_family = AF_INET;
-    sgw.sin.sin_addr.s_addr = inet_addr("127.0.0.2");
-#else
-    mme_ue = ogs_list_first(&mme_self()->mme_ue_list);
-    ogs_assert(mme_ue);
-    sess = mme_sess_first(mme_ue);
-    ogs_assert(sess);
-    bearer = mme_bearer_first(sess);
-    ogs_assert(bearer);
-
-    if (bearer->sgw_s1u_ip.ipv6) {
-        sgw.ogs_sa_family = AF_INET6;
-        if (bearer->sgw_s1u_ip.ipv4)
-            memcpy(sgw.sin6.sin6_addr.s6_addr,
-                    bearer->sgw_s1u_ip.both.addr6, OGS_IPV6_LEN);
-        else
-            memcpy(sgw.sin6.sin6_addr.s6_addr,
-                    bearer->sgw_s1u_ip.addr6, OGS_IPV6_LEN);
-        rv = ogs_socknode_fill_scope_id_in_local(&sgw);
-        ogs_assert(rv == OGS_OK);
-    } else {
+    if (test_no_mme_self) {
         sgw.ogs_sa_family = AF_INET;
-        sgw.sin.sin_addr.s_addr = bearer->sgw_s1u_ip.addr;
+        sgw.sin.sin_addr.s_addr = inet_addr("127.0.0.2");
+    } else {
+        mme_ue = ogs_list_first(&mme_self()->mme_ue_list);
+        ogs_assert(mme_ue);
+        sess = mme_sess_first(mme_ue);
+        ogs_assert(sess);
+        bearer = mme_bearer_first(sess);
+        ogs_assert(bearer);
+
+        if (bearer->sgw_s1u_ip.ipv6) {
+            sgw.ogs_sa_family = AF_INET6;
+            if (bearer->sgw_s1u_ip.ipv4)
+                memcpy(sgw.sin6.sin6_addr.s6_addr,
+                        bearer->sgw_s1u_ip.both.addr6, OGS_IPV6_LEN);
+            else
+                memcpy(sgw.sin6.sin6_addr.s6_addr,
+                        bearer->sgw_s1u_ip.addr6, OGS_IPV6_LEN);
+            rv = ogs_socknode_fill_scope_id_in_local(&sgw);
+            ogs_assert(rv == OGS_OK);
+        } else {
+            sgw.ogs_sa_family = AF_INET;
+            sgw.sin.sin_addr.s_addr = bearer->sgw_s1u_ip.addr;
+        }
     }
-#endif
 
     sent = ogs_sendto(node->sock->fd, sendbuf->data, sendbuf->len, 0, &sgw);
     ogs_pkbuf_free(sendbuf);

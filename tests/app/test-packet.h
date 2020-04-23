@@ -28,6 +28,8 @@
 extern "C" {
 #endif
 
+extern bool test_no_mme_self;
+
 ogs_socknode_t *testsctp_server(const char *ipstr);
 ogs_socknode_t *testsctp_client(const char *ipstr);
 ogs_pkbuf_t *testsctp_read(ogs_socknode_t *node, int type);
