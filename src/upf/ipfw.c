@@ -236,7 +236,7 @@ static int decode_ipv6_header(
     return OGS_OK;
 }
 
-upf_bearer_t *upf_bearer_find_by_packet(ogs_pkbuf_t *pkt)
+ogs_pfcp_pdr_t *upf_pdr_find_by_packet(ogs_pkbuf_t *pkt)
 {
     struct ip *ip_h =  NULL;
     struct ip6_hdr *ip6_h =  NULL;
@@ -287,8 +287,8 @@ upf_bearer_t *upf_bearer_find_by_packet(ogs_pkbuf_t *pkt)
 
 
     if (sess) {
-        upf_bearer_t *default_bearer = NULL;
-        upf_bearer_t *bearer = NULL;
+        ogs_pfcp_pdr_t *default_pdr = NULL;
+        ogs_pfcp_pdr_t *pdr = NULL;
 
         if (ip_h && sess->ipv4)
             ogs_debug("[UPF] PAA IPv4:%s",
@@ -297,135 +297,140 @@ upf_bearer_t *upf_bearer_find_by_packet(ogs_pkbuf_t *pkt)
             ogs_debug("[UPF] PAA IPv6:%s",
                     INET6_NTOP(&sess->ipv6->addr, buf));
 
-        /* Save the default bearer */
-        default_bearer = upf_default_bearer_in_sess(sess);
-        ogs_assert(default_bearer);
+        /* Save the default PDR */
+        default_pdr = ogs_pfcp_sess_default_pdr(&sess->pfcp);
+        ogs_assert(default_pdr);
 
         /* Found */
-        ogs_debug("[UPF] Found Session : GNB-N3-TEID[0x%x]",
-                default_bearer->gnb_n3_teid);
+        ogs_debug("[UPF] Found Session : PDR-ID[%d]", default_pdr->id);
 
-        bearer = upf_bearer_next(default_bearer);
-        /* Find the bearer with matched */
-        for (; bearer; bearer = upf_bearer_next(bearer)) {
-            upf_pf_t *pf = NULL;
+        ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
+            ogs_pfcp_far_t *far = pdr->far;
+            int r;
 
-            if (bearer->gnb_n3_teid == 0) {
-                /* Create Bearer Response is not received */
+            ogs_assert(far);
+
+            /* Skip if PDR is default */
+            if (pdr->id == default_pdr->id)
                 continue;
-            }
 
-            for (pf = upf_pf_first(bearer); pf; pf = upf_pf_next(pf)) {
+            /* Check if PDR is Downlink */
+            if (pdr->src_if != OGS_PFCP_INTERFACE_CORE)
+                continue;
+
+            /* Check if Create Bearer Response is received */
+            if (far->outer_header_creation.teid == 0)
+                continue;
+
+            for (r = 0; r < pdr->num_of_rule; r++) {
                 int k;
                 uint32_t src_mask[4];
                 uint32_t dst_mask[4];
+                ogs_pfcp_rule_t *rule = pdr->rules[r];
+                ogs_assert(rule);
 
-                ogs_debug("DIR:%d PROTO:%d SRC:%d-%d DST:%d-%d",
-                        pf->direction, pf->rule.proto,
-                        pf->rule.port.local.low,
-                        pf->rule.port.local.high,
-                        pf->rule.port.remote.low,
-                        pf->rule.port.remote.high);
+                ogs_debug("PROTO:%d SRC:%d-%d DST:%d-%d",
+                        rule->proto,
+                        rule->port.local.low,
+                        rule->port.local.high,
+                        rule->port.remote.low,
+                        rule->port.remote.high);
                 ogs_debug("SRC:%08x %08x %08x %08x/%08x %08x %08x %08x",
-                        be32toh(pf->rule.ip.local.addr[0]),
-                        be32toh(pf->rule.ip.local.addr[1]),
-                        be32toh(pf->rule.ip.local.addr[2]),
-                        be32toh(pf->rule.ip.local.addr[3]),
-                        be32toh(pf->rule.ip.local.mask[0]),
-                        be32toh(pf->rule.ip.local.mask[1]),
-                        be32toh(pf->rule.ip.local.mask[2]),
-                        be32toh(pf->rule.ip.local.mask[3]));
+                        be32toh(rule->ip.local.addr[0]),
+                        be32toh(rule->ip.local.addr[1]),
+                        be32toh(rule->ip.local.addr[2]),
+                        be32toh(rule->ip.local.addr[3]),
+                        be32toh(rule->ip.local.mask[0]),
+                        be32toh(rule->ip.local.mask[1]),
+                        be32toh(rule->ip.local.mask[2]),
+                        be32toh(rule->ip.local.mask[3]));
                 ogs_debug("DST:%08x %08x %08x %08x/%08x %08x %08x %08x",
-                        be32toh(pf->rule.ip.remote.addr[0]),
-                        be32toh(pf->rule.ip.remote.addr[1]),
-                        be32toh(pf->rule.ip.remote.addr[2]),
-                        be32toh(pf->rule.ip.remote.addr[3]),
-                        be32toh(pf->rule.ip.remote.mask[0]),
-                        be32toh(pf->rule.ip.remote.mask[1]),
-                        be32toh(pf->rule.ip.remote.mask[2]),
-                        be32toh(pf->rule.ip.remote.mask[3]));
-
-                if (pf->direction != 1) {
-                    continue;
-                }
+                        be32toh(rule->ip.remote.addr[0]),
+                        be32toh(rule->ip.remote.addr[1]),
+                        be32toh(rule->ip.remote.addr[2]),
+                        be32toh(rule->ip.remote.addr[3]),
+                        be32toh(rule->ip.remote.mask[0]),
+                        be32toh(rule->ip.remote.mask[1]),
+                        be32toh(rule->ip.remote.mask[2]),
+                        be32toh(rule->ip.remote.mask[3]));
 
                 for (k = 0; k < 4; k++) {
-                    src_mask[k] = src_addr[k] & pf->rule.ip.local.mask[k];
-                    dst_mask[k] = dst_addr[k] & pf->rule.ip.remote.mask[k];
+                    src_mask[k] = src_addr[k] & rule->ip.local.mask[k];
+                    dst_mask[k] = dst_addr[k] & rule->ip.remote.mask[k];
                 }
 
-                if (memcmp(src_mask, pf->rule.ip.local.addr,
+                if (memcmp(src_mask, rule->ip.local.addr,
                             addr_len) == 0 &&
-                    memcmp(dst_mask, pf->rule.ip.remote.addr,
+                    memcmp(dst_mask, rule->ip.remote.addr,
                             addr_len) == 0) {
                     /* Protocol match */
-                    if (pf->rule.proto == 0) { /* IP */
+                    if (rule->proto == 0) { /* IP */
                         /* No need to match port */
                         break;
                     }
 
-                    if (pf->rule.proto == proto) {
-                        if (pf->rule.proto == IPPROTO_TCP) {
-                            struct tcphdr *tcph = 
+                    if (rule->proto == proto) {
+                        if (rule->proto == IPPROTO_TCP) {
+                            struct tcphdr *tcph =
                                 (struct tcphdr *)
                                 ((char *)pkt->data + ip_hlen);
 
                             /* Source port */
-                            if (pf->rule.port.local.low && 
-                                  be16toh(tcph->th_sport) < 
-                                          pf->rule.port.local.low) {
+                            if (rule->port.local.low &&
+                                  be16toh(tcph->th_sport) <
+                                          rule->port.local.low) {
                                 continue;
                             }
 
-                            if (pf->rule.port.local.high && 
-                                  be16toh(tcph->th_sport) > 
-                                          pf->rule.port.local.high) {
+                            if (rule->port.local.high &&
+                                  be16toh(tcph->th_sport) >
+                                          rule->port.local.high) {
                                 continue;
                             }
 
                             /* Dst Port*/
-                            if (pf->rule.port.remote.low && 
-                                  be16toh(tcph->th_dport) < 
-                                          pf->rule.port.remote.low) {
+                            if (rule->port.remote.low &&
+                                  be16toh(tcph->th_dport) <
+                                          rule->port.remote.low) {
                                 continue;
                             }
 
-                            if (pf->rule.port.remote.high && 
-                                  be16toh(tcph->th_dport) > 
-                                          pf->rule.port.remote.high) {
+                            if (rule->port.remote.high &&
+                                  be16toh(tcph->th_dport) >
+                                          rule->port.remote.high) {
                                 continue;
                             }
 
                             /* Matched */
                             break;
-                        } else if (pf->rule.proto == IPPROTO_UDP) {
-                            struct udphdr *udph = 
+                        } else if (rule->proto == IPPROTO_UDP) {
+                            struct udphdr *udph =
                                 (struct udphdr *)
                                 ((char *)pkt->data + ip_hlen);
 
                             /* Source port */
-                            if (pf->rule.port.local.low && 
-                                  be16toh(udph->uh_sport) < 
-                                          pf->rule.port.local.low) {
+                            if (rule->port.local.low &&
+                                  be16toh(udph->uh_sport) <
+                                          rule->port.local.low) {
                                 continue;
                             }
 
-                            if (pf->rule.port.local.high && 
-                                  be16toh(udph->uh_sport) > 
-                                          pf->rule.port.local.high) {
+                            if (rule->port.local.high &&
+                                  be16toh(udph->uh_sport) >
+                                          rule->port.local.high) {
                                 continue;
                             }
 
                             /* Dst Port*/
-                            if (pf->rule.port.remote.low && 
-                                  be16toh(udph->uh_dport) < 
-                                          pf->rule.port.remote.low) {
+                            if (rule->port.remote.low &&
+                                  be16toh(udph->uh_dport) <
+                                          rule->port.remote.low) {
                                 continue;
                             }
 
-                            if (pf->rule.port.remote.high && 
-                                  be16toh(udph->uh_dport) > 
-                                          pf->rule.port.remote.high) {
+                            if (rule->port.remote.high &&
+                                  be16toh(udph->uh_dport) >
+                                          rule->port.remote.high) {
                                 continue;
                             }
 
@@ -435,26 +440,26 @@ upf_bearer_t *upf_bearer_find_by_packet(ogs_pkbuf_t *pkt)
                             /* No need to match port */
                             break;
                         }
-
                     }
                 }
-
             }
 
-            if (pf) {
-                bearer = pf->bearer;
-                ogs_debug("Found Dedicated Bearer : GNB-N3-TEID[0x%x]",
-                        bearer->gnb_n3_teid);
+            if (r < pdr->num_of_rule) {
+                ogs_pfcp_rule_t *rule = NULL;
+
+                rule = pdr->rules[r];
+                ogs_assert(rule);
+                pdr = rule->pdr;
+                ogs_assert(pdr);
+                ogs_debug("Found Dedicated PDR : PDR ID[%d]", pdr->id);
                 break;
             }
-
         }
 
-        return (bearer ? bearer : default_bearer);
+        return (pdr ? pdr : default_pdr);
     } else {
         ogs_debug("[UPF] No Session");
     }
 
     return NULL;
 }
-

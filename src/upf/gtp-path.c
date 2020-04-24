@@ -44,7 +44,6 @@
 uint16_t in_cksum(uint16_t *addr, int len);
 static int upf_gtp_handle_multicast(ogs_pkbuf_t *recvbuf);
 static int upf_gtp_handle_slaac(upf_sess_t *sess, ogs_pkbuf_t *recvbuf);
-static int upf_gtp_send_to_bearer(upf_bearer_t *bearer, ogs_pkbuf_t *sendbuf);
 static int upf_gtp_send_to_far(ogs_pfcp_far_t *far, ogs_pkbuf_t *sendbuf);
 static int upf_gtp_send_to_pdr(ogs_pfcp_pdr_t *pdr, ogs_pkbuf_t *sendbuf);
 static int upf_gtp_send_router_advertisement(
@@ -55,7 +54,7 @@ static void _gtpv1_tun_recv_cb(short when, ogs_socket_t fd, void *data)
     ogs_pkbuf_t *recvbuf = NULL;
     int n;
     int rv;
-    upf_bearer_t *bearer = NULL;
+    ogs_pfcp_pdr_t *pdr = NULL;
 
     recvbuf = ogs_pkbuf_alloc(NULL, OGS_MAX_SDU_LEN);
     ogs_pkbuf_reserve(recvbuf, OGS_GTPV1U_HEADER_LEN);
@@ -70,11 +69,11 @@ static void _gtpv1_tun_recv_cb(short when, ogs_socket_t fd, void *data)
 
     ogs_pkbuf_trim(recvbuf, n);
 
-    /* Find the bearer by packet filter */
-    bearer = upf_bearer_find_by_packet(recvbuf);
-    if (bearer) {
+    /* Find the PDR by packet filter */
+    pdr = upf_pdr_find_by_packet(recvbuf);
+    if (pdr) {
         /* Unicast */
-        rv = upf_gtp_send_to_bearer(bearer, recvbuf);
+        rv = upf_gtp_send_to_pdr(pdr, recvbuf);
         ogs_assert(rv == OGS_OK);
     } else {
         if (ogs_config()->parameter.multicast) {
@@ -323,39 +322,6 @@ static int upf_gtp_handle_slaac(upf_sess_t *sess, ogs_pkbuf_t *recvbuf)
     }
 
     return OGS_OK;
-}
-
-static int upf_gtp_send_to_bearer(upf_bearer_t *bearer, ogs_pkbuf_t *sendbuf)
-{
-    char buf[OGS_ADDRSTRLEN];
-    int rv;
-    ogs_gtp_header_t *gtp_h = NULL;
-
-    ogs_assert(bearer);
-    ogs_assert(bearer->gnode);
-    ogs_assert(bearer->gnode->sock);
-
-    /* Add GTP-U header */
-    ogs_assert(ogs_pkbuf_push(sendbuf, OGS_GTPV1U_HEADER_LEN));
-    gtp_h = (ogs_gtp_header_t *)sendbuf->data;
-    /* Bits    8  7  6  5  4  3  2  1
-     *        +--+--+--+--+--+--+--+--+
-     *        |version |PT| 1| E| S|PN|
-     *        +--+--+--+--+--+--+--+--+
-     *         0  0  1   1  0  0  0  0
-     */
-    gtp_h->flags = 0x30;
-    gtp_h->type = OGS_GTPU_MSGTYPE_GPDU;
-    gtp_h->length = htobe16(sendbuf->len - OGS_GTPV1U_HEADER_LEN);
-    gtp_h->teid = htobe32(bearer->gnb_n3_teid);
-
-    /* Send to SGW */
-    ogs_debug("[UPF] SEND GPU-U to gNB[%s] : TEID[0x%x]",
-        OGS_ADDR(&bearer->gnode->addr, buf),
-        bearer->gnb_n3_teid);
-    rv =  ogs_gtp_sendto(bearer->gnode, sendbuf);
-
-    return rv;
 }
 
 static int upf_gtp_send_to_far(ogs_pfcp_far_t *far, ogs_pkbuf_t *sendbuf)
