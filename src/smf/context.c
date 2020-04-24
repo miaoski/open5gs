@@ -797,7 +797,6 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 {
     smf_bearer_t *bearer = NULL;
     ogs_pfcp_gtpu_resource_t *resource = NULL;
-    ogs_pfcp_precedence_t precedence = 0;
 
     ogs_pfcp_pdr_t *dl_pdr = NULL;
     ogs_pfcp_pdr_t *ul_pdr = NULL;
@@ -816,13 +815,15 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 
     ogs_list_init(&bearer->pf_list);
 
-    /* First PDR(highest procedence value) is lowest precedence */
-    precedence = OGS_MAX_NUM_OF_PDR;
-
-    dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp, precedence);
+    dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
     ogs_assert(dl_pdr);
-    ul_pdr = ogs_pfcp_pdr_add(&sess->pfcp, precedence);
+    ul_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
     ogs_assert(ul_pdr);
+
+    /* First PDR(highest procedence value) is lowest precedence. */
+    ogs_pfcp_pdr_set_precedence(dl_pdr, 0xffffffff);
+    ogs_pfcp_pdr_set_precedence(ul_pdr, 0xffffffff);
+
     dl_far = ogs_pfcp_far_add(dl_pdr);
     ogs_assert(dl_far);
     ul_far = ogs_pfcp_far_add(ul_pdr);

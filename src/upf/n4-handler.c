@@ -106,9 +106,9 @@ void upf_n4_handle_session_establishment_request(
             break;
         }
 
-        pdr = ogs_pfcp_pdr_find_or_add(
-                &sess->pfcp, message->pdr_id.u16, message->precedence.u32);
+        pdr = ogs_pfcp_pdr_find_or_add(&sess->pfcp, message->pdr_id.u16);
         ogs_assert(pdr);
+        ogs_pfcp_pdr_set_precedence(pdr, message->precedence.u32);
 
         if (message->pdi.presence == 0) {
             ogs_warn("No PDI in PDR");
@@ -193,7 +193,7 @@ void upf_n4_handle_session_establishment_request(
             break;
         }
 
-        far = ogs_pfcp_far_find_by_id(&sess->pfcp, message->far_id.u32);
+        far = ogs_pfcp_far_find(&sess->pfcp, message->far_id.u32);
         if (!far) {
             ogs_error("Cannot find FAR-ID[%d] in PDR", message->far_id.u32);
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
