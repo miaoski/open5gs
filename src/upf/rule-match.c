@@ -26,15 +26,7 @@
 #include <netinet/udp.h>
 #include <arpa/inet.h>
 
-#include "ipfw.h"
-
-#include "ipfw/ipfw2.h"
-#include "ipfw/objs/include_e/netinet/ip_fw.h"
-
-#define MAX_NUM_OF_TOKEN 32
-#define MAX_NUM_OF_RULE_BUFFER 1024
-
-void compile_rule(char *av[], uint32_t *rbuf, int *rbufsize, void *tstate);
+#include "rule-match.h"
 
 static int decode_ipv6_header(
         struct ip6_hdr *ip6_h, uint8_t *proto, uint16_t *hlen)

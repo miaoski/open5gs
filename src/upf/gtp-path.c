@@ -37,7 +37,7 @@
 
 #include "event.h"
 #include "gtp-path.h"
-#include "ipfw.h"
+#include "rule-match.h"
 
 #define UPF_GTP_HANDLED     1
 

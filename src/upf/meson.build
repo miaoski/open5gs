@@ -39,7 +39,7 @@ endif
 configure_file(output : 'upf-config.h', configuration : upf_conf)
 
 libupf_sources = files('''
-    ipfw.h
+    rule-match.h
     event.h
     timer.h
     context.h
@@ -49,7 +49,7 @@ libupf_sources = files('''
     n4-build.h
     n4-handler.h
 
-    ipfw.c
+    rule-match.c
     init.c
     event.c
     timer.c
