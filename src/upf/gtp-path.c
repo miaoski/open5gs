@@ -130,7 +130,7 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
 
     pdr = ogs_pfcp_pdr_find_by_teid(teid);
     if (!pdr) {
-        ogs_warn("[DROP] Cannot find bearer : UPF-N3-TEID[0x%x]", teid);
+        ogs_warn("[DROP] Cannot find PDR : UPF-N3-TEID[0x%x]", teid);
         goto cleanup;
     }
     ogs_assert(pdr->sess);
