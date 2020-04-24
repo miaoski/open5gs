@@ -45,6 +45,7 @@ uint16_t in_cksum(uint16_t *addr, int len);
 static int upf_gtp_handle_multicast(ogs_pkbuf_t *recvbuf);
 static int upf_gtp_handle_slaac(upf_sess_t *sess, ogs_pkbuf_t *recvbuf);
 static int upf_gtp_send_to_bearer(upf_bearer_t *bearer, ogs_pkbuf_t *sendbuf);
+static int upf_gtp_send_to_far(ogs_pfcp_far_t *far, ogs_pkbuf_t *sendbuf);
 static int upf_gtp_send_router_advertisement(
         upf_sess_t *sess, uint8_t *ip6_dst);
 
@@ -278,10 +279,15 @@ static int upf_gtp_handle_multicast(ogs_pkbuf_t *recvbuf)
             ogs_list_for_each(&ogs_pfcp_self()->sess_list, sess) {
                 if (sess->ipv6) {
                     /* PDN IPv6 is avaiable */
-                    upf_bearer_t *bearer = upf_default_bearer_in_sess(sess);
-                    ogs_assert(bearer);
+                    ogs_pfcp_pdr_t *pdr = NULL;
+                    ogs_pfcp_far_t *far = NULL;
 
-                    rv = upf_gtp_send_to_bearer(bearer, recvbuf);
+                    pdr = ogs_pfcp_sess_default_pdr(&sess->pfcp);
+                    ogs_assert(pdr);
+                    far = pdr->far;
+                    ogs_assert(far);
+
+                    rv = upf_gtp_send_to_far(far, recvbuf);
                     ogs_assert(rv == OGS_OK);
 
                     return UPF_GTP_HANDLED;
@@ -355,13 +361,48 @@ static int upf_gtp_send_to_bearer(upf_bearer_t *bearer, ogs_pkbuf_t *sendbuf)
     return rv;
 }
 
+static int upf_gtp_send_to_far(ogs_pfcp_far_t *far, ogs_pkbuf_t *sendbuf)
+{
+    char buf[OGS_ADDRSTRLEN];
+    int rv;
+    ogs_gtp_header_t *gtp_h = NULL;
+    ogs_gtp_node_t *gnode = NULL;
+
+    ogs_assert(far);
+    gnode = far->gnode;
+    ogs_assert(gnode);
+    ogs_assert(gnode->sock);
+
+    /* Add GTP-U header */
+    ogs_assert(ogs_pkbuf_push(sendbuf, OGS_GTPV1U_HEADER_LEN));
+    gtp_h = (ogs_gtp_header_t *)sendbuf->data;
+    /* Bits    8  7  6  5  4  3  2  1
+     *        +--+--+--+--+--+--+--+--+
+     *        |version |PT| 1| E| S|PN|
+     *        +--+--+--+--+--+--+--+--+
+     *         0  0  1   1  0  0  0  0
+     */
+    gtp_h->flags = 0x30;
+    gtp_h->type = OGS_GTPU_MSGTYPE_GPDU;
+    gtp_h->length = htobe16(sendbuf->len - OGS_GTPV1U_HEADER_LEN);
+    gtp_h->teid = htobe32(far->outer_header_creation.teid);
+
+    /* Send to SGW */
+    ogs_debug("[UPF] SEND GPU-U to gNB[%s] : TEID[0x%x]",
+        OGS_ADDR(&gnode->addr, buf), far->outer_header_creation.teid);
+    rv =  ogs_gtp_sendto(gnode, sendbuf);
+
+    return rv;
+}
+
 static int upf_gtp_send_router_advertisement(
         upf_sess_t *sess, uint8_t *ip6_dst)
 {
     int rv;
     ogs_pkbuf_t *pkbuf = NULL;
 
-    upf_bearer_t *bearer = NULL;
+    ogs_pfcp_pdr_t *pdr = NULL;
+    ogs_pfcp_far_t *far = NULL;
     ogs_pfcp_ue_ip_t *ue_ip = NULL;
     ogs_pfcp_subnet_t *subnet = NULL;
     ogs_pfcp_dev_t *dev = NULL;
@@ -375,8 +416,10 @@ static int upf_gtp_send_router_advertisement(
     struct nd_opt_prefix_info *prefix = NULL;
 
     ogs_assert(sess);
-    bearer = upf_default_bearer_in_sess(sess);
-    ogs_assert(bearer);
+    pdr = ogs_pfcp_sess_default_pdr(&sess->pfcp);
+    ogs_assert(pdr);
+    far = pdr->far;
+    ogs_assert(far);
     ue_ip = sess->ipv6;
     ogs_assert(ue_ip);
     subnet = ue_ip->subnet;
@@ -439,7 +482,7 @@ static int upf_gtp_send_router_advertisement(
     memcpy(ip6_h->ip6_src.s6_addr, src_ipsub.sub, sizeof src_ipsub.sub);
     memcpy(ip6_h->ip6_dst.s6_addr, ip6_dst, OGS_IPV6_LEN);
     
-    rv = upf_gtp_send_to_bearer(bearer, pkbuf);
+    rv = upf_gtp_send_to_far(far, pkbuf);
     ogs_assert(rv == OGS_OK);
 
     ogs_debug("[UPF]      Router Advertisement");
