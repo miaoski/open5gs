@@ -391,7 +391,8 @@ int upf_context_parse_config(void)
 }
 
 upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
-        const char *apn, uint8_t pdn_type, ogs_pfcp_ue_ip_addr_t *ue_ip)
+        const char *apn, uint8_t pdn_type, ogs_pfcp_ue_ip_addr_t *ue_ip,
+        ogs_pfcp_pdr_id_t default_pdr_id)
 {
     char buf1[OGS_ADDRSTRLEN];
     char buf2[OGS_ADDRSTRLEN];
@@ -464,11 +465,18 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
     bearer = upf_bearer_add(sess);
     ogs_assert(bearer);
 
-    ogs_info("UE F-SEID[CP:%ld,UP:%ld] APN[%s] PDN-Type[%d] IPv4[%s] IPv6[%s]",
+    /* Set Default PDR */
+    sess->pfcp.default_pdr =
+        ogs_pfcp_pdr_find_or_add(&sess->pfcp, default_pdr_id);
+    ogs_assert(sess->pfcp.default_pdr);
+
+    ogs_info("UE F-SEID[CP:%ld,UP:%ld] "
+             "APN[%s] PDN-Type[%d] IPv4[%s] IPv6[%s], Default PDR ID[%d]",
         (long)sess->pfcp.local_n4_seid, (long)sess->pfcp.remote_n4_seid,
         apn, pdn_type,
         sess->ipv4 ? INET_NTOP(&sess->ipv4->addr, buf1) : "",
-        sess->ipv6 ? INET6_NTOP(&sess->ipv6->addr, buf2) : "");
+        sess->ipv6 ? INET6_NTOP(&sess->ipv6->addr, buf2) : "",
+        sess->pfcp.default_pdr->id);
 
     ogs_list_add(&ogs_pfcp_self()->sess_list, sess);
     
@@ -553,6 +561,8 @@ upf_sess_t *upf_sess_add_by_message(ogs_pfcp_message_t *message)
     ogs_pfcp_f_seid_t *f_seid = NULL;
     char apn[OGS_MAX_APN_LEN];
     ogs_pfcp_ue_ip_addr_t *addr = NULL;
+    bool default_pdr_found = false;
+    ogs_pfcp_pdr_id_t default_pdr_id;
 
     ogs_pfcp_session_establishment_request_t *req =
         &message->pfcp_session_establishment_request;;
@@ -570,24 +580,47 @@ upf_sess_t *upf_sess_add_by_message(ogs_pfcp_message_t *message)
         return NULL;
     }
 
-    /* Check APN(Network Instance) and UE IP Address in Uplink PDR */
+    /* Find the Default PDR :
+     * - PDR ID is existed
+     * - SDF Filter is NOT existed
+     * - APN(Network Instance) is existed
+     * - UE IP Address is existed
+     * - Downlink PDR
+     */
     memset(apn, 0, sizeof(apn));
     for (i = 0; i < OGS_MAX_NUM_OF_PDR; i++) {
         ogs_pfcp_tlv_create_pdr_t *message = &req->create_pdr[i];
-        if (message->presence) {
-            if (message->pdi.presence) {
-                if (message->pdi.network_instance.presence)
-                    ogs_fqdn_parse(apn,
-                        message->pdi.network_instance.data,
-                        message->pdi.network_instance.len);
-                if (message->pdi.ue_ip_address.presence)
-                    addr = message->pdi.ue_ip_address.data;
-            } else {
-                ogs_warn("No PDI in PDR-ID[%d]", message->pdr_id.u16);
-            }
-        } else {
-            break;
-        }
+        ogs_assert(message);
+        if (message->presence == 0)
+            continue;
+        if (message->pdr_id.presence == 0)
+            continue;
+        if (message->pdi.presence == 0)
+            continue;
+        if (message->pdi.sdf_filter[0].presence) /* No SDF Filter */
+            continue;
+        if (message->pdi.network_instance.presence == 0)
+            continue;
+        if (message->pdi.ue_ip_address.presence == 0)
+            continue;
+        if (message->pdi.source_interface.presence == 0)
+            continue;
+        if (message->pdi.source_interface.u8 != OGS_PFCP_INTERFACE_CORE)
+            continue;
+
+        default_pdr_id = message->pdr_id.u16;
+        ogs_fqdn_parse(apn,
+            message->pdi.network_instance.data,
+            message->pdi.network_instance.len);
+        addr = message->pdi.ue_ip_address.data;
+
+        default_pdr_found = true;
+        break;
+    }
+
+    if (!default_pdr_found) {
+        ogs_error("Cannot find Default PDR");
+        return NULL;
     }
 
     if (strlen(apn) == 0) {
@@ -602,7 +635,8 @@ upf_sess_t *upf_sess_add_by_message(ogs_pfcp_message_t *message)
 
     sess = upf_sess_find_by_cp_seid(f_seid->seid);
     if (!sess) {
-        sess = upf_sess_add(f_seid, apn, req->pdn_type.u8, addr);
+        sess = upf_sess_add(
+                f_seid, apn, req->pdn_type.u8, addr, default_pdr_id);
         if (!sess) return NULL;
     }
     ogs_assert(sess);

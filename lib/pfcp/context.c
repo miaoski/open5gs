@@ -719,6 +719,12 @@ void ogs_pfcp_gtpu_resource_remove_all(ogs_list_t *list)
         ogs_pfcp_gtpu_resource_remove(list, resource);
 }
 
+ogs_pfcp_pdr_t *ogs_pfcp_sess_default_pdr(ogs_pfcp_sess_t *sess)
+{
+    ogs_assert(sess);
+    return sess->default_pdr;
+}
+
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess)
 {
     ogs_pfcp_pdr_remove_all(sess);

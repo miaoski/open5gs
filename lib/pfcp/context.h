@@ -91,6 +91,7 @@ typedef struct ogs_pfcp_gtpu_resource_s {
     ogs_pfcp_user_plane_ip_resource_info_t info;
 } __attribute__ ((packed)) ogs_pfcp_gtpu_resource_t;
 
+typedef struct ogs_pfcp_pdr_s ogs_pfcp_pdr_t;
 typedef struct ogs_pfcp_far_s ogs_pfcp_far_t;
 typedef struct ogs_pfcp_urr_s ogs_pfcp_urr_t;
 typedef struct ogs_pfcp_qer_s ogs_pfcp_qer_t;
@@ -119,6 +120,7 @@ typedef struct ogs_pfcp_sess_s {
     ogs_list_t          rule_list;  /* Rule List */
 
     /* Related Context */
+    ogs_pfcp_pdr_t      *default_pdr;
     ogs_pfcp_node_t     *node;
 } ogs_pfcp_sess_t;
 
@@ -279,6 +281,13 @@ void ogs_pfcp_gtpu_resource_remove(ogs_list_t *list,
         ogs_pfcp_gtpu_resource_t *resource);
 void ogs_pfcp_gtpu_resource_remove_all(ogs_list_t *list);
 
+#define OGS_SETUP_DEFAULT_PDR(__sESS, __pDR) \
+    do { \
+        ogs_assert((__sESS)); \
+        ogs_assert((__pDR)); \
+        (__sESS)->default_pdr = __pDR; \
+    } while(0)
+ogs_pfcp_pdr_t *ogs_pfcp_sess_default_pdr(ogs_pfcp_sess_t *sess);
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess);
 
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess);
