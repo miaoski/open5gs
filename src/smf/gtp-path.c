@@ -22,7 +22,6 @@
 #include "event.h"
 #include "gtp-path.h"
 #include "s5c-build.h"
-#include "ipfw.h"
 
 #define SMF_GTP_HANDLED     1
 

@@ -31,7 +31,6 @@ endforeach
 configure_file(output : 'smf-config.h', configuration : smf_conf)
 
 libsmf_sources = files('''
-    ipfw.h
     event.h
     timer.h
     context.h
@@ -45,7 +44,6 @@ libsmf_sources = files('''
     n4-build.h
     n4-handler.h
 
-    ipfw.c
     init.c
     event.c
     timer.c

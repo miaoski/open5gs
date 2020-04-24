@@ -315,8 +315,7 @@ ogs_pfcp_pdr_t *upf_pdr_find_by_packet(ogs_pkbuf_t *pkt)
 
                 rule = pdr->rules[r];
                 ogs_assert(rule);
-                pdr = rule->pdr;
-                ogs_assert(pdr);
+                ogs_assert(pdr && rule->pdr && pdr == rule->pdr);
                 ogs_debug("Found Dedicated PDR : PDR ID[%d]", pdr->id);
                 break;
             }

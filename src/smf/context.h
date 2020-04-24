@@ -30,6 +30,7 @@
 #include "ogs-diameter-gx.h"
 #include "ogs-pfcp.h"
 #include "ogs-app.h"
+#include "ipfw/ogs-ipfw.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -152,42 +153,13 @@ typedef struct smf_bearer_s {
     smf_sess_t      *sess;
 } smf_bearer_t;
 
-typedef struct smf_rule_s {
-    uint8_t proto;
-ED5(uint8_t ipv4_local:1;,
-    uint8_t ipv4_remote:1;,
-    uint8_t ipv6_local:1;,
-    uint8_t ipv6_remote:1;,
-    uint8_t reserved:4;)
-    struct {
-        struct {
-            uint32_t addr[4];
-            uint32_t mask[4];
-        } local;
-        struct {
-            uint32_t addr[4];
-            uint32_t mask[4];
-        } remote;
-    } ip;
-    struct {
-        struct {
-            uint16_t low;
-            uint16_t high;
-        } local;
-        struct {
-            uint16_t low;
-            uint16_t high;
-        } remote;
-    } port;
-} smf_rule_t;
-
 typedef struct smf_pf_s {
     ogs_lnode_t     lnode;
 
 ED3(uint8_t spare:2;,
     uint8_t direction:2;,
     uint8_t identifier:4;)
-    smf_rule_t      rule;
+    ogs_ipfw_rule_t rule;
 
     smf_bearer_t    *bearer;
 } smf_pf_t;
