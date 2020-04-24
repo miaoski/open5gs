@@ -62,6 +62,7 @@ typedef struct upf_context_s {
     ogs_hash_t      *ipv6_hash;     /* hash table (IPv6 Address) */
 } upf_context_t;
 
+#define UPF_SESS(pfcp_sess) ogs_container_of(pfcp_sess, upf_sess_t, pfcp)
 typedef struct upf_sess_s {
     ogs_lnode_t     lnode;
     uint32_t        index;          /**< An index of this node */
