@@ -46,6 +46,7 @@ static int upf_gtp_handle_multicast(ogs_pkbuf_t *recvbuf);
 static int upf_gtp_handle_slaac(upf_sess_t *sess, ogs_pkbuf_t *recvbuf);
 static int upf_gtp_send_to_bearer(upf_bearer_t *bearer, ogs_pkbuf_t *sendbuf);
 static int upf_gtp_send_to_far(ogs_pfcp_far_t *far, ogs_pkbuf_t *sendbuf);
+static int upf_gtp_send_to_pdr(ogs_pfcp_pdr_t *pdr, ogs_pkbuf_t *sendbuf);
 static int upf_gtp_send_router_advertisement(
         upf_sess_t *sess, uint8_t *ip6_dst);
 
@@ -280,14 +281,10 @@ static int upf_gtp_handle_multicast(ogs_pkbuf_t *recvbuf)
                 if (sess->ipv6) {
                     /* PDN IPv6 is avaiable */
                     ogs_pfcp_pdr_t *pdr = NULL;
-                    ogs_pfcp_far_t *far = NULL;
 
                     pdr = ogs_pfcp_sess_default_pdr(&sess->pfcp);
                     ogs_assert(pdr);
-                    far = pdr->far;
-                    ogs_assert(far);
-
-                    rv = upf_gtp_send_to_far(far, recvbuf);
+                    rv = upf_gtp_send_to_pdr(pdr, recvbuf);
                     ogs_assert(rv == OGS_OK);
 
                     return UPF_GTP_HANDLED;
@@ -372,6 +369,7 @@ static int upf_gtp_send_to_far(ogs_pfcp_far_t *far, ogs_pkbuf_t *sendbuf)
     gnode = far->gnode;
     ogs_assert(gnode);
     ogs_assert(gnode->sock);
+    ogs_assert(sendbuf);
 
     /* Add GTP-U header */
     ogs_assert(ogs_pkbuf_push(sendbuf, OGS_GTPV1U_HEADER_LEN));
@@ -393,6 +391,18 @@ static int upf_gtp_send_to_far(ogs_pfcp_far_t *far, ogs_pkbuf_t *sendbuf)
     rv =  ogs_gtp_sendto(gnode, sendbuf);
 
     return rv;
+}
+
+static int upf_gtp_send_to_pdr(ogs_pfcp_pdr_t *pdr, ogs_pkbuf_t *sendbuf)
+{
+    ogs_pfcp_far_t *far = NULL;
+
+    ogs_assert(sendbuf);
+    ogs_assert(pdr);
+    far = pdr->far;
+    ogs_assert(far);
+
+    return upf_gtp_send_to_far(far, sendbuf);
 }
 
 static int upf_gtp_send_router_advertisement(
@@ -482,7 +492,7 @@ static int upf_gtp_send_router_advertisement(
     memcpy(ip6_h->ip6_src.s6_addr, src_ipsub.sub, sizeof src_ipsub.sub);
     memcpy(ip6_h->ip6_dst.s6_addr, ip6_dst, OGS_IPV6_LEN);
     
-    rv = upf_gtp_send_to_far(far, pkbuf);
+    rv = upf_gtp_send_to_pdr(pdr, pkbuf);
     ogs_assert(rv == OGS_OK);
 
     ogs_debug("[UPF]      Router Advertisement");
