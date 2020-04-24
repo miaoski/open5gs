@@ -418,6 +418,94 @@ int16_t ogs_pfcp_parse_user_plane_ip_resource_info(
         ogs_pfcp_user_plane_ip_resource_info_t *info,
         ogs_tlv_octet_t *octet);
 
+/*
+ * 8.2.5 SDF Filter
+ *
+ * The SDF Filter IE type shall be encoded as shown in Figure 8.2.5-1.
+ * It contains an SDF Filter, i.e. a single IP flow packet filter.
+ *
+ * The following flags are coded within Octet 5:
+ * - Bit 1 – FD (Flow Description): If this bit is set to "1",
+ *   then the Length of Flow Description and the Flow Description fields
+ *   shall be present, otherwise they shall not be present.
+ * - Bit 2 – TTC (ToS Traffic Class): If this bit is set to "1",
+ *   then the ToS Traffic Class field shall be present,
+ *   otherwise the ToS Traffic Class field shall not be present.
+ * - Bit 3 – SPI (Security Parameter Index): If this bit is set to "1",
+ *   then the Security Parameter Index field shall be present,
+ *   otherwise the Security Parameter Index field shall not be present.
+ * - Bit 4 – FL (Flow Label): If this bit is set to "1",
+ *   then the Flow Label field shall be present, otherwise the Flow Label field
+ *   shall not be present.
+ * - Bit 5 – BID (Bidirectional SDF Filter): If this bit is set to "1",
+ *   then the SDF Filter ID shall be present, otherwise the SDF Filter ID
+ *   shall not be present.
+ * - Bit 6 to 8: Spare, for future use and set to 0.
+ *
+ * The Flow Description field, when present, shall be encoded as an OctetString
+ * as specified in clause 5.4.2 of 3GPP TS 29.212 [8].
+ *
+ * The ToS Traffic Class field, when present, shall be encoded as an OctetString
+ * on two octets as specified in clause 5.3.15 of 3GPP TS 29.212 [8].
+ *
+ * The Security Parameter Index field, when present, shall be encoded as
+ * an OctetString on four octets and shall contain the IPsec security parameter
+ * index (which is a 32-bit field), as specified in clause 5.3.51
+ * of 3GPP TS 29.212 [8].
+ *
+ * The Flow Label field, when present, shall be encoded as an OctetString
+ * on 3 octets as specified in clause 5.3.52 of 3GPP TS 29.212 [8] and
+ * shall contain an IPv6 flow label (which is a 20-bit field).
+ *
+ * The bits 8 to 5 of the octet "v" shall be spare and set to zero, and
+ * the remaining 20 bits shall contain the IPv6 flow label.
+ *
+ * An SDF Filter may:
+ *
+ * - be a pattern for matching the IP 5 tuple (source IP address or
+ *   IPv6 network prefix, destination IP address or IPv6 network prefix,
+ *   source port number, destination port number, protocol ID of the protocol
+ *   above IP). In the pattern:
+ *   - a value left unspecified in a filter matches any value of
+ *     the corresponding information in a packet;
+ *   - an IP address may be combined with a prefix mask;
+ *   - port numbers may be specified as port ranges;
+ *   - the pattern can be extended by the Type of Service (TOS) (IPv4) /
+ *     Traffic class (IPv6) and Mask;
+ *
+ * - consist of the destination IP address and optional mask, protocol ID
+ *   of the protocol above IP, the Type of Service (TOS) (IPv4) /
+ *   Traffic class (IPv6) and Mask and the IPsec Security Parameter Index (SPI);
+ *
+ * - consist of the destination IP address and optional mask,
+ *   the Type of Service (TOS) (IPv4) / Traffic class (IPv6) and Mask and
+ *   the Flow Label (IPv6).
+ *
+ * NOTE 1: The details about the IPsec Security Parameter Index (SPI),
+ *         the Type of Service (TOS) (IPv4) / Traffic class (IPv6) and Mask and
+ *         the Flow Label (IPv6) are defined in 3GPP TS 23.060 [19] clause 15.3.
+ *
+ * - extend the packet inspection beyond the possibilities described above and
+ *   look further into the packet. Such service data flow filters need
+ *   to be predefined in the PGW-U, as specified in clause 5.11
+ *   of 3GPP TS 23.214 [2].
+ *
+ * NOTE 2: Such filters may be used to support filtering with respect
+ *         to a service data flow based on the transport and application
+ *         protocols used above IP, e.g. for HTTP and WAP. Filtering
+ *         for further application protocols and services can also be supported.
+ *
+ * The SDF Filter ID, when present, shall be encoded as
+ * an Unsigned32 binary integer value. It shall uniquely identify
+ * an SDF Filter among all the SDF Filters provisioned for a given PFCP Session.
+ * The source/destination IP address and port information, in a bidirectional
+ * SDF Filter, shall be set as for downlink IP flows. The SDF filter
+ * for the opposite direction has the same parameters, but having
+ * the source and destination address/port parameters swapped. When being
+ * provisioned with a bidirectional SDF filter in a PDR,
+ * the UP function shall apply the SDF filter as specified in clause 5.2.1A.2A.
+ */
+
 typedef struct ogs_pfcp_sdf_filter_s {
     union {
         struct {

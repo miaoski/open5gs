@@ -29,6 +29,7 @@
 #define OGS_MAX_NUM_OF_URR              2
 #define OGS_MAX_NUM_OF_QER              2
 #define OGS_MAX_NUM_OF_BAR              1
+#define OGS_MAX_NUM_OF_RULE             4
 #define OGS_MAX_NUM_OF_GTPU_RESOURCE    4
 
 #define OGS_PFCP_INSIDE

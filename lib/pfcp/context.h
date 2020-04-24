@@ -95,6 +95,7 @@ typedef struct ogs_pfcp_far_s ogs_pfcp_far_t;
 typedef struct ogs_pfcp_urr_s ogs_pfcp_urr_t;
 typedef struct ogs_pfcp_qer_s ogs_pfcp_qer_t;
 typedef struct ogs_pfcp_bar_s ogs_pfcp_bar_t;
+typedef struct ogs_pfcp_rule_s ogs_pfcp_rule_t;
 
 typedef struct ogs_pfcp_sess_s {
     uint64_t            local_n4_seid;  /* Local SEID is dervied from INDEX */
@@ -114,6 +115,8 @@ typedef struct ogs_pfcp_sess_s {
 
     ogs_pfcp_bar_id_t   bar_id;     /* ID Generator(1~MAX_NUM_OF_BAR) */
     ogs_pfcp_bar_t      *bar;       /* BAR Item */
+
+    ogs_list_t          rule_list;  /* Rule List */
 
     /* Related Context */
     ogs_pfcp_node_t     *node;
@@ -135,7 +138,12 @@ typedef struct ogs_pfcp_pdr_s {
     int                     num_of_qer;
     ogs_pfcp_qer_t          *qers[OGS_MAX_NUM_OF_QER];
 
+    int                     num_of_rule;
+    ogs_pfcp_rule_t         *rules[OGS_MAX_NUM_OF_RULE];
+
     ogs_pfcp_sess_t         *sess;
+
+    void                    *gnode;
 } ogs_pfcp_pdr_t;
 
 typedef struct ogs_pfcp_far_s {
@@ -171,6 +179,42 @@ typedef struct ogs_pfcp_bar_s {
 
     ogs_pfcp_sess_t         *sess;
 } ogs_pfcp_bar_t;
+
+typedef struct ogs_pfcp_rule_s {
+    uint8_t proto;
+ED5(uint8_t ipv4_local:1;,
+    uint8_t ipv4_remote:1;,
+    uint8_t ipv6_local:1;,
+    uint8_t ipv6_remote:1;,
+    uint8_t reserved:4;)
+    struct {
+        struct {
+            uint32_t addr[4];
+            uint32_t mask[4];
+        } local;
+        struct {
+            uint32_t addr[4];
+            uint32_t mask[4];
+        } remote;
+    } ip;
+    struct {
+        struct {
+            uint16_t low;
+            uint16_t high;
+        } local;
+        struct {
+            uint16_t low;
+            uint16_t high;
+        } remote;
+    } port;
+
+    uint16_t tos_traffic_class;
+    uint32_t security_parameter_index;
+    uint32_t flow_label; /* 24bit */
+    uint32_t sdf_filter_id;
+
+    ogs_pfcp_pdr_t *pdr;
+} ogs_pfcp_rule_t;
 
 typedef struct ogs_pfcp_subnet_s ogs_pfcp_subnet_t;
 typedef struct ogs_pfcp_ue_ip_s {
@@ -274,6 +318,10 @@ void ogs_pfcp_qer_remove_all(ogs_pfcp_sess_t *sess);
 
 ogs_pfcp_bar_t *ogs_pfcp_bar_new(ogs_pfcp_sess_t *sess);
 void ogs_pfcp_bar_delete(ogs_pfcp_bar_t *bar);
+
+ogs_pfcp_rule_t *ogs_pfcp_rule_add(ogs_pfcp_pdr_t *pdr);
+void ogs_pfcp_rule_remove(ogs_pfcp_rule_t *rule);
+void ogs_pfcp_rule_remove_all(ogs_pfcp_sess_t *sess);
 
 int ogs_pfcp_ue_pool_generate(void);
 ogs_pfcp_ue_ip_t *ogs_pfcp_ue_ip_alloc(
