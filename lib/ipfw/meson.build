@@ -40,6 +40,9 @@ libipfw_sources = files('''
     expand_number.c
     humanize_number.c
     glue.c
+
+    ogs-ipfw.h
+    ogs-ipfw.c
 '''.split())
 
 libipfw_inc = include_directories('objs/include_e')
