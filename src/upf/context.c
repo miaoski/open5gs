@@ -24,9 +24,6 @@ static upf_context_t self;
 int __upf_log_domain;
 
 static OGS_POOL(upf_sess_pool, upf_sess_t);
-static OGS_POOL(upf_bearer_pool, upf_bearer_t);
-
-static OGS_POOL(upf_pf_pool, upf_pf_t);
 
 static int context_initiaized = 0;
 
@@ -61,9 +58,6 @@ void upf_context_init(void)
     ogs_list_init(&self.gnb_n3_list);
 
     ogs_pool_init(&upf_sess_pool, ogs_config()->pool.sess);
-    ogs_pool_init(&upf_bearer_pool, ogs_config()->pool.bearer);
-
-    ogs_pool_init(&upf_pf_pool, ogs_config()->pool.pf);
 
     self.sess_hash = ogs_hash_make();
     self.ipv4_hash = ogs_hash_make();
@@ -85,9 +79,7 @@ void upf_context_final(void)
     ogs_assert(self.ipv6_hash);
     ogs_hash_destroy(self.ipv6_hash);
 
-    ogs_pool_final(&upf_bearer_pool);
     ogs_pool_final(&upf_sess_pool);
-    ogs_pool_final(&upf_pf_pool);
 
     ogs_gtp_node_remove_all(&self.gnb_n3_list);
 
@@ -397,7 +389,6 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
     char buf1[OGS_ADDRSTRLEN];
     char buf2[OGS_ADDRSTRLEN];
     upf_sess_t *sess = NULL;
-    upf_bearer_t *bearer = NULL;
 
     ogs_assert(cp_f_seid);
     ogs_assert(apn);
@@ -459,12 +450,6 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
         goto cleanup;
     }
 
-    /* Set Default Bearer */
-    ogs_list_init(&sess->bearer_list);
-
-    bearer = upf_bearer_add(sess);
-    ogs_assert(bearer);
-
     /* Set Default PDR */
     OGS_SETUP_DEFAULT_PDR(&sess->pfcp,
         ogs_pfcp_pdr_find_or_add(&sess->pfcp, default_pdr_id));
@@ -506,8 +491,6 @@ int upf_sess_remove(upf_sess_t *sess)
         ogs_hash_set(self.ipv6_hash, sess->ipv6->addr, OGS_IPV6_LEN, NULL);
         ogs_pfcp_ue_ip_free(sess->ipv6);
     }
-
-    upf_bearer_remove_all(sess);
 
     ogs_pool_free(&upf_sess_pool, sess);
 
@@ -641,188 +624,4 @@ upf_sess_t *upf_sess_add_by_message(ogs_pfcp_message_t *message)
     ogs_assert(sess);
 
     return sess;
-}
-
-upf_bearer_t *upf_bearer_add(upf_sess_t *sess)
-{
-    upf_bearer_t *bearer = NULL;
-
-    ogs_assert(sess);
-
-    ogs_pool_alloc(&upf_bearer_pool, &bearer);
-    ogs_assert(bearer);
-    memset(bearer, 0, sizeof *bearer);
-
-    bearer->index = ogs_pool_index(&upf_bearer_pool, bearer);
-    ogs_assert(bearer->index > 0 && bearer->index <=
-            ogs_config()->pool.bearer);
-
-    ogs_list_init(&bearer->pf_list);
-
-    bearer->sess = sess;
-
-    ogs_list_add(&sess->bearer_list, bearer);
-
-    return bearer;
-}
-
-int upf_bearer_remove(upf_bearer_t *bearer)
-{
-    ogs_assert(bearer);
-    ogs_assert(bearer->sess);
-
-    ogs_list_remove(&bearer->sess->bearer_list, bearer);
-
-    if (bearer->name)
-        ogs_free(bearer->name);
-
-    upf_pf_remove_all(bearer);
-
-    ogs_pool_free(&upf_bearer_pool, bearer);
-
-    return OGS_OK;
-}
-
-void upf_bearer_remove_all(upf_sess_t *sess)
-{
-    upf_bearer_t *bearer = NULL, *next_bearer = NULL;
-
-    ogs_assert(sess);
-    ogs_list_for_each_safe(&sess->bearer_list, next_bearer, bearer)
-        upf_bearer_remove(bearer);
-}
-
-upf_bearer_t *upf_bearer_find_by_name(upf_sess_t *sess, char *name)
-{
-    upf_bearer_t *bearer = NULL;
-    
-    ogs_assert(sess);
-    ogs_assert(name);
-
-    bearer = upf_bearer_first(sess);
-    while (bearer) {
-        if (bearer->name && strcmp(bearer->name, name) == 0)
-            return bearer;
-
-        bearer = upf_bearer_next(bearer);
-    }
-
-    return NULL;
-}
-
-upf_bearer_t *upf_bearer_find_by_qci_arp(upf_sess_t *sess, 
-                                uint8_t qci,
-                                uint8_t priority_level,
-                                uint8_t pre_emption_capability,
-                                uint8_t pre_emption_vulnerability)
-{
-    upf_bearer_t *bearer = NULL;
-
-    ogs_assert(sess);
-
-    bearer = upf_default_bearer_in_sess(sess);
-    if (!bearer) return NULL;
-
-    if (sess->pdn.qos.qci == qci &&
-        sess->pdn.qos.arp.priority_level == priority_level &&
-        sess->pdn.qos.arp.pre_emption_capability == 
-            pre_emption_capability &&
-        sess->pdn.qos.arp.pre_emption_vulnerability == 
-            pre_emption_vulnerability) {
-        return bearer;
-    }
-
-    bearer = upf_bearer_next(bearer);
-    while (bearer) {
-        if (bearer->qos.qci == qci &&
-            bearer->qos.arp.priority_level == priority_level &&
-            bearer->qos.arp.pre_emption_capability == 
-                pre_emption_capability &&
-            bearer->qos.arp.pre_emption_vulnerability == 
-                pre_emption_vulnerability) {
-            return bearer;
-        }
-        bearer = upf_bearer_next(bearer);
-    }
-
-    return NULL;
-}
-
-upf_bearer_t *upf_default_bearer_in_sess(upf_sess_t *sess)
-{
-    return upf_bearer_first(sess);
-}
-
-upf_bearer_t *upf_bearer_first(upf_sess_t *sess)
-{
-    ogs_assert(sess);
-    return ogs_list_first(&sess->bearer_list);
-}
-
-upf_bearer_t *upf_bearer_next(upf_bearer_t *bearer)
-{
-    return ogs_list_next(bearer);
-}
-
-upf_pf_t *upf_pf_add(upf_bearer_t *bearer, uint32_t precedence)
-{
-    upf_pf_t *pf = NULL;
-
-    ogs_assert(bearer);
-
-    ogs_pool_alloc(&upf_pf_pool, &pf);
-    ogs_assert(pf);
-    memset(pf, 0, sizeof *pf);
-
-    pf->identifier = OGS_NEXT_ID(bearer->pf_identifier, 1, 15);
-    pf->bearer = bearer;
-
-    ogs_list_add(&bearer->pf_list, pf);
-
-    return pf;
-}
-
-int upf_pf_remove(upf_pf_t *pf)
-{
-    ogs_assert(pf);
-    ogs_assert(pf->bearer);
-
-    ogs_list_remove(&pf->bearer->pf_list, pf);
-    ogs_pool_free(&upf_pf_pool, pf);
-
-    return OGS_OK;
-}
-
-void upf_pf_remove_all(upf_bearer_t *bearer)
-{
-    upf_pf_t *pf = NULL, *next_pf = NULL;
-
-    ogs_assert(bearer);
-    ogs_list_for_each_safe(&bearer->pf_list, next_pf, pf)
-        upf_pf_remove(pf);
-}
-
-upf_pf_t *upf_pf_find_by_id(upf_bearer_t *bearer, uint8_t id)
-{
-    upf_pf_t *pf = NULL;
-    
-    pf = upf_pf_first(bearer);
-    while (pf) {
-        if (pf->identifier == id)
-            return pf;
-
-        pf = upf_pf_next(pf);
-    }
-
-    return OGS_OK;
-}
-
-upf_pf_t *upf_pf_first(upf_bearer_t *bearer)
-{
-    return ogs_list_first(&bearer->pf_list);
-}
-
-upf_pf_t *upf_pf_next(upf_pf_t *pf)
-{
-    return ogs_list_next(pf);
 }

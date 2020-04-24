@@ -62,7 +62,6 @@ void upf_n4_handle_session_establishment_request(
         upf_sess_t *sess, ogs_pfcp_xact_t *xact, 
         ogs_pfcp_session_establishment_request_t *req)
 {
-    upf_bearer_t *bearer = NULL;
     uint8_t cause_value = 0;
     uint8_t offending_ie_value = 0;
     int i;
@@ -81,9 +80,6 @@ void upf_n4_handle_session_establishment_request(
                 OGS_PFCP_CAUSE_SESSION_CONTEXT_NOT_FOUND, 0);
         return;
     }
-
-    bearer = upf_default_bearer_in_sess(sess);
-    ogs_assert(bearer);
 
     for (i = 0; i < OGS_MAX_NUM_OF_PDR; i++) {
         ogs_pfcp_tlv_create_pdr_t *message = &req->create_pdr[i];
@@ -236,9 +232,6 @@ void upf_n4_handle_session_establishment_request(
             far->outer_header_creation.teid =
                 be32toh(far->outer_header_creation.teid);
 
-            /* Setup gNB-N3-TEID */
-            bearer->gnb_n3_teid = far->outer_header_creation.teid;
-
             /* Setup GTP Node */
             rv = ogs_pfcp_outer_header_creation_to_ip(
                     &far->outer_header_creation, &ip);
@@ -257,7 +250,6 @@ void upf_n4_handle_session_establishment_request(
                         upf_self()->gtpu_sock, upf_self()->gtpu_sock6, gnode);
                 ogs_assert(rv == OGS_OK);
             }
-            OGS_SETUP_GTP_NODE(bearer, gnode);
             OGS_SETUP_GTP_NODE(far, gnode);
         } else if (far->dst_if == OGS_PFCP_INTERFACE_CORE) {  /* Uplink */
 

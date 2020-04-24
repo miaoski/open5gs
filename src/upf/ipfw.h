@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-int upf_compile_packet_filter(upf_rule_t *pf, char *description);
+int upf_compile_packet_filter(ogs_pfcp_rule_t *pfcp_rule, char *description);
 ogs_pfcp_pdr_t *upf_pdr_find_by_packet(ogs_pkbuf_t *pkt);
 
 #ifdef __cplusplus

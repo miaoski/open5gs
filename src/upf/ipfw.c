@@ -36,9 +36,9 @@
 
 void compile_rule(char *av[], uint32_t *rbuf, int *rbufsize, void *tstate);
 
-int upf_compile_packet_filter(upf_rule_t *upf_rule, char *description)
+int upf_compile_packet_filter(ogs_pfcp_rule_t *pfcp_rule, char *description)
 {
-    upf_rule_t zero_rule;
+    ogs_pfcp_rule_t zero_rule;
     char *token, *dir;
     char *saveptr;
     int i = 2;
@@ -51,7 +51,7 @@ int upf_compile_packet_filter(upf_rule_t *upf_rule, char *description)
 	int l;
 	ipfw_insn *cmd;
 
-    ogs_assert(upf_rule);
+    ogs_assert(pfcp_rule);
 
 	rbufsize = sizeof(rulebuf);
 	memset(rulebuf, 0, rbufsize);
@@ -91,70 +91,70 @@ int upf_compile_packet_filter(upf_rule_t *upf_rule, char *description)
 
 	compile_rule(av, (uint32_t *)rule, &rbufsize, NULL);
 
-    memset(upf_rule, 0, sizeof(upf_rule_t));
+    memset(pfcp_rule, 0, sizeof(ogs_pfcp_rule_t));
 	for (l = rule->act_ofs, cmd = rule->cmd;
 			l > 0 ; l -= F_LEN(cmd) , cmd += F_LEN(cmd)) {
         uint32_t *a = NULL;
         uint16_t *p = NULL;
 		switch (cmd->opcode) {
         case O_PROTO:
-            upf_rule->proto = cmd->arg1;
+            pfcp_rule->proto = cmd->arg1;
             break;
         case O_IP_SRC:
         case O_IP_SRC_MASK:
             a = ((ipfw_insn_u32 *)cmd)->d;
-            upf_rule->ipv4_local = 1;
-            upf_rule->ip.local.addr[0] = a[0];
+            pfcp_rule->ipv4_local = 1;
+            pfcp_rule->ip.local.addr[0] = a[0];
             if (cmd->opcode == O_IP_SRC_MASK)
-                upf_rule->ip.local.mask[0] = a[1];
+                pfcp_rule->ip.local.mask[0] = a[1];
             else
-                upf_rule->ip.local.mask[0] = 0xffffffff;
+                pfcp_rule->ip.local.mask[0] = 0xffffffff;
             break;
         case O_IP_DST:
         case O_IP_DST_MASK:
             a = ((ipfw_insn_u32 *)cmd)->d;
-            upf_rule->ipv4_remote = 1;
-            upf_rule->ip.remote.addr[0] = a[0];
+            pfcp_rule->ipv4_remote = 1;
+            pfcp_rule->ip.remote.addr[0] = a[0];
             if (cmd->opcode == O_IP_DST_MASK)
-                upf_rule->ip.remote.mask[0] = a[1];
+                pfcp_rule->ip.remote.mask[0] = a[1];
             else
-                upf_rule->ip.remote.mask[0] = 0xffffffff;
+                pfcp_rule->ip.remote.mask[0] = 0xffffffff;
             break;
         case O_IP6_SRC:
         case O_IP6_SRC_MASK:
             a = ((ipfw_insn_u32 *)cmd)->d;
-            upf_rule->ipv6_local = 1;
-            memcpy(upf_rule->ip.local.addr, a, OGS_IPV6_LEN);
+            pfcp_rule->ipv6_local = 1;
+            memcpy(pfcp_rule->ip.local.addr, a, OGS_IPV6_LEN);
             if (cmd->opcode == O_IP6_SRC_MASK)
-                memcpy(upf_rule->ip.local.mask, a+4, OGS_IPV6_LEN);
+                memcpy(pfcp_rule->ip.local.mask, a+4, OGS_IPV6_LEN);
             else
-                n2mask((struct in6_addr *)upf_rule->ip.local.mask, 128);
+                n2mask((struct in6_addr *)pfcp_rule->ip.local.mask, 128);
             break;
         case O_IP6_DST:
         case O_IP6_DST_MASK:
             a = ((ipfw_insn_u32 *)cmd)->d;
-            upf_rule->ipv6_remote = 1;
-            memcpy(upf_rule->ip.remote.addr, a, OGS_IPV6_LEN);
+            pfcp_rule->ipv6_remote = 1;
+            memcpy(pfcp_rule->ip.remote.addr, a, OGS_IPV6_LEN);
             if (cmd->opcode == O_IP6_DST_MASK)
-                memcpy(upf_rule->ip.remote.mask, a+4, OGS_IPV6_LEN);
+                memcpy(pfcp_rule->ip.remote.mask, a+4, OGS_IPV6_LEN);
             else
-                n2mask((struct in6_addr *)upf_rule->ip.remote.mask, 128);
+                n2mask((struct in6_addr *)pfcp_rule->ip.remote.mask, 128);
             break;
         case O_IP_SRCPORT:
             p = ((ipfw_insn_u16 *)cmd)->ports;
-            upf_rule->port.local.low = p[0];
-            upf_rule->port.local.high = p[1];
+            pfcp_rule->port.local.low = p[0];
+            pfcp_rule->port.local.high = p[1];
             break;
         case O_IP_DSTPORT:
             p = ((ipfw_insn_u16 *)cmd)->ports;
-            upf_rule->port.remote.low = p[0];
-            upf_rule->port.remote.high = p[1];
+            pfcp_rule->port.remote.low = p[0];
+            pfcp_rule->port.remote.high = p[1];
             break;
         }
 	}
 
-    memset(&zero_rule, 0, sizeof(upf_rule_t));
-    if (memcmp(upf_rule, &zero_rule, sizeof(upf_rule_t)) == 0) {
+    memset(&zero_rule, 0, sizeof(ogs_pfcp_rule_t));
+    if (memcmp(pfcp_rule, &zero_rule, sizeof(ogs_pfcp_rule_t)) == 0) {
         ogs_error("Cannot find Flow-Description");
         return OGS_ERROR;
     }

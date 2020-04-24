@@ -75,69 +75,9 @@ typedef struct upf_sess_s {
     ogs_pfcp_ue_ip_t *ipv4;
     ogs_pfcp_ue_ip_t *ipv6;
 
-    ogs_list_t      bearer_list;
-
     /* Related Context */
     ogs_gtp_node_t  *gnode;
 } upf_sess_t;
-
-typedef struct upf_bearer_s {
-    ogs_lnode_t     lnode; /**< A node of list_t */
-    uint32_t        index;
-
-    uint32_t        gnb_n3_teid;
-
-    char            *name;          /* PCC Rule Name */
-    ogs_qos_t       qos;            /* QoS Infomration */
-
-    /* Packet Filter Identifier Generator(1~15) */
-    uint8_t         pf_identifier;
-    /* Packet Filter List */
-    ogs_list_t      pf_list;
-
-    upf_sess_t      *sess;
-    ogs_gtp_node_t  *gnode;
-} upf_bearer_t;
-
-typedef struct upf_rule_s {
-    uint8_t proto;
-ED5(uint8_t ipv4_local:1;,
-    uint8_t ipv4_remote:1;,
-    uint8_t ipv6_local:1;,
-    uint8_t ipv6_remote:1;,
-    uint8_t reserved:4;)
-    struct {
-        struct {
-            uint32_t addr[4];
-            uint32_t mask[4];
-        } local;
-        struct {
-            uint32_t addr[4];
-            uint32_t mask[4];
-        } remote;
-    } ip;
-    struct {
-        struct {
-            uint16_t low;
-            uint16_t high;
-        } local;
-        struct {
-            uint16_t low;
-            uint16_t high;
-        } remote;
-    } port;
-} upf_rule_t;
-
-typedef struct upf_pf_s {
-    ogs_lnode_t     lnode;
-
-ED3(uint8_t spare:2;,
-    uint8_t direction:2;,
-    uint8_t identifier:4;)
-    upf_rule_t      rule;
-
-    upf_bearer_t    *bearer;
-} upf_pf_t;
 
 void upf_context_init(void);
 void upf_context_final(void);
@@ -157,27 +97,6 @@ upf_sess_t *upf_sess_find_by_cp_seid(uint64_t seid);
 upf_sess_t *upf_sess_find_by_up_seid(uint64_t seid);
 upf_sess_t *upf_sess_find_by_ipv4(uint32_t addr);
 upf_sess_t *upf_sess_find_by_ipv6(uint32_t *addr6);
-
-upf_bearer_t *upf_bearer_add(upf_sess_t *sess);
-int upf_bearer_remove(upf_bearer_t *bearer);
-void upf_bearer_remove_all(upf_sess_t *sess);
-upf_bearer_t *upf_bearer_find(uint32_t index);
-upf_bearer_t *upf_bearer_find_by_name(upf_sess_t *sess, char *name);
-upf_bearer_t *upf_bearer_find_by_qci_arp(upf_sess_t *sess, 
-                                uint8_t qci,
-                                uint8_t priority_level,
-                                uint8_t pre_emption_capability,
-                                uint8_t pre_emption_vulnerability);
-upf_bearer_t *upf_default_bearer_in_sess(upf_sess_t *sess);
-upf_bearer_t *upf_bearer_first(upf_sess_t *sess);
-upf_bearer_t *upf_bearer_next(upf_bearer_t *bearer);
-
-upf_pf_t *upf_pf_add(upf_bearer_t *bearer, uint32_t precedence);
-int upf_pf_remove(upf_pf_t *pf);
-void upf_pf_remove_all(upf_bearer_t *bearer);
-upf_pf_t *upf_pf_find_by_id(upf_bearer_t *upf_bearer, uint8_t id);
-upf_pf_t *upf_pf_first(upf_bearer_t *bearer);
-upf_pf_t *upf_pf_next(upf_pf_t *pf);
 
 void stats_add_session(void);
 void stats_remove_session(void);
