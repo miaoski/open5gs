@@ -157,9 +157,8 @@ void upf_n4_handle_session_establishment_request(
                     message->outer_header_removal.len);
 
             /* Setup UPF-N3-TEID */
-            bearer->upf_n3_teid = pdr->f_teid.teid;
-            ogs_hash_set(upf_self()->bearer_hash, &bearer->upf_n3_teid,
-                    sizeof(bearer->upf_n3_teid), bearer);
+            ogs_hash_set(ogs_pfcp_self()->pdr_hash, &pdr->f_teid.teid,
+                    sizeof(pdr->f_teid.teid), pdr);
         } else {
             ogs_error("Invalid Source Interface[%d] in PDR", pdr->src_if);
             cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;

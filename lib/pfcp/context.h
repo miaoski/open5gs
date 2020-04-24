@@ -52,6 +52,8 @@ typedef struct ogs_pfcp_context_s {
     ogs_list_t      dev_list;       /* Tun Device List */
     ogs_list_t      subnet_list;    /* UE Subnet List */
 
+    ogs_hash_t      *pdr_hash;      /* hash table (UPF-N3-TEID) */
+
     ogs_list_t      sess_list;
 } ogs_pfcp_context_t;
 
@@ -238,6 +240,7 @@ void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess);
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess);
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_find(
         ogs_pfcp_sess_t *sess, ogs_pfcp_pdr_id_t id);
+ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_by_teid(uint32_t teid);
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(
         ogs_pfcp_sess_t *sess, ogs_pfcp_pdr_id_t id);
 void ogs_pfcp_pdr_set_precedence(

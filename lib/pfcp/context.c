@@ -88,12 +88,17 @@ void ogs_pfcp_context_init(int num_of_gtpu_resource)
     ogs_list_init(&self.subnet_list);
     ogs_pool_init(&ogs_pfcp_subnet_pool, OGS_MAX_NUM_OF_SUBNET);
 
+    self.pdr_hash = ogs_hash_make();
+
     context_initiaized = 1;
 }
 
 void ogs_pfcp_context_final(void)
 {
     ogs_assert(context_initiaized == 1);
+
+    ogs_assert(self.pdr_hash);
+    ogs_hash_destroy(self.pdr_hash);
 
     ogs_pfcp_dev_remove_all();
     ogs_pfcp_subnet_remove_all();
@@ -772,6 +777,11 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_find(
     return NULL;
 }
 
+ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_by_teid(uint32_t teid)
+{
+    return (ogs_pfcp_pdr_t *)ogs_hash_get(self.pdr_hash, &teid, sizeof(teid));
+}
+
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(
         ogs_pfcp_sess_t *sess, ogs_pfcp_pdr_id_t id)
 {
@@ -810,6 +820,11 @@ void ogs_pfcp_pdr_remove(ogs_pfcp_pdr_t *pdr)
     ogs_assert(pdr->sess);
 
     ogs_list_remove(&pdr->sess->pdr_list, pdr);
+
+    if (pdr->f_teid.teid)
+        ogs_hash_set(self.pdr_hash, &pdr->f_teid.teid,
+                sizeof(pdr->f_teid.teid), NULL);
+
     ogs_pool_free(&ogs_pfcp_pdr_pool, pdr);
 }
 

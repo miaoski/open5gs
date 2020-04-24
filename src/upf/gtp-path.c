@@ -94,7 +94,7 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
     struct ip *ip_h = NULL;
 
     uint32_t teid;
-    upf_bearer_t *bearer = NULL;
+    ogs_pfcp_pdr_t *pdr = NULL;
     upf_sess_t *sess = NULL;
     ogs_pfcp_subnet_t *subnet = NULL;
     ogs_pfcp_dev_t *dev = NULL;
@@ -128,12 +128,13 @@ static void _gtpv1_u_recv_cb(short when, ogs_socket_t fd, void *data)
     ip_h = (struct ip *)pkbuf->data;
     ogs_assert(ip_h);
 
-    bearer = upf_bearer_find_by_upf_n3_teid(teid);
-    if (!bearer) {
+    pdr = ogs_pfcp_pdr_find_by_teid(teid);
+    if (!pdr) {
         ogs_warn("[DROP] Cannot find bearer : UPF-N3-TEID[0x%x]", teid);
         goto cleanup;
     }
-    sess = bearer->sess;
+    ogs_assert(pdr->sess);
+    sess = UPF_SESS(pdr->sess);
     ogs_assert(sess);
 
     if (ip_h->ip_v == 4 && sess->ipv4)
