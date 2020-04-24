@@ -121,12 +121,6 @@ typedef struct smf_sess_s {
     ogs_gtp_node_t  *gnode;
 } smf_sess_t;
 
-#define SMF_SETUP_BEARER(__cTX, __bEARER) \
-    do { \
-        ogs_assert((__cTX)); \
-        ogs_assert((__bEARER)); \
-        (__cTX)->bearer = __bEARER; \
-    } while(0)
 typedef struct smf_bearer_s {
     ogs_lnode_t     lnode; /**< A node of list_t */
     uint32_t        index;
@@ -156,6 +150,24 @@ typedef struct smf_bearer_s {
     /* Packet Filter List */
     ogs_list_t      pf_list;
 
+#define SMF_SETUP_BEARER(__pDR, __bEARER) \
+    do { \
+        ogs_assert((__pDR)); \
+        ogs_assert((__bEARER)); \
+        (__pDR)->bearer = __bEARER; \
+    } while(0)
+#define SMF_SETUP_DL_PDR(__pDR, __bEARER) \
+    do { \
+        SMF_SETUP_BEARER(__pDR, __bEARER); \
+        (__bEARER)->dl_pdr = __pDR; \
+    } while(0)
+#define SMF_SETUP_UL_PDR(__pDR, __bEARER) \
+    do { \
+        SMF_SETUP_BEARER(__pDR, __bEARER); \
+        (__bEARER)->ul_pdr = __pDR; \
+    } while(0)
+    ogs_pfcp_pdr_t  *dl_pdr;
+    ogs_pfcp_pdr_t  *ul_pdr;
     smf_sess_t      *sess;
 } smf_bearer_t;
 

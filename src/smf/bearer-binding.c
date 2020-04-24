@@ -178,6 +178,12 @@ void smf_bearer_binding(smf_sess_t *sess)
 
                 bearer = smf_bearer_add(sess);
                 ogs_assert(bearer);
+                ogs_assert(bearer->dl_pdr);
+                ogs_assert(bearer->ul_pdr);
+
+                /* Precedence is set to the order in which it was created */
+                ogs_pfcp_pdr_set_precedence(bearer->dl_pdr, bearer->dl_pdr->id);
+                ogs_pfcp_pdr_set_precedence(bearer->ul_pdr, bearer->ul_pdr->id);
 
                 bearer->name = ogs_strdup(pcc_rule->name);
                 ogs_assert(bearer->name);
