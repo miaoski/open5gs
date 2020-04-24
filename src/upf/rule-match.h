@@ -17,8 +17,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef UPF_IPFW_H
-#define UPF_IPFW_H
+#ifndef UPF_RULE_MATCH_H
+#define UPF_RULE_MATCH_H
 
 #include "context.h"
 
@@ -32,4 +32,4 @@ ogs_pfcp_pdr_t *upf_pdr_find_by_packet(ogs_pkbuf_t *pkt);
 }
 #endif
 
-#endif /* UPF_IPFW_H */
+#endif /* UPF_RULE_MATCH_H */

@@ -43,6 +43,7 @@ libsmf_sources = files('''
     pfcp-path.h
     n4-build.h
     n4-handler.h
+    bearer-binding.h
 
     init.c
     event.c
@@ -58,6 +59,7 @@ libsmf_sources = files('''
     pfcp-path.c
     n4-build.c
     n4-handler.c
+    bearer-binding.c
 '''.split())
 
 libsmf = static_library('smf',
