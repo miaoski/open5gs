@@ -121,6 +121,12 @@ typedef struct smf_sess_s {
     ogs_gtp_node_t  *gnode;
 } smf_sess_t;
 
+#define SMF_SETUP_BEARER(__cTX, __bEARER) \
+    do { \
+        ogs_assert((__cTX)); \
+        ogs_assert((__bEARER)); \
+        (__cTX)->bearer = __bEARER; \
+    } while(0)
 typedef struct smf_bearer_s {
     ogs_lnode_t     lnode; /**< A node of list_t */
     uint32_t        index;

@@ -140,13 +140,17 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     i = 0;
     ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
         ogs_pfcp_tlv_create_pdr_t *message = &req->create_pdr[i];
-        ogs_pfcp_far_t *far = pdr->far;
+        ogs_pfcp_far_t *far = NULL;
+        smf_bearer_t *bearer = NULL;
         int j = 0;
         int len = 0;
 
         ogs_assert(message);
         ogs_assert(pdr);
+        far = pdr->far;
         ogs_assert(far);
+        bearer = pdr->bearer;
+        ogs_assert(bearer);
 
         message->presence = 1;
         message->pdr_id.presence = 1;
@@ -233,10 +237,15 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     i = 0;
     ogs_list_for_each(&sess->pfcp.far_list, far) {
         ogs_pfcp_tlv_create_far_t *message = &req->create_far[i];
-        ogs_pfcp_pdr_t *pdr = far->pdr;
+        ogs_pfcp_pdr_t *pdr = NULL;
+        smf_bearer_t *bearer = NULL;
 
         ogs_assert(message);
         ogs_assert(far);
+        pdr = far->pdr;
+        ogs_assert(pdr);
+        bearer = pdr->bearer;
+        ogs_assert(bearer);
 
         message->presence = 1;
         message->far_id.presence = 1;
@@ -250,7 +259,8 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
         message->forwarding_parameters.destination_interface.u8 = far->dst_if;
 
         if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
-            far->dst_if == OGS_PFCP_INTERFACE_ACCESS) {  /* Downlink */
+            far->dst_if == OGS_PFCP_INTERFACE_ACCESS && /* Downlink */
+            bearer->gnb_n3_teid) { /* gNB-N3-TEID is avaiable */
             ogs_pfcp_ip_to_outer_header_creation(
                     &bearer->gnb_ip, &outer_header_creation[i], &len);
             outer_header_creation[i].teid = htobe32(bearer->gnb_n3_teid);

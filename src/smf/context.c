@@ -819,8 +819,10 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 
     dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
     ogs_assert(dl_pdr);
+    SMF_SETUP_BEARER(dl_pdr, bearer);
     ul_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
     ogs_assert(ul_pdr);
+    SMF_SETUP_BEARER(ul_pdr, bearer);
 
     /* First PDR(highest procedence value) is lowest precedence. */
     ogs_pfcp_pdr_set_precedence(dl_pdr, 0xffffffff);

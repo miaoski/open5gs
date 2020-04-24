@@ -29,7 +29,7 @@
 #endif
 
 #ifndef OGS_OK
-#define OGS_OK -1
+#define OGS_OK 0
 #endif
 
 #ifndef OGS_IPV6_LEN

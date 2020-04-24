@@ -220,6 +220,7 @@ static void cups_test1(abts_case *tc, void *data)
     rv = testenb_s1ap_send(s1ap, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
 
+#if 0
     /* Receive E-RAB Setup Request +
      * Activate default EPS bearer context request */
     recvbuf = testenb_s1ap_read(s1ap);
@@ -301,6 +302,7 @@ static void cups_test1(abts_case *tc, void *data)
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
     rv = testenb_s1ap_send(s1ap, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
+#endif
     
     ogs_msleep(300);
 
@@ -700,7 +702,6 @@ static void cups_test3(abts_case *tc, void *data)
 
     ogs_msleep(50);
 
-#endif
 
     /* Send Detach Request */
     rv = tests1ap_build_detach_request(&sendbuf, msgindex+1);
@@ -718,6 +719,7 @@ static void cups_test3(abts_case *tc, void *data)
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
     rv = testenb_s1ap_send(s1ap, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
+#endif
 
     ogs_msleep(300);
 
@@ -741,10 +743,10 @@ abts_suite *test_cups(abts_suite *suite)
 {
     suite = ADD_SUITE(suite)
 
-#if 0
     abts_run_test(suite, cups_test1, NULL);
-#endif
+#if 0
     abts_run_test(suite, cups_test3, NULL);
+#endif
 
     return suite;
 }

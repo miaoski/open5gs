@@ -139,6 +139,7 @@ typedef struct ogs_pfcp_pdr_s {
     void                    *rules[OGS_MAX_NUM_OF_RULE];
 
     ogs_pfcp_sess_t         *sess;
+    void                    *bearer;
 } ogs_pfcp_pdr_t;
 
 typedef struct ogs_pfcp_far_s {
