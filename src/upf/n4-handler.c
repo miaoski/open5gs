@@ -258,6 +258,7 @@ void upf_n4_handle_session_establishment_request(
                 ogs_assert(rv == OGS_OK);
             }
             OGS_SETUP_GTP_NODE(bearer, gnode);
+            OGS_SETUP_GTP_NODE(far, gnode);
         } else if (far->dst_if == OGS_PFCP_INTERFACE_CORE) {  /* Uplink */
 
             /* Nothing */

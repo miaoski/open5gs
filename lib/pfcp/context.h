@@ -144,8 +144,6 @@ typedef struct ogs_pfcp_pdr_s {
     ogs_pfcp_rule_t         *rules[OGS_MAX_NUM_OF_RULE];
 
     ogs_pfcp_sess_t         *sess;
-
-    void                    *gnode;
 } ogs_pfcp_pdr_t;
 
 typedef struct ogs_pfcp_far_s {
@@ -158,6 +156,7 @@ typedef struct ogs_pfcp_far_s {
     int                     outer_header_creation_len;
 
     ogs_pfcp_pdr_t          *pdr;
+    void                    *gnode;
 } ogs_pfcp_far_t;
 
 typedef struct ogs_pfcp_urr_s {
@@ -286,6 +285,7 @@ void ogs_pfcp_gtpu_resource_remove_all(ogs_list_t *list);
         ogs_assert((__sESS)); \
         ogs_assert((__pDR)); \
         (__sESS)->default_pdr = __pDR; \
+        ogs_assert((__sESS)->default_pdr); \
     } while(0)
 ogs_pfcp_pdr_t *ogs_pfcp_sess_default_pdr(ogs_pfcp_sess_t *sess);
 void ogs_pfcp_sess_clear(ogs_pfcp_sess_t *sess);

@@ -466,9 +466,8 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
     ogs_assert(bearer);
 
     /* Set Default PDR */
-    sess->pfcp.default_pdr =
-        ogs_pfcp_pdr_find_or_add(&sess->pfcp, default_pdr_id);
-    ogs_assert(sess->pfcp.default_pdr);
+    OGS_SETUP_DEFAULT_PDR(&sess->pfcp,
+        ogs_pfcp_pdr_find_or_add(&sess->pfcp, default_pdr_id));
 
     ogs_info("UE F-SEID[CP:%ld,UP:%ld] "
              "APN[%s] PDN-Type[%d] IPv4[%s] IPv6[%s], Default PDR ID[%d]",
