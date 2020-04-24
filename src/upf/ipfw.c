@@ -36,132 +36,6 @@
 
 void compile_rule(char *av[], uint32_t *rbuf, int *rbufsize, void *tstate);
 
-int upf_compile_packet_filter(ogs_pfcp_rule_t *pfcp_rule, char *description)
-{
-    ogs_pfcp_rule_t zero_rule;
-    char *token, *dir;
-    char *saveptr;
-    int i = 2;
-
-    char *av[MAX_NUM_OF_TOKEN];
-	uint32_t rulebuf[MAX_NUM_OF_RULE_BUFFER];
-	int rbufsize;
-	struct ip_fw_rule *rule = (struct ip_fw_rule *)rulebuf;
-
-	int l;
-	ipfw_insn *cmd;
-
-    ogs_assert(pfcp_rule);
-
-	rbufsize = sizeof(rulebuf);
-	memset(rulebuf, 0, rbufsize);
-
-    av[0] = NULL;
-
-    /* ACTION */
-    if (!description) { /* FIXME : OLD gcc generates uninitialized warning */
-        ogs_assert_if_reached();
-        return OGS_ERROR;
-    }
-    token = strtok_r(description, " ", &saveptr);
-    if (strcmp(token, "permit") != 0) {
-        ogs_error("Not begins with reserved keyword : 'permit'");
-        return OGS_ERROR;
-    }
-    av[1] = token;
-
-    /* Save DIRECTION */
-    dir = token = strtok_r(NULL, " ", &saveptr);
-    if (strcmp(token, "out") != 0) {
-        ogs_error("Not begins with reserved keyword : 'permit out'");
-        return OGS_ERROR;
-    }
-
-    /* ADDR */
-    token = strtok_r(NULL, " ", &saveptr);
-    while (token != NULL) {
-        av[i++] = token;
-        token = strtok_r(NULL, " ", &saveptr);
-    }
-
-    /* Add DIRECTION */
-    av[i++] = dir;
-
-    av[i] = NULL;
-
-	compile_rule(av, (uint32_t *)rule, &rbufsize, NULL);
-
-    memset(pfcp_rule, 0, sizeof(ogs_pfcp_rule_t));
-	for (l = rule->act_ofs, cmd = rule->cmd;
-			l > 0 ; l -= F_LEN(cmd) , cmd += F_LEN(cmd)) {
-        uint32_t *a = NULL;
-        uint16_t *p = NULL;
-		switch (cmd->opcode) {
-        case O_PROTO:
-            pfcp_rule->proto = cmd->arg1;
-            break;
-        case O_IP_SRC:
-        case O_IP_SRC_MASK:
-            a = ((ipfw_insn_u32 *)cmd)->d;
-            pfcp_rule->ipv4_local = 1;
-            pfcp_rule->ip.local.addr[0] = a[0];
-            if (cmd->opcode == O_IP_SRC_MASK)
-                pfcp_rule->ip.local.mask[0] = a[1];
-            else
-                pfcp_rule->ip.local.mask[0] = 0xffffffff;
-            break;
-        case O_IP_DST:
-        case O_IP_DST_MASK:
-            a = ((ipfw_insn_u32 *)cmd)->d;
-            pfcp_rule->ipv4_remote = 1;
-            pfcp_rule->ip.remote.addr[0] = a[0];
-            if (cmd->opcode == O_IP_DST_MASK)
-                pfcp_rule->ip.remote.mask[0] = a[1];
-            else
-                pfcp_rule->ip.remote.mask[0] = 0xffffffff;
-            break;
-        case O_IP6_SRC:
-        case O_IP6_SRC_MASK:
-            a = ((ipfw_insn_u32 *)cmd)->d;
-            pfcp_rule->ipv6_local = 1;
-            memcpy(pfcp_rule->ip.local.addr, a, OGS_IPV6_LEN);
-            if (cmd->opcode == O_IP6_SRC_MASK)
-                memcpy(pfcp_rule->ip.local.mask, a+4, OGS_IPV6_LEN);
-            else
-                n2mask((struct in6_addr *)pfcp_rule->ip.local.mask, 128);
-            break;
-        case O_IP6_DST:
-        case O_IP6_DST_MASK:
-            a = ((ipfw_insn_u32 *)cmd)->d;
-            pfcp_rule->ipv6_remote = 1;
-            memcpy(pfcp_rule->ip.remote.addr, a, OGS_IPV6_LEN);
-            if (cmd->opcode == O_IP6_DST_MASK)
-                memcpy(pfcp_rule->ip.remote.mask, a+4, OGS_IPV6_LEN);
-            else
-                n2mask((struct in6_addr *)pfcp_rule->ip.remote.mask, 128);
-            break;
-        case O_IP_SRCPORT:
-            p = ((ipfw_insn_u16 *)cmd)->ports;
-            pfcp_rule->port.local.low = p[0];
-            pfcp_rule->port.local.high = p[1];
-            break;
-        case O_IP_DSTPORT:
-            p = ((ipfw_insn_u16 *)cmd)->ports;
-            pfcp_rule->port.remote.low = p[0];
-            pfcp_rule->port.remote.high = p[1];
-            break;
-        }
-	}
-
-    memset(&zero_rule, 0, sizeof(ogs_pfcp_rule_t));
-    if (memcmp(pfcp_rule, &zero_rule, sizeof(ogs_pfcp_rule_t)) == 0) {
-        ogs_error("Cannot find Flow-Description");
-        return OGS_ERROR;
-    }
-
-    return OGS_OK;
-}
-
 static int decode_ipv6_header(
         struct ip6_hdr *ip6_h, uint8_t *proto, uint16_t *hlen)
 {
@@ -326,7 +200,7 @@ ogs_pfcp_pdr_t *upf_pdr_find_by_packet(ogs_pkbuf_t *pkt)
                 int k;
                 uint32_t src_mask[4];
                 uint32_t dst_mask[4];
-                ogs_pfcp_rule_t *rule = pdr->rules[r];
+                ogs_ipfw_rule_t *rule = pdr->rules[r];
                 ogs_assert(rule);
 
                 ogs_debug("PROTO:%d SRC:%d-%d DST:%d-%d",
@@ -445,7 +319,7 @@ ogs_pfcp_pdr_t *upf_pdr_find_by_packet(ogs_pkbuf_t *pkt)
             }
 
             if (r < pdr->num_of_rule) {
-                ogs_pfcp_rule_t *rule = NULL;
+                ogs_ipfw_rule_t *rule = NULL;
 
                 rule = pdr->rules[r];
                 ogs_assert(rule);

@@ -24,6 +24,7 @@ static upf_context_t self;
 int __upf_log_domain;
 
 static OGS_POOL(upf_sess_pool, upf_sess_t);
+static OGS_POOL(upf_rule_pool, ogs_ipfw_rule_t);
 
 static int context_initiaized = 0;
 
@@ -52,12 +53,16 @@ void upf_context_init(void)
 
     ogs_gtp_node_init(512);
 
+    ogs_list_init(&self.sess_list);
+
     ogs_list_init(&self.gtpu_list);
     ogs_list_init(&self.gtpu_resource_list);
 
     ogs_list_init(&self.gnb_n3_list);
 
     ogs_pool_init(&upf_sess_pool, ogs_config()->pool.sess);
+    ogs_pool_init(&upf_rule_pool,
+            ogs_config()->pool.sess * OGS_MAX_NUM_OF_RULE);
 
     self.sess_hash = ogs_hash_make();
     self.ipv4_hash = ogs_hash_make();
@@ -80,6 +85,7 @@ void upf_context_final(void)
     ogs_hash_destroy(self.ipv6_hash);
 
     ogs_pool_final(&upf_sess_pool);
+    ogs_pool_final(&upf_rule_pool);
 
     ogs_gtp_node_remove_all(&self.gnb_n3_list);
 
@@ -462,7 +468,7 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
         sess->ipv6 ? INET6_NTOP(&sess->ipv6->addr, buf2) : "",
         sess->pfcp.default_pdr->id);
 
-    ogs_list_add(&ogs_pfcp_self()->sess_list, sess);
+    ogs_list_add(&self.sess_list, sess);
     
     stats_add_session();
 
@@ -477,7 +483,7 @@ int upf_sess_remove(upf_sess_t *sess)
 {
     ogs_assert(sess);
 
-    ogs_list_remove(&ogs_pfcp_self()->sess_list, sess);
+    ogs_list_remove(&self.sess_list, sess);
     ogs_pfcp_sess_clear(&sess->pfcp);
 
     ogs_hash_set(self.sess_hash, &sess->pfcp.remote_n4_seid,
@@ -503,8 +509,10 @@ void upf_sess_remove_all(void)
 {
     upf_sess_t *sess = NULL, *next = NULL;;
 
-    ogs_list_for_each_safe(&ogs_pfcp_self()->sess_list, next, sess)
+    ogs_list_for_each_safe(&self.sess_list, next, sess) {
+        upf_rule_remove_all(sess);
         upf_sess_remove(sess);
+    }
 }
 
 upf_sess_t *upf_sess_find(uint32_t index)
@@ -624,4 +632,59 @@ upf_sess_t *upf_sess_add_by_message(ogs_pfcp_message_t *message)
     ogs_assert(sess);
 
     return sess;
+}
+
+ogs_ipfw_rule_t *upf_rule_add(ogs_pfcp_pdr_t *pdr)
+{
+    ogs_ipfw_rule_t *rule = NULL;
+    ogs_pfcp_sess_t *pfcp = NULL;
+    upf_sess_t *sess = NULL;
+
+    ogs_assert(pdr);
+    pfcp = pdr->sess;
+    ogs_assert(pfcp);
+    sess = UPF_SESS(pfcp);
+    ogs_assert(sess);
+
+    ogs_pool_alloc(&upf_rule_pool, &rule);
+    ogs_assert(rule);
+    memset(rule, 0, sizeof *rule);
+
+    rule->pdr = pdr;
+    pdr->rules[pdr->num_of_rule++] = rule;
+
+    ogs_list_add(&sess->rule_list, rule);
+
+    return rule;
+}
+
+void upf_rule_remove(ogs_ipfw_rule_t *rule)
+{
+    ogs_pfcp_pdr_t *pdr = NULL;
+    ogs_pfcp_sess_t *pfcp = NULL;
+    upf_sess_t *sess = NULL;
+
+    ogs_assert(rule);
+    pdr = rule->pdr;
+    ogs_assert(pdr);
+    pfcp = pdr->sess;
+    ogs_assert(pfcp);
+    sess = UPF_SESS(pfcp);
+    ogs_assert(sess);
+
+    rule->pdr = NULL;
+    pdr->rules[--pdr->num_of_rule] = NULL;
+
+    ogs_list_remove(&sess->rule_list, rule);
+    ogs_pool_free(&upf_rule_pool, rule);
+}
+
+void upf_rule_remove_all(upf_sess_t *sess)
+{
+    ogs_ipfw_rule_t *rule = NULL, *next_rule = NULL;
+
+    ogs_assert(sess);
+
+    ogs_list_for_each_safe(&sess->rule_list, next_rule, rule)
+        upf_rule_remove(rule);
 }

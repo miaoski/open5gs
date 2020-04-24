@@ -57,6 +57,9 @@ typedef struct ogs_ipfw_rule_s {
     uint32_t security_parameter_index;
     uint32_t flow_label; /* 24bit */
     uint32_t sdf_filter_id;
+
+    /* Related Context */
+    void *pdr;
 } ogs_ipfw_rule_t;
 
 int ogs_ipfw_compile_rule(ogs_ipfw_rule_t *ipfw_rule, char *description);

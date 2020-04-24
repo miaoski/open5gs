@@ -31,6 +31,8 @@
 #include "ogs-pfcp.h"
 #include "ogs-app.h"
 
+#include "ipfw/ogs-ipfw.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -59,6 +61,8 @@ typedef struct upf_context_s {
     ogs_hash_t      *sess_hash;     /* hash table (F-SEID) */
     ogs_hash_t      *ipv4_hash;     /* hash table (IPv4 Address) */
     ogs_hash_t      *ipv6_hash;     /* hash table (IPv6 Address) */
+
+    ogs_list_t      sess_list;
 } upf_context_t;
 
 #define UPF_SESS(pfcp_sess) ogs_container_of(pfcp_sess, upf_sess_t, pfcp)
@@ -69,6 +73,8 @@ typedef struct upf_sess_s {
     char            *gx_sid;        /* Gx Session ID */
 
     ogs_pfcp_sess_t pfcp;
+    ogs_list_t      rule_list;      /* Rule List */
+
 
     /* APN Configuration */
     ogs_pdn_t       pdn;
@@ -97,6 +103,10 @@ upf_sess_t *upf_sess_find_by_cp_seid(uint64_t seid);
 upf_sess_t *upf_sess_find_by_up_seid(uint64_t seid);
 upf_sess_t *upf_sess_find_by_ipv4(uint32_t addr);
 upf_sess_t *upf_sess_find_by_ipv6(uint32_t *addr6);
+
+ogs_ipfw_rule_t *upf_rule_add(ogs_pfcp_pdr_t *pdr);
+void upf_rule_remove(ogs_ipfw_rule_t *rule);
+void upf_rule_remove_all(upf_sess_t *sess);
 
 void stats_add_session(void);
 void stats_remove_session(void);

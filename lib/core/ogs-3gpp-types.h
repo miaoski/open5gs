@@ -31,6 +31,7 @@ extern "C" {
 #define OGS_MAX_FILEPATH_LEN            256
 
 #define OGS_MAX_NUM_OF_SESS             4   /* Num of APN(Session) per UE */
+#define OGS_MAX_NUM_OF_RULE             4   /* Num of Rule per Session */
 
 #define OGS_MAX_SDU_LEN                 8192
 #define OGS_PLMN_ID_LEN                 3

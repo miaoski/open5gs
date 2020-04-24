@@ -79,6 +79,8 @@ typedef struct smf_context_s {
     ogs_hash_t      *ipv6_hash;     /* hash table (IPv6 Address) */
 
     uint16_t        mtu;            /* MTU to advertise in PCO */
+
+    ogs_list_t      sess_list;
 } smf_context_t;
 
 typedef struct smf_sess_s {

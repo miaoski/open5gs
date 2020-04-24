@@ -60,6 +60,8 @@ void smf_context_init(void)
 
     ogs_gtp_node_init(512);
 
+    ogs_list_init(&self.sess_list);
+
     ogs_list_init(&self.gtpc_list);
     ogs_list_init(&self.gtpc_list6);
 
@@ -627,7 +629,7 @@ smf_sess_t *smf_sess_add(
     ogs_assert(bearer);
     bearer->ebi = ebi;
 
-    ogs_list_add(&ogs_pfcp_self()->sess_list, sess);
+    ogs_list_add(&self.sess_list, sess);
     
     stats_add_session();
 
@@ -640,7 +642,7 @@ int smf_sess_remove(smf_sess_t *sess)
 
     ogs_assert(sess);
 
-    ogs_list_remove(&ogs_pfcp_self()->sess_list, sess);
+    ogs_list_remove(&self.sess_list, sess);
     ogs_pfcp_sess_clear(&sess->pfcp);
 
     OGS_TLV_CLEAR_DATA(&sess->ue_pco);
@@ -675,7 +677,7 @@ void smf_sess_remove_all(void)
 {
     smf_sess_t *sess = NULL, *next = NULL;;
 
-    ogs_list_for_each_safe(&ogs_pfcp_self()->sess_list, next, sess)
+    ogs_list_for_each_safe(&self.sess_list, next, sess)
         smf_sess_remove(sess);
 }
 
