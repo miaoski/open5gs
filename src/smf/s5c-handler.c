@@ -23,6 +23,7 @@
 #include "fd-path.h"
 #include "s5c-build.h"
 #include "s5c-handler.h"
+#include "pfcp-path.h"
 
 #include "ipfw/ipfw2.h"
 
@@ -278,6 +279,8 @@ void smf_s5c_handle_create_bearer_response(
 
     ogs_debug("[SMF] Create Bearer Response : SGW[0x%x] --> SMF[0x%x]",
             sess->sgw_s5c_teid, sess->smf_n4_teid);
+
+    smf_pfcp_send_session_modification_request(bearer);
 }
 
 void smf_s5c_handle_update_bearer_response(
