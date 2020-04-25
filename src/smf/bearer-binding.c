@@ -183,7 +183,7 @@ void smf_bearer_binding(smf_sess_t *sess)
 
                 /* Precedence is set to the order in which it was created */
                 ogs_list_for_each(&bearer->pfcp.pdr_list, pdr)
-                    ogs_pfcp_pdr_set_precedence(pdr, pdr->id);
+                    pdr->precedence = pdr->id;
 
                 bearer->name = ogs_strdup(pcc_rule->name);
                 ogs_assert(bearer->name);

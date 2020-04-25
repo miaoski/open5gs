@@ -242,7 +242,7 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_find(
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_by_teid(uint32_t teid);
 ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(
         ogs_pfcp_sess_t *sess, ogs_pfcp_pdr_id_t id);
-void ogs_pfcp_pdr_set_precedence(
+void ogs_pfcp_pdr_reorder_by_precedence(
         ogs_pfcp_pdr_t *pdr, ogs_pfcp_precedence_t precedence);
 void ogs_pfcp_pdr_remove(ogs_pfcp_pdr_t *pdr);
 void ogs_pfcp_pdr_remove_all(ogs_pfcp_sess_t *sess);

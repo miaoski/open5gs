@@ -789,7 +789,7 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(
     return pdr;
 }
 
-void ogs_pfcp_pdr_set_precedence(
+void ogs_pfcp_pdr_reorder_by_precedence(
         ogs_pfcp_pdr_t *pdr, ogs_pfcp_precedence_t precedence)
 {
     ogs_pfcp_sess_t *sess = NULL;

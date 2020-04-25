@@ -632,9 +632,8 @@ smf_sess_t *smf_sess_add(
     bearer->ebi = ebi;
 
     /* Default PDRs is set to lowest precedence(highest precedence value). */
-    ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
-        ogs_pfcp_pdr_set_precedence(pdr, 0xffffffff);
-    }
+    ogs_list_for_each(&bearer->pfcp.pdr_list, pdr)
+        pdr->precedence = 0xffffffff;
 
     ogs_list_add(&self.sess_list, sess);
     

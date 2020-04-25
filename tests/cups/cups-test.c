@@ -20,6 +20,9 @@
 #include "test-app.h"
 #include "pcscf-fd-path.h"
 
+#define TEST1_PING 1
+#define TEST3_PING 0
+
 static void cups_test1(abts_case *tc, void *data)
 {
     int rv;
@@ -219,6 +222,7 @@ static void cups_test1(abts_case *tc, void *data)
     ABTS_PTR_NOTNULL(tc, recvbuf);
     ogs_pkbuf_free(recvbuf);
 
+#if TEST1_PING
     /* Send GTP-U ICMP Packet */
     rv = testgtpu_build_ping(&sendbuf, 1, "10.45.0.2", "10.45.0.1");
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
@@ -229,6 +233,7 @@ static void cups_test1(abts_case *tc, void *data)
     recvbuf = testenb_gtpu_read(gtpu);
     ABTS_PTR_NOTNULL(tc, recvbuf);
     ogs_pkbuf_free(recvbuf);
+#endif
 
     /* Send PDN Connectivity Request */
     rv = tests1ap_build_pdn_connectivity_request(&sendbuf, msgindex);
@@ -275,6 +280,7 @@ static void cups_test1(abts_case *tc, void *data)
     /* Send GTP-U ICMP Packet */
     ogs_msleep(50);
 
+#if TEST1_PING
     rv = testgtpu_build_ping(&sendbuf, 3, "10.45.0.3", "10.45.0.1");
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
     rv = testenb_gtpu_send(gtpu, sendbuf);
@@ -284,6 +290,7 @@ static void cups_test1(abts_case *tc, void *data)
     recvbuf = testenb_gtpu_read(gtpu);
     ABTS_PTR_NOTNULL(tc, recvbuf);
     ogs_pkbuf_free(recvbuf);
+#endif
 
     /* Send PDN disconnectivity request */
     rv = tests1ap_build_pdn_disconnectivity_request(&sendbuf, msgindex);
@@ -536,7 +543,7 @@ static void cups_test3(abts_case *tc, void *data)
     ABTS_PTR_NOTNULL(tc, recvbuf);
     ogs_pkbuf_free(recvbuf);
 
-#if 0
+#if TEST3_PING
     /* Send GTP-U ICMP Packet */
     rv = testgtpu_build_ping(&sendbuf, 1, "10.45.0.2", "10.45.0.1");
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
@@ -576,12 +583,19 @@ static void cups_test3(abts_case *tc, void *data)
     /* Send GTP-U ICMP Packet */
     ogs_msleep(50);
 
-#if 0
+#if TEST3_PING
     rv = testgtpu_build_ping(&sendbuf, 3, "10.45.0.3", "10.45.0.1");
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
     rv = testenb_gtpu_send(gtpu, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
 
+    /* Receive GTP-U ICMP Packet */
+    recvbuf = testenb_gtpu_read(gtpu);
+    ABTS_PTR_NOTNULL(tc, recvbuf);
+    ogs_pkbuf_free(recvbuf);
+#endif
+
+#if 0
     /* Send AA-Request */
     ogs_msleep(300);
     pcscf_rx_send_aar(&rx_sid, "10.45.0.3", 1, 1);
@@ -776,7 +790,9 @@ abts_suite *test_cups(abts_suite *suite)
     suite = ADD_SUITE(suite)
 
     abts_run_test(suite, cups_test1, NULL);
+#if 0
     abts_run_test(suite, cups_test3, NULL);
+#endif
 
     return suite;
 }
