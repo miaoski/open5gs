@@ -171,22 +171,15 @@ static void create_pdr(
     }
 
     for (j = 0; j < pdr->num_of_urr; j++) {
-        if (j == 0) {
-            message->urr_id.presence = 1;
-            ogs_assert(pdr->urrs[j]);
-            message->urr_id.u32 = pdr->urrs[j]->id;
-        } else {
-            ogs_error("[%d] No support multiple URR", j);
-        }
+        message->urr_id.presence = 1;
+        ogs_assert(pdr->urrs[j]);
+        message->urr_id.u32 = pdr->urrs[j]->id;
     }
+
     for (j = 0; j < pdr->num_of_qer; j++) {
-        if (j == 0) {
-            message->qer_id.presence = 1;
-            ogs_assert(pdr->qers[j]);
-            message->qer_id.u32 = pdr->qers[j]->id;
-        } else {
-            ogs_error("[%d] No support multiple QER", j);
-        }
+        message->qer_id.presence = 1;
+        ogs_assert(pdr->qers[j]);
+        message->qer_id.u32 = pdr->qers[j]->id;
     }
 }
 
@@ -226,6 +219,28 @@ static void create_far(
             &outer_header_creation[i];
         message->forwarding_parameters.outer_header_creation.len = len;
     }
+}
+
+static void create_urr(
+    ogs_pfcp_tlv_create_urr_t *message, int i, ogs_pfcp_urr_t *urr)
+{
+    ogs_assert(message);
+    ogs_assert(urr);
+
+    message->presence = 1;
+    message->urr_id.presence = 1;
+    message->urr_id.u32 = urr->id;
+}
+
+static void create_qer(
+    ogs_pfcp_tlv_create_qer_t *message, int i, ogs_pfcp_qer_t *qer)
+{
+    ogs_assert(message);
+    ogs_assert(qer);
+
+    message->presence = 1;
+    message->qer_id.presence = 1;
+    message->qer_id.u32 = qer->id;
 }
 
 ogs_pkbuf_t *smf_n4_build_session_establishment_request(
@@ -285,30 +300,14 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     /* Create URR */
     i = 0;
     ogs_list_for_each(&sess->pfcp.urr_list, urr) {
-        ogs_pfcp_tlv_create_urr_t *message = &req->create_urr[i];
-
-        ogs_assert(message);
-        ogs_assert(urr);
-
-        message->presence = 1;
-        message->urr_id.presence = 1;
-        message->urr_id.u32 = urr->id;
-
+        create_urr(&req->create_urr[i], i, urr);
         i++;
     }
 
     /* Create QER */
     i = 0;
     ogs_list_for_each(&sess->pfcp.qer_list, qer) {
-        ogs_pfcp_tlv_create_qer_t *message = &req->create_qer[i];
-
-        ogs_assert(message);
-        ogs_assert(qer);
-
-        message->presence = 1;
-        message->qer_id.presence = 1;
-        message->qer_id.u32 = qer->id;
-
+        create_qer(&req->create_qer[i], i, qer);
         i++;
     }
 
@@ -325,12 +324,6 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
 {
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_modification_request_t *req = NULL;
-
-    ogs_pfcp_pdr_t *pdr = NULL;
-    ogs_pfcp_far_t *far = NULL;
-    ogs_pfcp_urr_t *urr = NULL;
-    ogs_pfcp_qer_t *qer = NULL;
-    int i;
 
     ogs_pfcp_node_id_t node_id;
     ogs_pfcp_f_seid_t f_seid;
@@ -371,36 +364,6 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     /* Create FAR */
     create_far(&req->create_far[0], 0, bearer->dl_pdr->far);
     create_far(&req->create_far[1], 1, bearer->ul_pdr->far);
-
-    /* Create URR */
-    i = 0;
-    ogs_list_for_each(&sess->pfcp.urr_list, urr) {
-        ogs_pfcp_tlv_create_urr_t *message = &req->create_urr[i];
-
-        ogs_assert(message);
-        ogs_assert(urr);
-
-        message->presence = 1;
-        message->urr_id.presence = 1;
-        message->urr_id.u32 = urr->id;
-
-        i++;
-    }
-
-    /* Create QER */
-    i = 0;
-    ogs_list_for_each(&sess->pfcp.qer_list, qer) {
-        ogs_pfcp_tlv_create_qer_t *message = &req->create_qer[i];
-
-        ogs_assert(message);
-        ogs_assert(qer);
-
-        message->presence = 1;
-        message->qer_id.presence = 1;
-        message->qer_id.u32 = qer->id;
-
-        i++;
-    }
 
     pfcp_message.h.type = type;
     return ogs_pfcp_build_msg(&pfcp_message);
