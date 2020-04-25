@@ -138,6 +138,7 @@ typedef struct ogs_pfcp_pdr_s {
     int                     num_of_flow;
     char                    *flow_description[OGS_MAX_NUM_OF_RULE];
 
+    /* Related Context */
     ogs_pfcp_sess_t         *sess;
     void                    *bearer;
 } ogs_pfcp_pdr_t;
@@ -151,6 +152,7 @@ typedef struct ogs_pfcp_far_s {
     ogs_pfcp_outer_header_creation_t outer_header_creation;
     int                     outer_header_creation_len;
 
+    /* Related Context */
     ogs_pfcp_pdr_t          *pdr;
     void                    *gnode;
 } ogs_pfcp_far_t;
