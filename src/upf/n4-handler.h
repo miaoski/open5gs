@@ -42,6 +42,9 @@ void upf_n4_handle_heartbeat_response(
 void upf_n4_handle_session_establishment_request(
         upf_sess_t *sess, ogs_pfcp_xact_t *xact,
         ogs_pfcp_session_establishment_request_t *req);
+void upf_n4_handle_session_modification_request(
+        upf_sess_t *sess, ogs_pfcp_xact_t *xact,
+        ogs_pfcp_session_modification_request_t *req);
 void upf_n4_handle_session_deletion_request(
         upf_sess_t *sess, ogs_pfcp_xact_t *xact,
         ogs_pfcp_session_deletion_request_t *req);

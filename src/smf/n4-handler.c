@@ -193,6 +193,16 @@ void smf_n4_handle_session_establishment_response(
     smf_bearer_binding(sess);
 }
 
+void smf_n4_handle_session_modification_response(
+        smf_sess_t *sess, ogs_pfcp_xact_t *xact,
+        ogs_pfcp_session_modification_response_t *rsp)
+{
+    ogs_assert(xact);
+    ogs_assert(rsp);
+
+    ogs_pfcp_xact_commit(xact);
+}
+
 void smf_n4_handle_session_deletion_response(
         smf_sess_t *sess, ogs_pfcp_xact_t *xact,
         ogs_pfcp_session_deletion_response_t *rsp)

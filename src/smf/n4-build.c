@@ -339,24 +339,6 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     req = &pfcp_message.pfcp_session_modification_request;
     memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
 
-    /* Node ID */
-    ogs_pfcp_sockaddr_to_node_id(
-            ogs_pfcp_self()->pfcp_addr, ogs_pfcp_self()->pfcp_addr6,
-            ogs_config()->parameter.prefer_ipv4,
-            &node_id, &len);
-    req->node_id.presence = 1;
-    req->node_id.data = &node_id;
-    req->node_id.len = len;
-
-    /* F-SEID */
-    ogs_pfcp_sockaddr_to_f_seid(
-            ogs_pfcp_self()->pfcp_addr, ogs_pfcp_self()->pfcp_addr6,
-            &f_seid, &len);
-    f_seid.seid = htobe64(sess->pfcp.local_n4_seid);
-    req->cp_f_seid.presence = 1;
-    req->cp_f_seid.data = &f_seid;
-    req->cp_f_seid.len = len;
-
     /* Create PDR */
     create_pdr(&req->create_pdr[0], 0, bearer->dl_pdr);
     create_pdr(&req->create_pdr[1], 1, bearer->ul_pdr);

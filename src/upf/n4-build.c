@@ -180,6 +180,40 @@ ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
     return ogs_pfcp_build_msg(&pfcp_message);
 }
 
+ogs_pkbuf_t *upf_n4_build_session_modification_response(uint8_t type,
+        upf_sess_t *sess)
+{
+    ogs_pfcp_message_t pfcp_message;
+    ogs_pfcp_session_modification_response_t *rsp = NULL;
+
+    ogs_pfcp_pdr_t *pdr = NULL;
+    int i = 0;
+
+    ogs_debug("[UPF] Session Modification Response");
+
+    rsp = &pfcp_message.pfcp_session_modification_response;
+    memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
+
+    /* Cause */
+    rsp->cause.presence = 1;
+    rsp->cause.u8 = OGS_PFCP_CAUSE_REQUEST_ACCEPTED;
+
+    /* Created PDR */
+    i = 0;
+    ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
+        ogs_pfcp_tlv_created_pdr_t *message = &rsp->created_pdr[i];
+        ogs_assert(message);
+
+        message->presence = 1;
+        message->pdr_id.presence = 1;
+        message->pdr_id.u16 = pdr->id;
+        i++;
+    }
+
+    pfcp_message.h.type = type;
+    return ogs_pfcp_build_msg(&pfcp_message);
+}
+
 ogs_pkbuf_t *upf_n4_build_session_deletion_response(uint8_t type,
         upf_sess_t *sess)
 {

@@ -36,6 +36,8 @@ void upf_pfcp_send_heartbeat_request(ogs_pfcp_node_t *node);
 
 void upf_pfcp_send_session_establishment_response(ogs_pfcp_xact_t *xact,
         upf_sess_t *sess);
+void upf_pfcp_send_session_modification_response(ogs_pfcp_xact_t *xact,
+        upf_sess_t *sess);
 void upf_pfcp_send_session_deletion_response(ogs_pfcp_xact_t *xact,
         upf_sess_t *sess);
 

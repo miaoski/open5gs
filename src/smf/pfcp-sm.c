@@ -195,10 +195,6 @@ void smf_pfcp_state_associated(ogs_fsm_t *s, smf_event_t *e)
             smf_n4_handle_heartbeat_response(node, xact,
                     &message->pfcp_heartbeat_response);
             break;
-        case OGS_PFCP_PFD_MANAGEMENT_REQUEST_TYPE:
-            break;
-        case OGS_PFCP_PFD_MANAGEMENT_RESPONSE_TYPE:
-            break;
         case OGS_PFCP_ASSOCIATION_SETUP_REQUEST_TYPE:
             ogs_warn("PFCP[REQ] has already been associated");
             smf_n4_handle_association_setup_request(node, xact,
@@ -209,39 +205,17 @@ void smf_pfcp_state_associated(ogs_fsm_t *s, smf_event_t *e)
             smf_n4_handle_association_setup_response(node, xact,
                     &message->pfcp_association_setup_response);
             break;
-        case OGS_PFCP_ASSOCIATION_UPDATE_REQUEST_TYPE:
-            break;
-        case OGS_PFCP_ASSOCIATION_UPDATE_RESPONSE_TYPE:
-            break;
-        case OGS_PFCP_ASSOCIATION_RELEASE_REQUEST_TYPE:
-            break;
-        case OGS_PFCP_ASSOCIATION_RELEASE_RESPONSE_TYPE:
-            break;
-        case OGS_PFCP_VERSION_NOT_SUPPORTED_RESPONSE_TYPE:
-            break;
-        case OGS_PFCP_NODE_REPORT_REQUEST_TYPE:
-            break;
-        case OGS_PFCP_NODE_REPORT_RESPONSE_TYPE:
-            break;
-        case OGS_PFCP_SESSION_SET_DELETION_REQUEST_TYPE:
-            break;
-        case OGS_PFCP_SESSION_SET_DELETION_RESPONSE_TYPE:
-            break;
         case OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE:
             smf_n4_handle_session_establishment_response(
                     sess, xact, &message->pfcp_session_establishment_response);
             break;
-        case OGS_PFCP_SESSION_MODIFICATION_REQUEST_TYPE:
-            break;
         case OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE:
+            smf_n4_handle_session_modification_response(
+                    sess, xact, &message->pfcp_session_modification_response);
             break;
         case OGS_PFCP_SESSION_DELETION_RESPONSE_TYPE:
             smf_n4_handle_session_deletion_response(
                     sess, xact, &message->pfcp_session_deletion_response);
-            break;
-        case OGS_PFCP_SESSION_REPORT_REQUEST_TYPE:
-            break;
-        case OGS_PFCP_SESSION_REPORT_RESPONSE_TYPE:
             break;
         default:
             ogs_error("Not implemented PFCP message type[%d]",

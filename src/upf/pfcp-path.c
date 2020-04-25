@@ -249,6 +249,29 @@ void upf_pfcp_send_session_establishment_response(ogs_pfcp_xact_t *xact,
     ogs_expect(rv == OGS_OK);
 }
 
+void upf_pfcp_send_session_modification_response(ogs_pfcp_xact_t *xact,
+        upf_sess_t *sess)
+{
+    int rv;
+    ogs_pkbuf_t *n4buf = NULL;
+    ogs_pfcp_header_t h;
+
+    ogs_assert(xact);
+
+    memset(&h, 0, sizeof(ogs_pfcp_header_t));
+    h.type = OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE;
+    h.seid = sess->pfcp.remote_n4_seid;
+
+    n4buf = upf_n4_build_session_modification_response(h.type, sess);
+    ogs_expect_or_return(n4buf);
+
+    rv = ogs_pfcp_xact_update_tx(xact, &h, n4buf);
+    ogs_expect_or_return(rv == OGS_OK);
+
+    rv = ogs_pfcp_xact_commit(xact);
+    ogs_expect(rv == OGS_OK);
+}
+
 void upf_pfcp_send_session_deletion_response(ogs_pfcp_xact_t *xact,
         upf_sess_t *sess)
 {

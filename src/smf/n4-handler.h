@@ -42,6 +42,9 @@ void smf_n4_handle_heartbeat_response(
 void smf_n4_handle_session_establishment_response(
         smf_sess_t *sess, ogs_pfcp_xact_t *xact,
         ogs_pfcp_session_establishment_response_t *rsp);
+void smf_n4_handle_session_modification_response(
+        smf_sess_t *sess, ogs_pfcp_xact_t *xact,
+        ogs_pfcp_session_modification_response_t *rsp);
 void smf_n4_handle_session_deletion_response(
         smf_sess_t *sess, ogs_pfcp_xact_t *xact,
         ogs_pfcp_session_deletion_response_t *rsp);
