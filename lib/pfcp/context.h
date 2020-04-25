@@ -130,10 +130,8 @@ typedef struct ogs_pfcp_pdr_s {
     ogs_pfcp_outer_header_removal_t outer_header_removal;
 
     ogs_pfcp_far_t          *far;
-    int                     num_of_urr;
-    ogs_pfcp_urr_t          *urrs[OGS_MAX_NUM_OF_URR];
-    int                     num_of_qer;
-    ogs_pfcp_qer_t          *qers[OGS_MAX_NUM_OF_QER];
+    ogs_pfcp_urr_t          *urr;
+    ogs_pfcp_qer_t          *qer;
 
     int                     num_of_flow;
     char                    *flow_description[OGS_MAX_NUM_OF_RULE];

@@ -208,16 +208,14 @@ static void build_create_pdr(
         message->far_id.u32 = pdr->far->id;
     }
 
-    for (j = 0; j < pdr->num_of_urr; j++) {
+    if (pdr->urr) {
         message->urr_id.presence = 1;
-        ogs_assert(pdr->urrs[j]);
-        message->urr_id.u32 = pdr->urrs[j]->id;
+        message->urr_id.u32 = pdr->urr->id;
     }
 
-    for (j = 0; j < pdr->num_of_qer; j++) {
+    if (pdr->qer) {
         message->qer_id.presence = 1;
-        ogs_assert(pdr->qers[j]);
-        message->qer_id.u32 = pdr->qers[j]->id;
+        message->qer_id.u32 = pdr->qer->id;
     }
 }
 

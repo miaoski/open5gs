@@ -956,7 +956,7 @@ static ogs_pfcp_urr_t *__ogs_pfcp_urr_add(ogs_pfcp_pdr_t *pdr)
     memset(urr, 0, sizeof *urr);
 
     urr->pdr = pdr;
-    pdr->urrs[pdr->num_of_urr++] = urr;
+    pdr->urr = urr;
 
     ogs_list_add(&sess->urr_list, urr);
 
@@ -1025,7 +1025,7 @@ void ogs_pfcp_urr_remove(ogs_pfcp_urr_t *urr)
     ogs_assert(sess);
 
     urr->pdr = NULL;
-    pdr->urrs[--pdr->num_of_urr] = NULL;
+    pdr->urr = NULL;
 
     ogs_list_remove(&sess->urr_list, urr);
     ogs_pool_free(&ogs_pfcp_urr_pool, urr);
@@ -1055,7 +1055,7 @@ static ogs_pfcp_qer_t *__ogs_pfcp_qer_add(ogs_pfcp_pdr_t *pdr)
     memset(qer, 0, sizeof *qer);
 
     qer->pdr = pdr;
-    pdr->qers[pdr->num_of_qer++] = qer;
+    pdr->qer = qer;
 
     ogs_list_add(&sess->qer_list, qer);
 
@@ -1124,7 +1124,7 @@ void ogs_pfcp_qer_remove(ogs_pfcp_qer_t *qer)
     ogs_assert(sess);
 
     qer->pdr = NULL;
-    pdr->qers[--pdr->num_of_qer] = NULL;
+    pdr->qer = NULL;
 
     ogs_list_remove(&sess->qer_list, qer);
     ogs_pool_free(&ogs_pfcp_qer_pool, qer);
