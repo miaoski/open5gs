@@ -193,6 +193,10 @@ ogs_pfcp_pdr_t *upf_pdr_find_by_packet(ogs_pkbuf_t *pkt)
             if (pdr->src_if != OGS_PFCP_INTERFACE_CORE)
                 continue;
 
+            /* Check if FAR is Downlink */
+            if (far->dst_if != OGS_PFCP_INTERFACE_ACCESS)
+                continue;
+
             /* Check if Create Bearer Response is received */
             if (far->outer_header_creation.teid == 0)
                 continue;
