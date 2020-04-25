@@ -113,6 +113,7 @@ static void build_create_pdr(
     ogs_pfcp_tlv_create_pdr_t *message, int i, ogs_pfcp_pdr_t *pdr)
 {
     ogs_pfcp_far_t *far = NULL;
+    ogs_pfcp_sess_t *pfcp_sess = NULL;
     smf_sess_t *sess = NULL;
     smf_bearer_t *bearer = NULL;
     int j = 0;
@@ -123,7 +124,9 @@ static void build_create_pdr(
     ogs_assert(pdr);
     far = pdr->far;
     ogs_assert(far);
-    bearer = pdr->bearer;
+    pfcp_sess = pdr->sess;
+    ogs_assert(pfcp_sess);
+    bearer = SMF_BEARER(pfcp_sess);
     ogs_assert(bearer);
     sess = bearer->sess;
     ogs_assert(sess);
@@ -224,6 +227,7 @@ static void build_create_far(
     ogs_pfcp_tlv_create_far_t *message, int i, ogs_pfcp_far_t *far)
 {
     ogs_pfcp_pdr_t *pdr = NULL;
+    ogs_pfcp_sess_t *pfcp_sess = NULL;
     smf_bearer_t *bearer = NULL;
     int len;
 
@@ -231,7 +235,9 @@ static void build_create_far(
     ogs_assert(far);
     pdr = far->pdr;
     ogs_assert(pdr);
-    bearer = pdr->bearer;
+    pfcp_sess = pdr->sess;
+    ogs_assert(pfcp_sess);
+    bearer = SMF_BEARER(pfcp_sess);
     ogs_assert(bearer);
 
     message->presence = 1;
@@ -379,7 +385,10 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
 {
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_modification_request_t *req = NULL;
+    ogs_pfcp_pdr_t *pdr = NULL;
+    ogs_pfcp_far_t *far = NULL;
     ogs_pkbuf_t *pkbuf = NULL;
+    int i;
 
     smf_sess_t *sess = NULL;
 
@@ -394,16 +403,18 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     create_pdr_buf_init();
 
     /* Create PDR */
-    ogs_assert(bearer->dl_pdr);
-    build_create_pdr(&req->create_pdr[0], 0, bearer->dl_pdr);
-    ogs_assert(bearer->ul_pdr);
-    build_create_pdr(&req->create_pdr[1], 1, bearer->ul_pdr);
+    i = 0;
+    ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
+        build_create_pdr(&req->create_pdr[i], i, pdr);
+        i++;
+    }
 
     /* Create FAR */
-    ogs_assert(bearer->dl_pdr->far);
-    build_create_far(&req->create_far[0], 0, bearer->dl_pdr->far);
-    ogs_assert(bearer->ul_pdr->far);
-    build_create_far(&req->create_far[1], 1, bearer->ul_pdr->far);
+    i = 0;
+    ogs_list_for_each(&bearer->pfcp.far_list, far) {
+        build_create_far(&req->create_far[i], i, far);
+        i++;
+    }
 
     pfcp_message.h.type = type;
     pkbuf = ogs_pfcp_build_msg(&pfcp_message);

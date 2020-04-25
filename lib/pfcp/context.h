@@ -134,7 +134,6 @@ typedef struct ogs_pfcp_pdr_s {
 
     /* Related Context */
     ogs_pfcp_sess_t         *sess;
-    void                    *bearer;
 } ogs_pfcp_pdr_t;
 
 typedef struct ogs_pfcp_far_s {

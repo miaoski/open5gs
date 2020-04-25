@@ -534,6 +534,7 @@ smf_sess_t *smf_sess_add(
     char buf2[OGS_ADDRSTRLEN];
     smf_sess_t *sess = NULL;
     smf_bearer_t *bearer = NULL;
+    ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_subnet_t *subnet6 = NULL;
 
     ogs_assert(imsi);
@@ -631,8 +632,9 @@ smf_sess_t *smf_sess_add(
     bearer->ebi = ebi;
 
     /* Default PDRs is set to lowest precedence(highest precedence value). */
-    ogs_pfcp_pdr_set_precedence(bearer->dl_pdr, 0xffffffff);
-    ogs_pfcp_pdr_set_precedence(bearer->ul_pdr, 0xffffffff);
+    ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
+        ogs_pfcp_pdr_set_precedence(pdr, 0xffffffff);
+    }
 
     ogs_list_add(&self.sess_list, sess);
     
@@ -823,11 +825,9 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 
     dl_pdr = ogs_pfcp_pdr_add(&bearer->pfcp);
     ogs_assert(dl_pdr);
-    SMF_SETUP_DL_PDR(dl_pdr, bearer);
     dl_pdr->id = OGS_NEXT_ID(sess->pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
     ul_pdr = ogs_pfcp_pdr_add(&bearer->pfcp);
     ogs_assert(ul_pdr);
-    SMF_SETUP_UL_PDR(ul_pdr, bearer);
     ul_pdr->id = OGS_NEXT_ID(sess->pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
 
     dl_far = ogs_pfcp_far_add(dl_pdr);

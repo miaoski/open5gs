@@ -163,6 +163,8 @@ void smf_bearer_binding(smf_sess_t *sess)
         }
 
         if (pcc_rule->type == OGS_PCC_RULE_TYPE_INSTALL) {
+            ogs_pfcp_pdr_t *pdr = NULL;
+
             bearer = smf_bearer_find_by_qci_arp(sess,
                         pcc_rule->qos.qci,
                         pcc_rule->qos.arp.priority_level,
@@ -178,12 +180,10 @@ void smf_bearer_binding(smf_sess_t *sess)
 
                 bearer = smf_bearer_add(sess);
                 ogs_assert(bearer);
-                ogs_assert(bearer->dl_pdr);
-                ogs_assert(bearer->ul_pdr);
 
                 /* Precedence is set to the order in which it was created */
-                ogs_pfcp_pdr_set_precedence(bearer->dl_pdr, bearer->dl_pdr->id);
-                ogs_pfcp_pdr_set_precedence(bearer->ul_pdr, bearer->ul_pdr->id);
+                ogs_list_for_each(&bearer->pfcp.pdr_list, pdr)
+                    ogs_pfcp_pdr_set_precedence(pdr, pdr->id);
 
                 bearer->name = ogs_strdup(pcc_rule->name);
                 ogs_assert(bearer->name);
@@ -233,14 +233,20 @@ void smf_bearer_binding(smf_sess_t *sess)
                 ogs_expect_or_return(flow);
                 ogs_expect_or_return(flow->description);
 
-                if (flow->direction == OGS_FLOW_DOWNLINK_ONLY)
-                    pdr = bearer->dl_pdr;
-                else if (flow->direction == OGS_FLOW_UPLINK_ONLY)
-                    pdr = bearer->ul_pdr;
-                else
-                    ogs_error("Cannot support bidirection[%d]",
-                            flow->direction);
-                pdr->flow_description[pdr->num_of_flow++] = flow->description;
+                ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
+                    if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
+                        flow->direction == OGS_FLOW_DOWNLINK_ONLY) {
+                        break;
+                    } else if (pdr->src_if == OGS_PFCP_INTERFACE_ACCESS &&
+                        flow->direction == OGS_FLOW_UPLINK_ONLY) {
+                        break;
+                    }
+                }
+                
+                if (pdr) {
+                    pdr->flow_description[pdr->num_of_flow++] =
+                        flow->description;
+                }
 
                 tmp = ogs_strdup(flow->description);
                 rv = ogs_ipfw_compile_rule(&rule, tmp);
