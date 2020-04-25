@@ -288,6 +288,8 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     ogs_pfcp_session_establishment_request_t *req = NULL;
     ogs_pkbuf_t *pkbuf = NULL;
 
+    smf_bearer_t *bearer = NULL;
+
     ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_far_t *far = NULL;
     ogs_pfcp_urr_t *urr = NULL;
@@ -326,30 +328,38 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
 
     /* Create PDR */
     i = 0;
-    ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
-        build_create_pdr(&req->create_pdr[i], i, pdr);
-        i++;
+    ogs_list_for_each(&sess->bearer_list, bearer) {
+        ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
+            build_create_pdr(&req->create_pdr[i], i, pdr);
+            i++;
+        }
     }
 
     /* Create FAR */
     i = 0;
-    ogs_list_for_each(&sess->pfcp.far_list, far) {
-        build_create_far(&req->create_far[i], i, far);
-        i++;
+    ogs_list_for_each(&sess->bearer_list, bearer) {
+        ogs_list_for_each(&bearer->pfcp.far_list, far) {
+            build_create_far(&req->create_far[i], i, far);
+            i++;
+        }
     }
 
     /* Create URR */
     i = 0;
-    ogs_list_for_each(&sess->pfcp.urr_list, urr) {
-        build_create_urr(&req->create_urr[i], i, urr);
-        i++;
+    ogs_list_for_each(&sess->bearer_list, bearer) {
+        ogs_list_for_each(&bearer->pfcp.urr_list, urr) {
+            build_create_urr(&req->create_urr[i], i, urr);
+            i++;
+        }
     }
 
     /* Create QER */
     i = 0;
-    ogs_list_for_each(&sess->pfcp.qer_list, qer) {
-        build_create_qer(&req->create_qer[i], i, qer);
-        i++;
+    ogs_list_for_each(&sess->bearer_list, bearer) {
+        ogs_list_for_each(&bearer->pfcp.qer_list, qer) {
+            build_create_qer(&req->create_qer[i], i, qer);
+            i++;
+        }
     }
 
     /* PDN Type */

@@ -648,7 +648,6 @@ int smf_sess_remove(smf_sess_t *sess)
     ogs_assert(sess);
 
     ogs_list_remove(&self.sess_list, sess);
-    ogs_pfcp_sess_clear(&sess->pfcp);
 
     OGS_TLV_CLEAR_DATA(&sess->ue_pco);
     OGS_TLV_CLEAR_DATA(&sess->user_location_information);
@@ -822,17 +821,21 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
 
     ogs_list_init(&bearer->pf_list);
 
-    dl_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
+    dl_pdr = ogs_pfcp_pdr_add(&bearer->pfcp);
     ogs_assert(dl_pdr);
     SMF_SETUP_DL_PDR(dl_pdr, bearer);
-    ul_pdr = ogs_pfcp_pdr_add(&sess->pfcp);
+    dl_pdr->id = OGS_NEXT_ID(sess->pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
+    ul_pdr = ogs_pfcp_pdr_add(&bearer->pfcp);
     ogs_assert(ul_pdr);
     SMF_SETUP_UL_PDR(ul_pdr, bearer);
+    ul_pdr->id = OGS_NEXT_ID(sess->pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
 
     dl_far = ogs_pfcp_far_add(dl_pdr);
     ogs_assert(dl_far);
+    dl_far->id = OGS_NEXT_ID(sess->far_id, 1, OGS_MAX_NUM_OF_FAR+1);
     ul_far = ogs_pfcp_far_add(ul_pdr);
     ogs_assert(ul_far);
+    ul_far->id = OGS_NEXT_ID(sess->far_id, 1, OGS_MAX_NUM_OF_FAR+1);
 
     dl_pdr->src_if = OGS_PFCP_INTERFACE_CORE;
     dl_far->dst_if = OGS_PFCP_INTERFACE_ACCESS;
@@ -878,6 +881,7 @@ int smf_bearer_remove(smf_bearer_t *bearer)
     ogs_assert(bearer->sess);
 
     ogs_list_remove(&bearer->sess->bearer_list, bearer);
+    ogs_pfcp_sess_clear(&bearer->pfcp);
 
     if (bearer->name)
         ogs_free(bearer->name);

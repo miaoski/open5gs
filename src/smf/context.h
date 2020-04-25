@@ -96,7 +96,11 @@ typedef struct smf_sess_s {
 
     char            *gx_sid;        /* Gx Session ID */
 
-    ogs_pfcp_sess_t pfcp;           /* PFCP session context */
+    ogs_pfcp_pdr_id_t   pdr_id;     /* ID Generator(1~MAX_NUM_OF_PDR) */
+    ogs_pfcp_far_id_t   far_id;     /* ID Generator(1~MAX_NUM_OF_FAR) */
+    ogs_pfcp_urr_id_t   urr_id;     /* ID Generator(1~MAX_NUM_OF_URR) */
+    ogs_pfcp_qer_id_t   qer_id;     /* ID Generator(1~MAX_NUM_OF_URR) */
+    ogs_pfcp_bar_id_t   bar_id;     /* ID Generator(1~MAX_NUM_OF_BAR) */
 
     /* IMSI */
     uint8_t         imsi[OGS_MAX_IMSI_LEN];
@@ -126,11 +130,12 @@ typedef struct smf_sess_s {
 } smf_sess_t;
 
 typedef struct smf_bearer_s {
-    ogs_lnode_t     lnode; /**< A node of list_t */
+    ogs_lnode_t     lnode;          /**< A node of list_t */
     uint32_t        index;
 
-    uint8_t         ebi;
+    ogs_pfcp_sess_t pfcp;           /* PFCP session context */
 
+    uint8_t         ebi;
     /* 
      * UPF-S5U-TEID     = INDEX         | TEID_RANGE 
      * INDEX            = UPF-S5U-TEID  & ~TEID_RANGE
