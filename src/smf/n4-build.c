@@ -93,7 +93,7 @@ static ogs_pfcp_outer_header_creation_t
         outer_header_creation[OGS_MAX_NUM_OF_FAR];
 static char apn[OGS_MAX_NUM_OF_PDR][OGS_MAX_APN_LEN];
 
-static void create_pdr(
+static void build_create_pdr(
     ogs_pfcp_tlv_create_pdr_t *message, int i, ogs_pfcp_pdr_t *pdr)
 {
     ogs_pfcp_far_t *far = NULL;
@@ -183,7 +183,7 @@ static void create_pdr(
     }
 }
 
-static void create_far(
+static void build_create_far(
     ogs_pfcp_tlv_create_far_t *message, int i, ogs_pfcp_far_t *far)
 {
     ogs_pfcp_pdr_t *pdr = NULL;
@@ -221,7 +221,7 @@ static void create_far(
     }
 }
 
-static void create_urr(
+static void build_create_urr(
     ogs_pfcp_tlv_create_urr_t *message, int i, ogs_pfcp_urr_t *urr)
 {
     ogs_assert(message);
@@ -232,7 +232,7 @@ static void create_urr(
     message->urr_id.u32 = urr->id;
 }
 
-static void create_qer(
+static void build_create_qer(
     ogs_pfcp_tlv_create_qer_t *message, int i, ogs_pfcp_qer_t *qer)
 {
     ogs_assert(message);
@@ -286,28 +286,28 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     /* Create PDR */
     i = 0;
     ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
-        create_pdr(&req->create_pdr[i], i, pdr);
+        build_create_pdr(&req->create_pdr[i], i, pdr);
         i++;
     }
 
     /* Create FAR */
     i = 0;
     ogs_list_for_each(&sess->pfcp.far_list, far) {
-        create_far(&req->create_far[i], i, far);
+        build_create_far(&req->create_far[i], i, far);
         i++;
     }
 
     /* Create URR */
     i = 0;
     ogs_list_for_each(&sess->pfcp.urr_list, urr) {
-        create_urr(&req->create_urr[i], i, urr);
+        build_create_urr(&req->create_urr[i], i, urr);
         i++;
     }
 
     /* Create QER */
     i = 0;
     ogs_list_for_each(&sess->pfcp.qer_list, qer) {
-        create_qer(&req->create_qer[i], i, qer);
+        build_create_qer(&req->create_qer[i], i, qer);
         i++;
     }
 
@@ -325,10 +325,6 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_modification_request_t *req = NULL;
 
-    ogs_pfcp_node_id_t node_id;
-    ogs_pfcp_f_seid_t f_seid;
-    int len;
-
     smf_sess_t *sess = NULL;
 
     ogs_debug("[SMF] Session Modification Request");
@@ -340,12 +336,12 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
 
     /* Create PDR */
-    create_pdr(&req->create_pdr[0], 0, bearer->dl_pdr);
-    create_pdr(&req->create_pdr[1], 1, bearer->ul_pdr);
+    build_create_pdr(&req->create_pdr[0], 0, bearer->dl_pdr);
+    build_create_pdr(&req->create_pdr[1], 1, bearer->ul_pdr);
 
     /* Create FAR */
-    create_far(&req->create_far[0], 0, bearer->dl_pdr->far);
-    create_far(&req->create_far[1], 1, bearer->ul_pdr->far);
+    build_create_far(&req->create_far[0], 0, bearer->dl_pdr->far);
+    build_create_far(&req->create_far[1], 1, bearer->ul_pdr->far);
 
     pfcp_message.h.type = type;
     return ogs_pfcp_build_msg(&pfcp_message);
