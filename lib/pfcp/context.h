@@ -96,19 +96,10 @@ typedef struct ogs_pfcp_qer_s ogs_pfcp_qer_t;
 typedef struct ogs_pfcp_bar_s ogs_pfcp_bar_t;
 
 typedef struct ogs_pfcp_sess_s {
-    ogs_pfcp_pdr_id_t   pdr_id;     /* ID Generator(1~MAX_NUM_OF_PDR) */
     ogs_list_t          pdr_list;   /* PDR List */
-
-    ogs_pfcp_far_id_t   far_id;     /* ID Generator(1~MAX_NUM_OF_FAR) */
     ogs_list_t          far_list;   /* FAR List */
-
-    ogs_pfcp_urr_id_t   urr_id;     /* ID Generator(1~MAX_NUM_OF_URR) */
     ogs_list_t          urr_list;   /* URR List */
-
-    ogs_pfcp_qer_id_t   qer_id;     /* ID Generator(1~MAX_NUM_OF_URR) */
     ogs_list_t          qer_list;   /* QER List */
-
-    ogs_pfcp_bar_id_t   bar_id;     /* ID Generator(1~MAX_NUM_OF_BAR) */
     ogs_pfcp_bar_t      *bar;       /* BAR Item */
 
     /* Related Context */

@@ -738,7 +738,7 @@ static int precedence_compare(ogs_pfcp_pdr_t *pdr1, ogs_pfcp_pdr_t *pdr2)
         return 1;
 }
 
-static ogs_pfcp_pdr_t *__ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess)
+ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess)
 {
     ogs_pfcp_pdr_t *pdr = NULL;
 
@@ -750,20 +750,6 @@ static ogs_pfcp_pdr_t *__ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess)
 
     pdr->sess = sess;
     ogs_list_add(&sess->pdr_list, pdr);
-
-    return pdr;
-}
-
-ogs_pfcp_pdr_t *ogs_pfcp_pdr_add(ogs_pfcp_sess_t *sess)
-{
-    ogs_pfcp_pdr_t *pdr = NULL;
-
-    ogs_assert(sess);
-
-    pdr = __ogs_pfcp_pdr_add(sess);
-    ogs_assert(pdr);
-
-    pdr->id = OGS_NEXT_ID(sess->pdr_id, 1, OGS_MAX_NUM_OF_PDR+1);
 
     return pdr;
 }
@@ -795,7 +781,7 @@ ogs_pfcp_pdr_t *ogs_pfcp_pdr_find_or_add(
 
     pdr = ogs_pfcp_pdr_find(sess, id);
     if (!pdr) {
-        pdr = __ogs_pfcp_pdr_add(sess);
+        pdr = ogs_pfcp_pdr_add(sess);
         ogs_assert(pdr);
         pdr->id = id;
     }
@@ -841,7 +827,7 @@ void ogs_pfcp_pdr_remove_all(ogs_pfcp_sess_t *sess)
         ogs_pfcp_pdr_remove(pdr);
 }
 
-static ogs_pfcp_far_t *__ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
+ogs_pfcp_far_t *ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
 {
     ogs_pfcp_far_t *far = NULL;
     ogs_pfcp_sess_t *sess = NULL;
@@ -860,23 +846,6 @@ static ogs_pfcp_far_t *__ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
     pdr->far = far;
 
     ogs_list_add(&sess->far_list, far);
-
-    return far;
-}
-
-ogs_pfcp_far_t *ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
-{
-    ogs_pfcp_far_t *far = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
-
-    ogs_assert(pdr);
-    sess = pdr->sess;
-    ogs_assert(sess);
-
-    far = __ogs_pfcp_far_add(pdr);
-    ogs_assert(far);
-
-    far->id = OGS_NEXT_ID(sess->far_id, 1, OGS_MAX_NUM_OF_FAR+1);
 
     return far;
 }
@@ -906,7 +875,7 @@ ogs_pfcp_far_t *ogs_pfcp_far_find_or_add(
 
     far = ogs_pfcp_far_find(sess, id);
     if (!far) {
-        far = __ogs_pfcp_far_add(pdr);
+        far = ogs_pfcp_far_add(pdr);
         ogs_assert(far);
         far->id = id;
     }
@@ -942,7 +911,7 @@ void ogs_pfcp_far_remove_all(ogs_pfcp_sess_t *sess)
         ogs_pfcp_far_remove(far);
 }
 
-static ogs_pfcp_urr_t *__ogs_pfcp_urr_add(ogs_pfcp_pdr_t *pdr)
+ogs_pfcp_urr_t *ogs_pfcp_urr_add(ogs_pfcp_pdr_t *pdr)
 {
     ogs_pfcp_urr_t *urr = NULL;
     ogs_pfcp_sess_t *sess = NULL;
@@ -959,23 +928,6 @@ static ogs_pfcp_urr_t *__ogs_pfcp_urr_add(ogs_pfcp_pdr_t *pdr)
     pdr->urr = urr;
 
     ogs_list_add(&sess->urr_list, urr);
-
-    return urr;
-}
-
-ogs_pfcp_urr_t *ogs_pfcp_urr_add(ogs_pfcp_pdr_t *pdr)
-{
-    ogs_pfcp_urr_t *urr = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
-
-    ogs_assert(pdr);
-    sess = pdr->sess;
-    ogs_assert(sess);
-
-    urr = __ogs_pfcp_urr_add(pdr);
-    ogs_assert(urr);
-
-    urr->id = OGS_NEXT_ID(sess->urr_id, 1, OGS_MAX_NUM_OF_URR+1);
 
     return urr;
 }
@@ -1005,7 +957,7 @@ ogs_pfcp_urr_t *ogs_pfcp_urr_find_or_add(
 
     urr = ogs_pfcp_urr_find(sess, id);
     if (!urr) {
-        urr = __ogs_pfcp_urr_add(pdr);
+        urr = ogs_pfcp_urr_add(pdr);
         ogs_assert(urr);
         urr->id = id;
     }
@@ -1041,7 +993,7 @@ void ogs_pfcp_urr_remove_all(ogs_pfcp_sess_t *sess)
         ogs_pfcp_urr_remove(urr);
 }
 
-static ogs_pfcp_qer_t *__ogs_pfcp_qer_add(ogs_pfcp_pdr_t *pdr)
+ogs_pfcp_qer_t *ogs_pfcp_qer_add(ogs_pfcp_pdr_t *pdr)
 {
     ogs_pfcp_qer_t *qer = NULL;
     ogs_pfcp_sess_t *sess = NULL;
@@ -1058,23 +1010,6 @@ static ogs_pfcp_qer_t *__ogs_pfcp_qer_add(ogs_pfcp_pdr_t *pdr)
     pdr->qer = qer;
 
     ogs_list_add(&sess->qer_list, qer);
-
-    return qer;
-}
-
-ogs_pfcp_qer_t *ogs_pfcp_qer_add(ogs_pfcp_pdr_t *pdr)
-{
-    ogs_pfcp_qer_t *qer = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
-
-    ogs_assert(pdr);
-    sess = pdr->sess;
-    ogs_assert(sess);
-
-    qer = __ogs_pfcp_qer_add(pdr);
-    ogs_assert(qer);
-
-    qer->id = OGS_NEXT_ID(sess->qer_id, 1, OGS_MAX_NUM_OF_QER+1);
 
     return qer;
 }
@@ -1104,7 +1039,7 @@ ogs_pfcp_qer_t *ogs_pfcp_qer_find_or_add(
 
     qer = ogs_pfcp_qer_find(sess, id);
     if (!qer) {
-        qer = __ogs_pfcp_qer_add(pdr);
+        qer = ogs_pfcp_qer_add(pdr);
         ogs_assert(qer);
         qer->id = id;
     }
