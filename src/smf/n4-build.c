@@ -91,8 +91,23 @@ static struct {
     ogs_pfcp_outer_header_removal_t outer_header_removal;
     ogs_pfcp_f_teid_t f_teid;
     char apn[OGS_MAX_APN_LEN];
-    char sdf_filter[OGS_MAX_NUM_OF_RULE][OGS_PFCP_MAX_SDF_FILTER_LEN];
+    char *sdf_filter[OGS_MAX_NUM_OF_RULE];
 } create_pdr_buf[OGS_MAX_NUM_OF_PDR];
+
+static void create_pdr_buf_init(void)
+{
+    memset(create_pdr_buf, 0, sizeof(create_pdr_buf));
+}
+static void create_pdr_buf_clear(void)
+{
+    int i, j;
+    for (i = 0; i < OGS_MAX_NUM_OF_PDR; i++) {
+        for (j = 0; j < OGS_MAX_NUM_OF_RULE; j++) {
+            if (create_pdr_buf[i].sdf_filter[j])
+                ogs_free(create_pdr_buf[i].sdf_filter[j]);
+        }
+    }
+}
 
 static void build_create_pdr(
     ogs_pfcp_tlv_create_pdr_t *message, int i, ogs_pfcp_pdr_t *pdr)
@@ -135,11 +150,13 @@ static void build_create_pdr(
         pfcp_sdf_filter[j].flow_description_len =
                 strlen(pdr->flow_description[j]);
         pfcp_sdf_filter[j].flow_description = pdr->flow_description[j];
+        len = sizeof(ogs_pfcp_sdf_filter_t) +
+                pfcp_sdf_filter[j].flow_description_len;
 
         message->pdi.sdf_filter[j].presence = 1;
+        create_pdr_buf[i].sdf_filter[j] = ogs_calloc(1, len);
         ogs_pfcp_build_sdf_filter(&message->pdi.sdf_filter[j],
-                &pfcp_sdf_filter[j], create_pdr_buf[i].sdf_filter[j],
-                OGS_PFCP_MAX_SDF_FILTER_LEN);
+                &pfcp_sdf_filter[j], create_pdr_buf[i].sdf_filter[j], len);
     }
 
     if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
@@ -269,6 +286,7 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
 {
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_establishment_request_t *req = NULL;
+    ogs_pkbuf_t *pkbuf = NULL;
 
     ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_far_t *far = NULL;
@@ -304,6 +322,8 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     req->cp_f_seid.data = &f_seid;
     req->cp_f_seid.len = len;
 
+    create_pdr_buf_init();
+
     /* Create PDR */
     i = 0;
     ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
@@ -337,7 +357,11 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     req->pdn_type.u8 = sess->pdn.paa.pdn_type;
 
     pfcp_message.h.type = type;
-    return ogs_pfcp_build_msg(&pfcp_message);
+    pkbuf = ogs_pfcp_build_msg(&pfcp_message);
+
+    create_pdr_buf_clear();
+
+    return pkbuf;
 }
 
 ogs_pkbuf_t *smf_n4_build_session_modification_request(
@@ -345,6 +369,7 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
 {
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_modification_request_t *req = NULL;
+    ogs_pkbuf_t *pkbuf = NULL;
 
     smf_sess_t *sess = NULL;
 
@@ -355,6 +380,8 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
 
     req = &pfcp_message.pfcp_session_modification_request;
     memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
+
+    create_pdr_buf_init();
 
     /* Create PDR */
     ogs_assert(bearer->dl_pdr);
@@ -369,7 +396,11 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     build_create_far(&req->create_far[1], 1, bearer->ul_pdr->far);
 
     pfcp_message.h.type = type;
-    return ogs_pfcp_build_msg(&pfcp_message);
+    pkbuf = ogs_pfcp_build_msg(&pfcp_message);
+
+    create_pdr_buf_clear();
+
+    return pkbuf;
 }
 
 ogs_pkbuf_t *smf_n4_build_session_deletion_request(
