@@ -146,7 +146,7 @@ typedef struct ogs_pfcp_urr_s {
 
     ogs_pfcp_urr_id_t       id;
 
-    ogs_pfcp_pdr_t          *pdr;
+    ogs_pfcp_sess_t         *sess;
 } ogs_pfcp_urr_t;
 
 typedef struct ogs_pfcp_qer_s {
@@ -154,7 +154,7 @@ typedef struct ogs_pfcp_qer_s {
 
     ogs_pfcp_qer_id_t       id;
 
-    ogs_pfcp_pdr_t          *pdr;
+    ogs_pfcp_sess_t         *sess;
 } ogs_pfcp_qer_t;
 
 typedef struct ogs_pfcp_bar_s {

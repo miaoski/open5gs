@@ -917,9 +917,9 @@ ogs_pfcp_urr_t *ogs_pfcp_urr_add(ogs_pfcp_pdr_t *pdr)
     ogs_assert(urr);
     memset(urr, 0, sizeof *urr);
 
-    urr->pdr = pdr;
     pdr->urr = urr;
 
+    urr->sess = sess;
     ogs_list_add(&sess->urr_list, urr);
 
     return urr;
@@ -960,17 +960,11 @@ ogs_pfcp_urr_t *ogs_pfcp_urr_find_or_add(
 
 void ogs_pfcp_urr_remove(ogs_pfcp_urr_t *urr)
 {
-    ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_sess_t *sess = NULL;
 
     ogs_assert(urr);
-    pdr = urr->pdr;
-    ogs_assert(pdr);
-    sess = pdr->sess;
+    sess = urr->sess;
     ogs_assert(sess);
-
-    urr->pdr = NULL;
-    pdr->urr = NULL;
 
     ogs_list_remove(&sess->urr_list, urr);
     ogs_pool_free(&ogs_pfcp_urr_pool, urr);
@@ -999,9 +993,9 @@ ogs_pfcp_qer_t *ogs_pfcp_qer_add(ogs_pfcp_pdr_t *pdr)
     ogs_assert(qer);
     memset(qer, 0, sizeof *qer);
 
-    qer->pdr = pdr;
     pdr->qer = qer;
 
+    qer->sess = sess;
     ogs_list_add(&sess->qer_list, qer);
 
     return qer;
@@ -1042,17 +1036,11 @@ ogs_pfcp_qer_t *ogs_pfcp_qer_find_or_add(
 
 void ogs_pfcp_qer_remove(ogs_pfcp_qer_t *qer)
 {
-    ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_sess_t *sess = NULL;
 
     ogs_assert(qer);
-    pdr = qer->pdr;
-    ogs_assert(pdr);
-    sess = pdr->sess;
+    sess = qer->sess;
     ogs_assert(sess);
-
-    qer->pdr = NULL;
-    pdr->qer = NULL;
 
     ogs_list_remove(&sess->qer_list, qer);
     ogs_pool_free(&ogs_pfcp_qer_pool, qer);
