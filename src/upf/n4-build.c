@@ -125,12 +125,11 @@ ogs_pkbuf_t *upf_n4_build_association_setup_response(uint8_t type,
 }
 
 ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
-        upf_sess_t *sess)
+    upf_sess_t *sess, ogs_pfcp_pdr_t *created_pdr[], int num_of_created_pdr)
 {
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_establishment_response_t *rsp = NULL;
 
-    ogs_pfcp_pdr_t *pdr = NULL;
     int i = 0;
 
     ogs_pfcp_node_id_t node_id;
@@ -165,15 +164,13 @@ ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
     rsp->up_f_seid.len = len;
 
     /* Created PDR */
-    i = 0;
-    ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
+    for (i = 0; i < num_of_created_pdr; i++) {
         ogs_pfcp_tlv_created_pdr_t *message = &rsp->created_pdr[i];
         ogs_assert(message);
 
         message->presence = 1;
         message->pdr_id.presence = 1;
-        message->pdr_id.u16 = pdr->id;
-        i++;
+        message->pdr_id.u16 = created_pdr[i]->id;
     }
 
     pfcp_message.h.type = type;
@@ -181,12 +178,11 @@ ogs_pkbuf_t *upf_n4_build_session_establishment_response(uint8_t type,
 }
 
 ogs_pkbuf_t *upf_n4_build_session_modification_response(uint8_t type,
-        upf_sess_t *sess)
+    upf_sess_t *sess, ogs_pfcp_pdr_t *created_pdr[], int num_of_created_pdr)
 {
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_modification_response_t *rsp = NULL;
 
-    ogs_pfcp_pdr_t *pdr = NULL;
     int i = 0;
 
     ogs_debug("[UPF] Session Modification Response");
@@ -199,15 +195,13 @@ ogs_pkbuf_t *upf_n4_build_session_modification_response(uint8_t type,
     rsp->cause.u8 = OGS_PFCP_CAUSE_REQUEST_ACCEPTED;
 
     /* Created PDR */
-    i = 0;
-    ogs_list_for_each(&sess->pfcp.pdr_list, pdr) {
+    for (i = 0; i < num_of_created_pdr; i++) {
         ogs_pfcp_tlv_created_pdr_t *message = &rsp->created_pdr[i];
         ogs_assert(message);
 
         message->presence = 1;
         message->pdr_id.presence = 1;
-        message->pdr_id.u16 = pdr->id;
-        i++;
+        message->pdr_id.u16 = created_pdr[i]->id;
     }
 
     pfcp_message.h.type = type;

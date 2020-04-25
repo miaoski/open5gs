@@ -58,7 +58,7 @@ void upf_n4_handle_heartbeat_response(
             upf_timer_cfg(UPF_TIMER_HEARTBEAT)->duration);
 }
 
-static bool handle_create_pdr(ogs_pfcp_sess_t *sess,
+static ogs_pfcp_pdr_t *handle_create_pdr(ogs_pfcp_sess_t *sess,
         ogs_pfcp_tlv_create_pdr_t *message,
         uint8_t *cause_value, uint8_t *offending_ie_value)
 {
@@ -68,20 +68,20 @@ static bool handle_create_pdr(ogs_pfcp_sess_t *sess,
     ogs_assert(message);
 
     if (message->presence == 0)
-        return false;
+        return NULL;
 
     if (message->pdr_id.presence == 0) {
         ogs_warn("No PDR-ID");
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
         *offending_ie_value = OGS_PFCP_PDR_ID_TYPE;
-        return false;
+        return NULL;
     }
 
     if (message->precedence.presence == 0) {
         ogs_warn("No Presence in PDR");
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
         *offending_ie_value = OGS_PFCP_PRECEDENCE_TYPE;
-        return false;
+        return NULL;
     }
 
     pdr = ogs_pfcp_pdr_find_or_add(sess, message->pdr_id.u16);
@@ -92,14 +92,14 @@ static bool handle_create_pdr(ogs_pfcp_sess_t *sess,
         ogs_warn("No PDI in PDR");
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
         *offending_ie_value = OGS_PFCP_PDI_TYPE;
-        return false;
+        return NULL;
     }
 
     if (message->pdi.source_interface.presence == 0) {
         ogs_warn("No Source Interface in PDI");
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
         *offending_ie_value = OGS_PFCP_SOURCE_INTERFACE_TYPE;
-        return false;
+        return NULL;
     }
 
     pdr->precedence = message->precedence.u32;
@@ -117,14 +117,14 @@ static bool handle_create_pdr(ogs_pfcp_sess_t *sess,
             ogs_warn("No F-TEID in PDI");
             *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
             *offending_ie_value = OGS_PFCP_F_TEID_TYPE;
-            return false;
+            return NULL;
         }
 
         if (message->outer_header_removal.presence == 0) {
             ogs_warn("No Outer Header Removal in PDI");
             *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
             *offending_ie_value = OGS_PFCP_OUTER_HEADER_REMOVAL_TYPE;
-            return false;
+            return NULL;
         }
 
         memcpy(&pdr->f_teid, message->pdi.local_f_teid.data,
@@ -141,16 +141,16 @@ static bool handle_create_pdr(ogs_pfcp_sess_t *sess,
         ogs_error("Invalid Source Interface[%d] in PDR", pdr->src_if);
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
         *offending_ie_value = OGS_PFCP_SOURCE_INTERFACE_TYPE;
-        return false;
+        return NULL;
     }
 
     if (message->far_id.presence)
         ogs_pfcp_far_find_or_add(pdr, message->far_id.u32);
 
-    return true;
+    return pdr;
 }
 
-static bool handle_create_far(ogs_pfcp_sess_t *sess,
+static ogs_pfcp_far_t *handle_create_far(ogs_pfcp_sess_t *sess,
         ogs_pfcp_tlv_create_far_t *message,
         uint8_t *cause_value, uint8_t *offending_ie_value)
 {
@@ -160,13 +160,13 @@ static bool handle_create_far(ogs_pfcp_sess_t *sess,
     ogs_assert(sess);
 
     if (message->presence == 0)
-        return false;
+        return NULL;
 
     if (message->far_id.presence == 0) {
         ogs_warn("No FAR-ID");
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
         *offending_ie_value = OGS_PFCP_FAR_ID_TYPE;
-        return false;
+        return NULL;
     }
 
     far = ogs_pfcp_far_find(sess, message->far_id.u32);
@@ -174,21 +174,21 @@ static bool handle_create_far(ogs_pfcp_sess_t *sess,
         ogs_error("Cannot find FAR-ID[%d] in PDR", message->far_id.u32);
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
         *offending_ie_value = OGS_PFCP_FAR_ID_TYPE;
-        return false;
+        return NULL;
     }
 
     if (message->apply_action.presence == 0) {
         ogs_warn("No Apply Action");
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
         *offending_ie_value = OGS_PFCP_APPLY_ACTION_TYPE;
-        return false;
+        return NULL;
     }
     if (message->forwarding_parameters.
             destination_interface.presence == 0) {
         ogs_warn("No Destination Interface");
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
         *offending_ie_value = OGS_PFCP_DESTINATION_INTERFACE_TYPE;
-        return false;
+        return NULL;
     }
 
     far->apply_action = message->apply_action.u8;
@@ -204,7 +204,7 @@ static bool handle_create_far(ogs_pfcp_sess_t *sess,
             ogs_warn("No Outer Header Creation in PDI");
             *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
             *offending_ie_value = OGS_PFCP_OUTER_HEADER_CREATION_TYPE;
-            return false;
+            return NULL;
         }
 
         memcpy(&far->outer_header_creation,
@@ -240,16 +240,18 @@ static bool handle_create_far(ogs_pfcp_sess_t *sess,
         ogs_error("Invalid Destination Interface[%d] in FAR", far->dst_if);
         *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
         *offending_ie_value = OGS_PFCP_DESTINATION_INTERFACE_TYPE;
-        return false;
+        return NULL;
     }
 
-    return true;
+    return far;
 }
 
 void upf_n4_handle_session_establishment_request(
         upf_sess_t *sess, ogs_pfcp_xact_t *xact, 
         ogs_pfcp_session_establishment_request_t *req)
 {
+    ogs_pfcp_pdr_t *created_pdr[OGS_MAX_NUM_OF_PDR];
+    int num_of_created_pdr = 0;
     uint8_t cause_value = 0;
     uint8_t offending_ie_value = 0;
     int i;
@@ -270,10 +272,12 @@ void upf_n4_handle_session_establishment_request(
     }
 
     for (i = 0; i < OGS_MAX_NUM_OF_PDR; i++) {
-        if (handle_create_pdr(&sess->pfcp, &req->create_pdr[i],
-                    &cause_value, &offending_ie_value) == false)
+        created_pdr[i] = handle_create_pdr(&sess->pfcp,
+                &req->create_pdr[i], &cause_value, &offending_ie_value);
+        if (created_pdr[i] == NULL)
             break;
     }
+    num_of_created_pdr = i;
 
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_sess_clear(&sess->pfcp);
@@ -285,7 +289,7 @@ void upf_n4_handle_session_establishment_request(
 
     for (i = 0; i < OGS_MAX_NUM_OF_FAR; i++) {
         if (handle_create_far(&sess->pfcp, &req->create_far[i],
-                    &cause_value, &offending_ie_value) == false)
+                    &cause_value, &offending_ie_value) == NULL)
             break;
     }
 
@@ -297,13 +301,16 @@ void upf_n4_handle_session_establishment_request(
         return;
     }
 
-    upf_pfcp_send_session_establishment_response(xact, sess);
+    upf_pfcp_send_session_establishment_response(
+            xact, sess, created_pdr, num_of_created_pdr);
 }
 
 void upf_n4_handle_session_modification_request(
         upf_sess_t *sess, ogs_pfcp_xact_t *xact, 
         ogs_pfcp_session_modification_request_t *req)
 {
+    ogs_pfcp_pdr_t *created_pdr[OGS_MAX_NUM_OF_PDR];
+    int num_of_created_pdr = 0;
     uint8_t cause_value = 0;
     uint8_t offending_ie_value = 0;
     int i;
@@ -324,10 +331,12 @@ void upf_n4_handle_session_modification_request(
     }
 
     for (i = 0; i < OGS_MAX_NUM_OF_PDR; i++) {
-        if (handle_create_pdr(&sess->pfcp, &req->create_pdr[i],
-                    &cause_value, &offending_ie_value) == false)
+        created_pdr[i] = handle_create_pdr(&sess->pfcp,
+                &req->create_pdr[i], &cause_value, &offending_ie_value);
+        if (created_pdr[i] == NULL)
             break;
     }
+    num_of_created_pdr = i;
 
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_send_error_message(xact, sess ? sess->pfcp.remote_n4_seid : 0,
@@ -338,7 +347,7 @@ void upf_n4_handle_session_modification_request(
 
     for (i = 0; i < OGS_MAX_NUM_OF_FAR; i++) {
         if (handle_create_far(&sess->pfcp, &req->create_far[i],
-                    &cause_value, &offending_ie_value) == false)
+                    &cause_value, &offending_ie_value) == NULL)
             break;
     }
 
@@ -350,7 +359,8 @@ void upf_n4_handle_session_modification_request(
         return;
     }
 
-    upf_pfcp_send_session_modification_response(xact, sess);
+    upf_pfcp_send_session_modification_response(
+            xact, sess, created_pdr, num_of_created_pdr);
 }
 
 void upf_n4_handle_session_deletion_request(

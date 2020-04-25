@@ -226,8 +226,9 @@ void upf_pfcp_send_heartbeat_request(ogs_pfcp_node_t *node)
     ogs_expect(rv == OGS_OK);
 }
 
-void upf_pfcp_send_session_establishment_response(ogs_pfcp_xact_t *xact,
-        upf_sess_t *sess)
+void upf_pfcp_send_session_establishment_response(
+        ogs_pfcp_xact_t *xact, upf_sess_t *sess,
+        ogs_pfcp_pdr_t *created_pdr[], int num_of_created_pdr)
 {
     int rv;
     ogs_pkbuf_t *n4buf = NULL;
@@ -239,7 +240,8 @@ void upf_pfcp_send_session_establishment_response(ogs_pfcp_xact_t *xact,
     h.type = OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE;
     h.seid = sess->pfcp.remote_n4_seid;
 
-    n4buf = upf_n4_build_session_establishment_response(h.type, sess);
+    n4buf = upf_n4_build_session_establishment_response(
+            h.type, sess, created_pdr, num_of_created_pdr);
     ogs_expect_or_return(n4buf);
 
     rv = ogs_pfcp_xact_update_tx(xact, &h, n4buf);
@@ -249,20 +251,23 @@ void upf_pfcp_send_session_establishment_response(ogs_pfcp_xact_t *xact,
     ogs_expect(rv == OGS_OK);
 }
 
-void upf_pfcp_send_session_modification_response(ogs_pfcp_xact_t *xact,
-        upf_sess_t *sess)
+void upf_pfcp_send_session_modification_response(
+        ogs_pfcp_xact_t *xact, upf_sess_t *sess,
+        ogs_pfcp_pdr_t *created_pdr[], int num_of_created_pdr)
 {
     int rv;
     ogs_pkbuf_t *n4buf = NULL;
     ogs_pfcp_header_t h;
 
     ogs_assert(xact);
+    ogs_assert(created_pdr);
 
     memset(&h, 0, sizeof(ogs_pfcp_header_t));
     h.type = OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE;
     h.seid = sess->pfcp.remote_n4_seid;
 
-    n4buf = upf_n4_build_session_modification_response(h.type, sess);
+    n4buf = upf_n4_build_session_modification_response(
+            h.type, sess, created_pdr, num_of_created_pdr);
     ogs_expect_or_return(n4buf);
 
     rv = ogs_pfcp_xact_update_tx(xact, &h, n4buf);
