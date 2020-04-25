@@ -186,7 +186,7 @@ void smf_n4_handle_session_establishment_response(
     /* UP F-SEID */
     up_f_seid = rsp->up_f_seid.data;
     ogs_assert(up_f_seid);
-    sess->remote_n4_seid = be64toh(up_f_seid->seid);
+    sess->upf_n4_seid = be64toh(up_f_seid->seid);
 
     smf_gtp_send_create_session_response(sess, gtp_xact);
 

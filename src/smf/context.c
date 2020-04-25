@@ -549,7 +549,7 @@ smf_sess_t *smf_sess_add(
 
     /* Set TEID & SEID */
     sess->smf_n4_teid = sess->index;
-    sess->local_n4_seid = sess->index;
+    sess->smf_n4_seid = sess->index;
 
     /* Set IMSI */
     sess->imsi_len = imsi_len;

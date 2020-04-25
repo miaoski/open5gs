@@ -317,7 +317,7 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
     ogs_pfcp_sockaddr_to_f_seid(
             ogs_pfcp_self()->pfcp_addr, ogs_pfcp_self()->pfcp_addr6,
             &f_seid, &len);
-    f_seid.seid = htobe64(sess->local_n4_seid);
+    f_seid.seid = htobe64(sess->smf_n4_seid);
     req->cp_f_seid.presence = 1;
     req->cp_f_seid.data = &f_seid;
     req->cp_f_seid.len = len;

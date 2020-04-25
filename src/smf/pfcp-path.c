@@ -238,7 +238,7 @@ void smf_pfcp_send_session_establishment_request(
 
     memset(&h, 0, sizeof(ogs_pfcp_header_t));
     h.type = OGS_PFCP_SESSION_ESTABLISHMENT_REQUEST_TYPE;
-    h.seid = sess->remote_n4_seid;
+    h.seid = sess->upf_n4_seid;
 
     n4buf = smf_n4_build_session_establishment_request(h.type, sess);
     ogs_expect_or_return(n4buf);
@@ -266,7 +266,7 @@ void smf_pfcp_send_session_modification_request(smf_bearer_t *bearer)
 
     memset(&h, 0, sizeof(ogs_pfcp_header_t));
     h.type = OGS_PFCP_SESSION_MODIFICATION_REQUEST_TYPE;
-    h.seid = sess->remote_n4_seid;
+    h.seid = sess->upf_n4_seid;
 
     n4buf = smf_n4_build_session_modification_request(h.type, bearer);
     ogs_expect_or_return(n4buf);
@@ -290,7 +290,7 @@ void smf_pfcp_send_session_deletion_request(smf_sess_t *sess, void *gtp_xact)
 
     memset(&h, 0, sizeof(ogs_pfcp_header_t));
     h.type = OGS_PFCP_SESSION_DELETION_REQUEST_TYPE;
-    h.seid = sess->remote_n4_seid;
+    h.seid = sess->upf_n4_seid;
 
     n4buf = smf_n4_build_session_deletion_request(h.type, sess);
     ogs_expect_or_return(n4buf);

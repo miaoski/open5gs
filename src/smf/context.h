@@ -91,8 +91,8 @@ typedef struct smf_sess_s {
     uint32_t        smf_n4_teid;    /* SMF-N4-TEID is derived from INDEX */
     uint32_t        sgw_s5c_teid;   /* SGW-S5C-TEID is received from SGW */
 
-    uint64_t        local_n4_seid;  /* Local SEID is dervied from INDEX */
-    uint64_t        remote_n4_seid; /* Remote SEID is received from Peer */
+    uint64_t        smf_n4_seid;    /* SMF SEID is dervied from INDEX */
+    uint64_t        upf_n4_seid;    /* UPF SEID is received from Peer */
 
     char            *gx_sid;        /* Gx Session ID */
 

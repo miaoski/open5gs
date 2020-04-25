@@ -73,8 +73,8 @@ typedef struct upf_sess_s {
     ogs_pfcp_sess_t pfcp;
     ogs_list_t      sdf_filter_list;    /* SDF Filter List */
 
-    uint64_t        local_n4_seid;      /* Local SEID is dervied from INDEX */
-    uint64_t        remote_n4_seid;     /* Remote SEID is received from Peer */
+    uint64_t        upf_n4_seid;        /* UPF SEID is dervied from INDEX */
+    uint64_t        smf_n4_seid;        /* SMF SEID is received from Peer */
 
     /* APN Configuration */
     ogs_pdn_t       pdn;
