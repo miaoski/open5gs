@@ -549,7 +549,7 @@ smf_sess_t *smf_sess_add(
 
     /* Set TEID & SEID */
     sess->smf_n4_teid = sess->index;
-    sess->pfcp.local_n4_seid = sess->index;
+    sess->local_n4_seid = sess->index;
 
     /* Set IMSI */
     sess->imsi_len = imsi_len;
@@ -617,7 +617,7 @@ smf_sess_t *smf_sess_add(
         ogs_pfcp_self()->node = ogs_list_next(ogs_pfcp_self()->node)) {
         if (OGS_FSM_CHECK(
                 &ogs_pfcp_self()->node->sm, smf_pfcp_state_associated)) {
-            OGS_SETUP_PFCP_NODE(&sess->pfcp, ogs_pfcp_self()->node);
+            OGS_SETUP_PFCP_NODE(sess, ogs_pfcp_self()->node);
             break;
         }
     }
@@ -841,7 +841,7 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
     ul_far->dst_if = OGS_PFCP_INTERFACE_CORE;
 
     resource = ogs_pfcp_gtpu_resource_find(
-            &sess->pfcp.node->gtpu_resource_list,
+            &sess->pfcp_node->gtpu_resource_list,
             sess->pdn.apn, OGS_PFCP_INTERFACE_ACCESS);
     if (resource) {
         ogs_pfcp_user_plane_ip_resource_info_to_sockaddr(&resource->info,
@@ -854,10 +854,10 @@ smf_bearer_t *smf_bearer_add(smf_sess_t *sess)
         else
             bearer->upf_n3_teid = bearer->index;
     } else {
-        if (sess->pfcp.node->addr.ogs_sa_family == AF_INET)
-            ogs_copyaddrinfo(&bearer->upf_addr, &sess->pfcp.node->addr);
-        else if (sess->pfcp.node->addr.ogs_sa_family == AF_INET6)
-            ogs_copyaddrinfo(&bearer->upf_addr6, &sess->pfcp.node->addr);
+        if (sess->pfcp_node->addr.ogs_sa_family == AF_INET)
+            ogs_copyaddrinfo(&bearer->upf_addr, &sess->pfcp_node->addr);
+        else if (sess->pfcp_node->addr.ogs_sa_family == AF_INET6)
+            ogs_copyaddrinfo(&bearer->upf_addr6, &sess->pfcp_node->addr);
         else
             ogs_assert_if_reached();
         ogs_assert(bearer->upf_addr || bearer->upf_addr6);

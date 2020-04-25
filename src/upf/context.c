@@ -407,10 +407,10 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
     sess->index = ogs_pool_index(&upf_sess_pool, sess);
     ogs_assert(sess->index > 0 && sess->index <= ogs_config()->pool.sess);
 
-    sess->pfcp.local_n4_seid = sess->index;
-    sess->pfcp.remote_n4_seid = cp_f_seid->seid;
-    ogs_hash_set(self.sess_hash, &sess->pfcp.remote_n4_seid,
-            sizeof(sess->pfcp.remote_n4_seid), sess);
+    sess->local_n4_seid = sess->index;
+    sess->remote_n4_seid = cp_f_seid->seid;
+    ogs_hash_set(self.sess_hash, &sess->remote_n4_seid,
+            sizeof(sess->remote_n4_seid), sess);
 
     /* Set APN */
     ogs_cpystrn(sess->pdn.apn, apn, OGS_MAX_APN_LEN+1);
@@ -462,7 +462,7 @@ upf_sess_t *upf_sess_add(ogs_pfcp_f_seid_t *cp_f_seid,
 
     ogs_info("UE F-SEID[CP:%ld,UP:%ld] "
              "APN[%s] PDN-Type[%d] IPv4[%s] IPv6[%s], Default PDR ID[%d]",
-        (long)sess->pfcp.local_n4_seid, (long)sess->pfcp.remote_n4_seid,
+        (long)sess->local_n4_seid, (long)sess->remote_n4_seid,
         apn, pdn_type,
         sess->ipv4 ? INET_NTOP(&sess->ipv4->addr, buf1) : "",
         sess->ipv6 ? INET6_NTOP(&sess->ipv6->addr, buf2) : "",
@@ -487,8 +487,8 @@ int upf_sess_remove(upf_sess_t *sess)
     ogs_pfcp_sess_clear(&sess->pfcp);
     upf_sdf_filter_remove_all(sess);
 
-    ogs_hash_set(self.sess_hash, &sess->pfcp.remote_n4_seid,
-            sizeof(sess->pfcp.remote_n4_seid), NULL);
+    ogs_hash_set(self.sess_hash, &sess->remote_n4_seid,
+            sizeof(sess->remote_n4_seid), NULL);
 
     if (sess->ipv4) {
         ogs_hash_set(self.ipv4_hash, sess->ipv4->addr, OGS_IPV4_LEN, NULL);

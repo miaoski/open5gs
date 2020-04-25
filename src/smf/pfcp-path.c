@@ -238,13 +238,13 @@ void smf_pfcp_send_session_establishment_request(
 
     memset(&h, 0, sizeof(ogs_pfcp_header_t));
     h.type = OGS_PFCP_SESSION_ESTABLISHMENT_REQUEST_TYPE;
-    h.seid = sess->pfcp.remote_n4_seid;
+    h.seid = sess->remote_n4_seid;
 
     n4buf = smf_n4_build_session_establishment_request(h.type, sess);
     ogs_expect_or_return(n4buf);
 
     xact = ogs_pfcp_xact_local_create(
-            sess->pfcp.node, &h, n4buf, timeout, sess);
+            sess->pfcp_node, &h, n4buf, timeout, sess);
     ogs_expect_or_return(xact);
     xact->assoc_xact = gtp_xact;
 
@@ -266,13 +266,13 @@ void smf_pfcp_send_session_modification_request(smf_bearer_t *bearer)
 
     memset(&h, 0, sizeof(ogs_pfcp_header_t));
     h.type = OGS_PFCP_SESSION_MODIFICATION_REQUEST_TYPE;
-    h.seid = sess->pfcp.remote_n4_seid;
+    h.seid = sess->remote_n4_seid;
 
     n4buf = smf_n4_build_session_modification_request(h.type, bearer);
     ogs_expect_or_return(n4buf);
 
     xact = ogs_pfcp_xact_local_create(
-            sess->pfcp.node, &h, n4buf, timeout, bearer);
+            sess->pfcp_node, &h, n4buf, timeout, bearer);
     ogs_expect_or_return(xact);
 
     rv = ogs_pfcp_xact_commit(xact);
@@ -290,13 +290,13 @@ void smf_pfcp_send_session_deletion_request(smf_sess_t *sess, void *gtp_xact)
 
     memset(&h, 0, sizeof(ogs_pfcp_header_t));
     h.type = OGS_PFCP_SESSION_DELETION_REQUEST_TYPE;
-    h.seid = sess->pfcp.remote_n4_seid;
+    h.seid = sess->remote_n4_seid;
 
     n4buf = smf_n4_build_session_deletion_request(h.type, sess);
     ogs_expect_or_return(n4buf);
 
     xact = ogs_pfcp_xact_local_create(
-            sess->pfcp.node, &h, n4buf, timeout, sess);
+            sess->pfcp_node, &h, n4buf, timeout, sess);
     ogs_expect_or_return(xact);
     xact->assoc_xact = gtp_xact;
 

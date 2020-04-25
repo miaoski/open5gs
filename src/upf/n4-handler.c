@@ -311,7 +311,7 @@ void upf_n4_handle_session_establishment_request(
 
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_sess_clear(&sess->pfcp);
-        ogs_pfcp_send_error_message(xact, sess ? sess->pfcp.remote_n4_seid : 0,
+        ogs_pfcp_send_error_message(xact, sess ? sess->remote_n4_seid : 0,
                 OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
                 cause_value, offending_ie_value);
         return;
@@ -325,7 +325,7 @@ void upf_n4_handle_session_establishment_request(
 
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_sess_clear(&sess->pfcp);
-        ogs_pfcp_send_error_message(xact, sess ? sess->pfcp.remote_n4_seid : 0,
+        ogs_pfcp_send_error_message(xact, sess ? sess->remote_n4_seid : 0,
                 OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
                 cause_value, offending_ie_value);
         return;
@@ -369,7 +369,7 @@ void upf_n4_handle_session_modification_request(
     num_of_created_pdr = i;
 
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
-        ogs_pfcp_send_error_message(xact, sess ? sess->pfcp.remote_n4_seid : 0,
+        ogs_pfcp_send_error_message(xact, sess ? sess->remote_n4_seid : 0,
                 OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
                 cause_value, offending_ie_value);
         return;
@@ -383,7 +383,7 @@ void upf_n4_handle_session_modification_request(
 
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_sess_clear(&sess->pfcp);
-        ogs_pfcp_send_error_message(xact, sess ? sess->pfcp.remote_n4_seid : 0,
+        ogs_pfcp_send_error_message(xact, sess ? sess->remote_n4_seid : 0,
                 OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
                 cause_value, offending_ie_value);
         return;

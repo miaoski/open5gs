@@ -209,7 +209,7 @@ void upf_pfcp_state_associated(ogs_fsm_t *s, upf_event_t *e)
                 ogs_expect(!sess);
                 sess = upf_sess_add_by_message(message);
                 if (sess)
-                    OGS_SETUP_PFCP_NODE(&sess->pfcp, node);
+                    OGS_SETUP_PFCP_NODE(sess, node);
             }
             upf_n4_handle_session_establishment_request(
                 sess, xact, &message->pfcp_session_establishment_request);

@@ -91,6 +91,9 @@ typedef struct smf_sess_s {
     uint32_t        smf_n4_teid;    /* SMF-N4-TEID is derived from INDEX */
     uint32_t        sgw_s5c_teid;   /* SGW-S5C-TEID is received from SGW */
 
+    uint64_t        local_n4_seid;  /* Local SEID is dervied from INDEX */
+    uint64_t        remote_n4_seid; /* Remote SEID is received from Peer */
+
     char            *gx_sid;        /* Gx Session ID */
 
     ogs_pfcp_sess_t pfcp;           /* PFCP session context */
@@ -119,6 +122,7 @@ typedef struct smf_sess_s {
 
     /* Related Context */
     ogs_gtp_node_t  *gnode;
+    ogs_pfcp_node_t *pfcp_node;
 } smf_sess_t;
 
 typedef struct smf_bearer_s {

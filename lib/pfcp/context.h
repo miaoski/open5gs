@@ -59,7 +59,7 @@ typedef struct ogs_pfcp_context_s {
     do { \
         ogs_assert((__cTX)); \
         ogs_assert((__pNODE)); \
-        (__cTX)->node = __pNODE; \
+        (__cTX)->pfcp_node = __pNODE; \
     } while(0)
 
 typedef struct ogs_pfcp_node_s {
@@ -96,9 +96,6 @@ typedef struct ogs_pfcp_qer_s ogs_pfcp_qer_t;
 typedef struct ogs_pfcp_bar_s ogs_pfcp_bar_t;
 
 typedef struct ogs_pfcp_sess_s {
-    uint64_t            local_n4_seid;  /* Local SEID is dervied from INDEX */
-    uint64_t            remote_n4_seid; /* Remote SEID is received from Peer */
-
     ogs_pfcp_pdr_id_t   pdr_id;     /* ID Generator(1~MAX_NUM_OF_PDR) */
     ogs_list_t          pdr_list;   /* PDR List */
 
@@ -116,7 +113,6 @@ typedef struct ogs_pfcp_sess_s {
 
     /* Related Context */
     ogs_pfcp_pdr_t      *default_pdr;
-    ogs_pfcp_node_t     *node;
 } ogs_pfcp_sess_t;
 
 typedef struct ogs_pfcp_pdr_s {
