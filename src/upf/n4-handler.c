@@ -108,26 +108,28 @@ static ogs_pfcp_pdr_t *handle_create_pdr(ogs_pfcp_sess_t *sess,
     pdr->src_if = message->pdi.source_interface.u8;
 
     for (i = 0; i < OGS_MAX_NUM_OF_RULE; i++) {
-        ogs_pfcp_sdf_filter_t filter;
+        ogs_pfcp_sdf_filter_t sdf_filter_in_message;
         if (message->pdi.sdf_filter[i].presence == 0)
             break;
 
         len = ogs_pfcp_parse_sdf_filter(
-                &filter, &message->pdi.sdf_filter[i]);
+                &sdf_filter_in_message, &message->pdi.sdf_filter[i]);
         ogs_assert(message->pdi.sdf_filter[i].len == len);
-        if (filter.fd) {
-            ogs_ipfw_rule_t *rule = NULL;
+        if (sdf_filter_in_message.fd) {
+            upf_sdf_filter_t *sdf_filter = NULL;
             char *flow_description = NULL;
 
-            flow_description = ogs_malloc(filter.flow_description_len+1);
-            ogs_cpystrn(flow_description, filter.flow_description,
-                    filter.flow_description_len+1);
+            flow_description = ogs_malloc(
+                    sdf_filter_in_message.flow_description_len+1);
+            ogs_cpystrn(flow_description,
+                    sdf_filter_in_message.flow_description,
+                    sdf_filter_in_message.flow_description_len+1);
 
-            rule = upf_rule_add(pdr);
-            ogs_assert(rule);
-            rv = ogs_ipfw_compile_rule(rule, flow_description);
+            sdf_filter = upf_sdf_filter_add(pdr);
+            ogs_assert(sdf_filter);
+            rv = ogs_ipfw_compile_rule(&sdf_filter->rule, flow_description);
             ogs_assert(rv == OGS_OK);
-            rule->pdr = pdr;
+            sdf_filter->pdr = pdr;
 
             ogs_free(flow_description);
         }

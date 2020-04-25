@@ -240,7 +240,7 @@ void smf_bearer_binding(smf_sess_t *sess)
                 else
                     ogs_error("Cannot support bidirection[%d]",
                             flow->direction);
-                pdr->flow_description[pdr->num_of_rule++] = flow->description;
+                pdr->flow_description[pdr->num_of_flow++] = flow->description;
 
                 tmp = ogs_strdup(flow->description);
                 rv = ogs_ipfw_compile_rule(&rule, tmp);

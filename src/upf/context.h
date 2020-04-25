@@ -68,18 +68,27 @@ typedef struct upf_context_s {
 #define UPF_SESS(pfcp_sess) ogs_container_of(pfcp_sess, upf_sess_t, pfcp)
 typedef struct upf_sess_s {
     ogs_lnode_t     lnode;
-    uint32_t        index;          /**< An index of this node */
+    uint32_t        index;              /**< An index of this node */
 
     ogs_pfcp_sess_t pfcp;
-    ogs_list_t      rule_list;      /* Rule List */
+    ogs_list_t      sdf_filter_list;    /* SDF Filter List */
 
     /* APN Configuration */
     ogs_pdn_t       pdn;
     ogs_pfcp_ue_ip_t *ipv4;
     ogs_pfcp_ue_ip_t *ipv6;
 
-    char            *gx_sid;        /* Gx Session ID */
+    char            *gx_sid;            /* Gx Session ID */
 } upf_sess_t;
+
+typedef struct upf_sdf_filter_s {
+    ogs_lnode_t     lnode;
+
+    ogs_ipfw_rule_t rule;
+
+    /* Related Context */
+    ogs_pfcp_pdr_t  *pdr;
+} upf_sdf_filter_t;
 
 void upf_context_init(void);
 void upf_context_final(void);
@@ -100,9 +109,9 @@ upf_sess_t *upf_sess_find_by_up_seid(uint64_t seid);
 upf_sess_t *upf_sess_find_by_ipv4(uint32_t addr);
 upf_sess_t *upf_sess_find_by_ipv6(uint32_t *addr6);
 
-ogs_ipfw_rule_t *upf_rule_add(ogs_pfcp_pdr_t *pdr);
-void upf_rule_remove(ogs_ipfw_rule_t *rule);
-void upf_rule_remove_all(upf_sess_t *sess);
+upf_sdf_filter_t *upf_sdf_filter_add(ogs_pfcp_pdr_t *pdr);
+void upf_sdf_filter_remove(upf_sdf_filter_t *sdf_filter);
+void upf_sdf_filter_remove_all(upf_sess_t *sess);
 
 void stats_add_session(void);
 void stats_remove_session(void);
