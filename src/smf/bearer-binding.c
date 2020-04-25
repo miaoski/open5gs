@@ -227,25 +227,37 @@ void smf_bearer_binding(smf_sess_t *sess)
                 ogs_flow_t *flow = &pcc_rule->flow[j];
                 ogs_ipfw_rule_t rule;
                 smf_pf_t *pf = NULL;
-                ogs_pfcp_pdr_t *pdr = NULL;
                 char *tmp = NULL;
 
                 ogs_expect_or_return(flow);
                 ogs_expect_or_return(flow->description);
 
+                /* Find First Downlink/Uplink PDR in the Bearer */
                 ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
-                    if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
-                        flow->direction == OGS_FLOW_DOWNLINK_ONLY) {
-                        break;
-                    } else if (pdr->src_if == OGS_PFCP_INTERFACE_ACCESS &&
-                        flow->direction == OGS_FLOW_UPLINK_ONLY) {
+                    ogs_pfcp_far_t *far = NULL;
+                    far = pdr->far;
+                    ogs_assert(far);
+                    if (flow->direction == OGS_FLOW_DOWNLINK_ONLY) {
+                        if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
+                            far->dst_if == OGS_PFCP_INTERFACE_ACCESS) {
+                            pdr->flow_description[pdr->num_of_flow++] =
+                                flow->description;
+                            break;
+                        }
+
+                    } else if (flow->direction == OGS_FLOW_UPLINK_ONLY) {
+                        if (pdr->src_if == OGS_PFCP_INTERFACE_ACCESS &&
+                            far->dst_if == OGS_PFCP_INTERFACE_CORE) {
+                            pdr->flow_description[pdr->num_of_flow++] =
+                                flow->description;
+                            break;
+                        }
+                    } else {
+                        ogs_error("Flow Bidirectional is not supported[%d]",
+                                flow->direction);
                         break;
                     }
-                }
-                
-                if (pdr) {
-                    pdr->flow_description[pdr->num_of_flow++] =
-                        flow->description;
+
                 }
 
                 tmp = ogs_strdup(flow->description);
