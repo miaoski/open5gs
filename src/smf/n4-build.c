@@ -226,16 +226,13 @@ static struct {
 static void build_create_far(
     ogs_pfcp_tlv_create_far_t *message, int i, ogs_pfcp_far_t *far)
 {
-    ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_sess_t *pfcp_sess = NULL;
     smf_bearer_t *bearer = NULL;
     int len;
 
     ogs_assert(message);
     ogs_assert(far);
-    pdr = far->pdr;
-    ogs_assert(pdr);
-    pfcp_sess = pdr->sess;
+    pfcp_sess = far->sess;
     ogs_assert(pfcp_sess);
     bearer = SMF_BEARER(pfcp_sess);
     ogs_assert(bearer);
@@ -251,8 +248,7 @@ static void build_create_far(
     message->forwarding_parameters.destination_interface.presence = 1;
     message->forwarding_parameters.destination_interface.u8 = far->dst_if;
 
-    if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
-        far->dst_if == OGS_PFCP_INTERFACE_ACCESS) { /* Downlink */
+    if (far->dst_if == OGS_PFCP_INTERFACE_ACCESS) { /* Downlink */
         ogs_pfcp_ip_to_outer_header_creation(&bearer->gnb_ip,
                 &create_far_buf[i].outer_header_creation, &len);
         create_far_buf[i].outer_header_creation.teid =

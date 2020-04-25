@@ -840,11 +840,10 @@ ogs_pfcp_far_t *ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
     ogs_assert(far);
     memset(far, 0, sizeof *far);
 
+    pdr->far = far;
     far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
 
-    far->pdr = pdr;
-    pdr->far = far;
-
+    far->sess = sess;
     ogs_list_add(&sess->far_list, far);
 
     return far;
@@ -885,17 +884,11 @@ ogs_pfcp_far_t *ogs_pfcp_far_find_or_add(
 
 void ogs_pfcp_far_remove(ogs_pfcp_far_t *far)
 {
-    ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_sess_t *sess = NULL;
 
     ogs_assert(far);
-    pdr = far->pdr;
-    ogs_assert(pdr);
-    sess = pdr->sess;
+    sess = far->sess;
     ogs_assert(sess);
-
-    far->pdr = NULL;
-    pdr->far = NULL;
 
     ogs_list_remove(&sess->far_list, far);
     ogs_pool_free(&ogs_pfcp_far_pool, far);

@@ -137,7 +137,7 @@ typedef struct ogs_pfcp_far_s {
     int                     outer_header_creation_len;
 
     /* Related Context */
-    ogs_pfcp_pdr_t          *pdr;
+    ogs_pfcp_sess_t         *sess;
     void                    *gnode;
 } ogs_pfcp_far_t;
 
