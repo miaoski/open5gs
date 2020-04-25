@@ -92,6 +92,9 @@ static ogs_pfcp_f_teid_t f_teid[OGS_MAX_NUM_OF_PDR];
 static ogs_pfcp_outer_header_creation_t
         outer_header_creation[OGS_MAX_NUM_OF_FAR];
 static char apn[OGS_MAX_NUM_OF_PDR][OGS_MAX_APN_LEN];
+static ogs_pfcp_sdf_filter_t filter[OGS_MAX_NUM_OF_PDR][OGS_MAX_NUM_OF_RULE];
+static char filter_buf[OGS_MAX_NUM_OF_PDR][OGS_MAX_NUM_OF_RULE]
+                [OGS_PFCP_MAX_SDF_FILTER_LEN];
 
 static void build_create_pdr(
     ogs_pfcp_tlv_create_pdr_t *message, int i, ogs_pfcp_pdr_t *pdr)
@@ -127,6 +130,16 @@ static void build_create_pdr(
     message->pdi.network_instance.len = ogs_fqdn_build(
         apn[i], sess->pdn.apn, strlen(sess->pdn.apn));
     message->pdi.network_instance.data = apn[i];
+
+    for (j = 0; j < pdr->num_of_rule; j++) {
+        filter[i][j].fd = 1;
+        filter[i][j].flow_description_len = strlen(pdr->flow_description[j]);
+        filter[i][j].flow_description = pdr->flow_description[j];
+
+        message->pdi.sdf_filter[j].presence = 1;
+        ogs_pfcp_build_sdf_filter(&message->pdi.sdf_filter[j], &filter[i][j],
+                filter_buf[i][j], OGS_PFCP_MAX_SDF_FILTER_LEN);
+    }
 
     if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
         far->dst_if == OGS_PFCP_INTERFACE_ACCESS) { /* Dowklink */

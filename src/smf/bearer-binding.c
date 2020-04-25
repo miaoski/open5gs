@@ -227,11 +227,24 @@ void smf_bearer_binding(smf_sess_t *sess)
                 ogs_flow_t *flow = &pcc_rule->flow[j];
                 ogs_ipfw_rule_t rule;
                 smf_pf_t *pf = NULL;
+                ogs_pfcp_pdr_t *pdr = NULL;
+                char *tmp = NULL;
 
                 ogs_expect_or_return(flow);
                 ogs_expect_or_return(flow->description);
 
-                rv = ogs_ipfw_compile_rule(&rule, flow->description);
+                if (flow->direction == OGS_FLOW_DOWNLINK_ONLY)
+                    pdr = bearer->dl_pdr;
+                else if (flow->direction == OGS_FLOW_UPLINK_ONLY)
+                    pdr = bearer->ul_pdr;
+                else
+                    ogs_error("Cannot support bidirection[%d]",
+                            flow->direction);
+                pdr->flow_description[pdr->num_of_rule++] = flow->description;
+
+                tmp = ogs_strdup(flow->description);
+                rv = ogs_ipfw_compile_rule(&rule, tmp);
+                ogs_free(tmp);
                 ogs_expect_or_return(rv == OGS_OK);
 
                 pf = smf_pf_add(bearer, pcc_rule->precedence);

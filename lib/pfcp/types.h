@@ -506,6 +506,7 @@ int16_t ogs_pfcp_parse_user_plane_ip_resource_info(
  * the UP function shall apply the SDF filter as specified in clause 5.2.1A.2A.
  */
 
+#define OGS_PFCP_MAX_SDF_FILTER_LEN     256
 typedef struct ogs_pfcp_sdf_filter_s {
     union {
         struct {

@@ -137,6 +137,7 @@ typedef struct ogs_pfcp_pdr_s {
 
     int                     num_of_rule;
     void                    *rules[OGS_MAX_NUM_OF_RULE];
+    char                    *flow_description[OGS_MAX_NUM_OF_RULE];
 
     ogs_pfcp_sess_t         *sess;
     void                    *bearer;
