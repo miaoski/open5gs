@@ -63,6 +63,8 @@ static ogs_pfcp_pdr_t *handle_create_pdr(ogs_pfcp_sess_t *sess,
         uint8_t *cause_value, uint8_t *offending_ie_value)
 {
     ogs_pfcp_pdr_t *pdr = NULL;
+    int i, len;
+    int rv;
 
     ogs_assert(sess);
     ogs_assert(message);
@@ -104,6 +106,32 @@ static ogs_pfcp_pdr_t *handle_create_pdr(ogs_pfcp_sess_t *sess,
 
     pdr->precedence = message->precedence.u32;
     pdr->src_if = message->pdi.source_interface.u8;
+
+    for (i = 0; i < OGS_MAX_NUM_OF_RULE; i++) {
+        ogs_pfcp_sdf_filter_t filter;
+        if (message->pdi.sdf_filter[i].presence == 0)
+            break;
+
+        len = ogs_pfcp_parse_sdf_filter(
+                &filter, &message->pdi.sdf_filter[i]);
+        ogs_assert(message->pdi.sdf_filter[i].len == len);
+        if (filter.fd) {
+            ogs_ipfw_rule_t *rule = NULL;
+            char *flow_description = NULL;
+
+            flow_description = ogs_malloc(filter.flow_description_len+1);
+            ogs_cpystrn(flow_description, filter.flow_description,
+                    filter.flow_description_len+1);
+
+            rule = upf_rule_add(pdr);
+            ogs_assert(rule);
+            rv = ogs_ipfw_compile_rule(rule, flow_description);
+            ogs_assert(rv == OGS_OK);
+            rule->pdr = pdr;
+
+            ogs_free(flow_description);
+        }
+    }
 
     /* APN(Network Instance) and UE IP Address
      * has already been processed in upf_sess_add() */
