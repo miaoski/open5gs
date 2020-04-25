@@ -349,11 +349,15 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
 
     /* Create PDR */
+    ogs_assert(bearer->dl_pdr);
     build_create_pdr(&req->create_pdr[0], 0, bearer->dl_pdr);
+    ogs_assert(bearer->ul_pdr);
     build_create_pdr(&req->create_pdr[1], 1, bearer->ul_pdr);
 
     /* Create FAR */
+    ogs_assert(bearer->dl_pdr->far);
     build_create_far(&req->create_far[0], 0, bearer->dl_pdr->far);
+    ogs_assert(bearer->ul_pdr->far);
     build_create_far(&req->create_far[1], 1, bearer->ul_pdr->far);
 
     pfcp_message.h.type = type;
