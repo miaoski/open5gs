@@ -115,7 +115,6 @@ static void build_create_pdr(
     ogs_pfcp_far_t *far = NULL;
     smf_sess_t *sess = NULL;
     smf_bearer_t *bearer = NULL;
-    smf_bearer_t *default_bearer = NULL;
     int j = 0;
     int len = 0;
 
@@ -128,8 +127,6 @@ static void build_create_pdr(
     ogs_assert(bearer);
     sess = bearer->sess;
     ogs_assert(sess);
-    default_bearer = smf_default_bearer_in_sess(sess);
-    ogs_assert(default_bearer);
 
     message->presence = 1;
     message->pdr_id.presence = 1;
@@ -164,7 +161,7 @@ static void build_create_pdr(
 
     if (pdr->src_if == OGS_PFCP_INTERFACE_CORE &&
         far->dst_if == OGS_PFCP_INTERFACE_ACCESS) { /* Dowklink */
-        if (bearer->ebi == default_bearer->ebi) { /* Default Bearer */
+        if (smf_bearer_is_default(bearer)) { /* Default Bearer */
             ogs_pfcp_paa_to_ue_ip_addr(&sess->pdn.paa,
                     &create_pdr_buf[i].addr, &len);
             create_pdr_buf[i].addr.sd = OGS_PFCP_UE_IP_DST;

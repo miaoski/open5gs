@@ -991,6 +991,20 @@ smf_bearer_t *smf_default_bearer_in_sess(smf_sess_t *sess)
     return smf_bearer_first(sess);
 }
 
+bool smf_bearer_is_default(smf_bearer_t *bearer)
+{
+    smf_sess_t *sess = NULL;
+    smf_bearer_t *default_bearer = NULL;
+
+    ogs_assert(bearer);
+    sess = bearer->sess;
+    ogs_assert(sess);
+    default_bearer = smf_default_bearer_in_sess(sess);
+    ogs_assert(default_bearer);
+
+    return bearer->ebi == default_bearer->ebi;
+}
+
 smf_bearer_t *smf_bearer_first(smf_sess_t *sess)
 {
     ogs_assert(sess);

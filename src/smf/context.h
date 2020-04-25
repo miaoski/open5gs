@@ -216,6 +216,7 @@ smf_bearer_t *smf_bearer_find_by_qci_arp(smf_sess_t *sess,
                                 uint8_t pre_emption_capability,
                                 uint8_t pre_emption_vulnerability);
 smf_bearer_t *smf_default_bearer_in_sess(smf_sess_t *sess);
+bool smf_bearer_is_default(smf_bearer_t *bearer);
 smf_bearer_t *smf_bearer_first(smf_sess_t *sess);
 smf_bearer_t *smf_bearer_next(smf_bearer_t *bearer);
 
