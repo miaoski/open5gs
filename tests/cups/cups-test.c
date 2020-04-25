@@ -773,10 +773,10 @@ abts_suite *test_cups(abts_suite *suite)
 {
     suite = ADD_SUITE(suite)
 
-#if 0
     abts_run_test(suite, cups_test1, NULL);
-#endif
+#if 0
     abts_run_test(suite, cups_test3, NULL);
+#endif
 
     return suite;
 }
