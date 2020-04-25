@@ -804,6 +804,28 @@ void ogs_pfcp_pdr_reorder_by_precedence(
     ogs_list_insert_sorted(&sess->pdr_list, pdr, precedence_compare);
 }
 
+void ogs_pfcp_pdr_associate_far(ogs_pfcp_pdr_t *pdr, ogs_pfcp_far_t *far)
+{
+    ogs_assert(pdr);
+    ogs_assert(far);
+    
+    pdr->far = far;
+}
+void ogs_pfcp_pdr_associate_urr(ogs_pfcp_pdr_t *pdr, ogs_pfcp_urr_t *urr)
+{
+    ogs_assert(pdr);
+    ogs_assert(urr);
+
+    pdr->urr = urr;
+}
+void ogs_pfcp_pdr_associate_qer(ogs_pfcp_pdr_t *pdr, ogs_pfcp_qer_t *qer)
+{
+    ogs_assert(pdr);
+    ogs_assert(qer);
+
+    pdr->qer = qer;
+}
+
 void ogs_pfcp_pdr_remove(ogs_pfcp_pdr_t *pdr)
 {
     ogs_assert(pdr);
@@ -827,20 +849,16 @@ void ogs_pfcp_pdr_remove_all(ogs_pfcp_sess_t *sess)
         ogs_pfcp_pdr_remove(pdr);
 }
 
-ogs_pfcp_far_t *ogs_pfcp_far_add(ogs_pfcp_pdr_t *pdr)
+ogs_pfcp_far_t *ogs_pfcp_far_add(ogs_pfcp_sess_t *sess)
 {
     ogs_pfcp_far_t *far = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
 
-    ogs_assert(pdr);
-    sess = pdr->sess;
     ogs_assert(sess);
 
     ogs_pool_alloc(&ogs_pfcp_far_pool, &far);
     ogs_assert(far);
     memset(far, 0, sizeof *far);
 
-    pdr->far = far;
     far->apply_action = OGS_PFCP_APPLY_ACTION_FORW;
 
     far->sess = sess;
@@ -863,18 +881,15 @@ ogs_pfcp_far_t *ogs_pfcp_far_find(
 }
 
 ogs_pfcp_far_t *ogs_pfcp_far_find_or_add(
-        ogs_pfcp_pdr_t *pdr, ogs_pfcp_far_id_t id)
+        ogs_pfcp_sess_t *sess, ogs_pfcp_far_id_t id)
 {
     ogs_pfcp_far_t *far = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
 
-    ogs_assert(pdr);
-    sess = pdr->sess;
     ogs_assert(sess);
 
     far = ogs_pfcp_far_find(sess, id);
     if (!far) {
-        far = ogs_pfcp_far_add(pdr);
+        far = ogs_pfcp_far_add(sess);
         ogs_assert(far);
         far->id = id;
     }
@@ -904,20 +919,15 @@ void ogs_pfcp_far_remove_all(ogs_pfcp_sess_t *sess)
         ogs_pfcp_far_remove(far);
 }
 
-ogs_pfcp_urr_t *ogs_pfcp_urr_add(ogs_pfcp_pdr_t *pdr)
+ogs_pfcp_urr_t *ogs_pfcp_urr_add(ogs_pfcp_sess_t *sess)
 {
     ogs_pfcp_urr_t *urr = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
 
-    ogs_assert(pdr);
-    sess = pdr->sess;
     ogs_assert(sess);
 
     ogs_pool_alloc(&ogs_pfcp_urr_pool, &urr);
     ogs_assert(urr);
     memset(urr, 0, sizeof *urr);
-
-    pdr->urr = urr;
 
     urr->sess = sess;
     ogs_list_add(&sess->urr_list, urr);
@@ -939,18 +949,15 @@ ogs_pfcp_urr_t *ogs_pfcp_urr_find(
 }
 
 ogs_pfcp_urr_t *ogs_pfcp_urr_find_or_add(
-        ogs_pfcp_pdr_t *pdr, ogs_pfcp_urr_id_t id)
+        ogs_pfcp_sess_t *sess, ogs_pfcp_urr_id_t id)
 {
     ogs_pfcp_urr_t *urr = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
 
-    ogs_assert(pdr);
-    sess = pdr->sess;
     ogs_assert(sess);
 
     urr = ogs_pfcp_urr_find(sess, id);
     if (!urr) {
-        urr = ogs_pfcp_urr_add(pdr);
+        urr = ogs_pfcp_urr_add(sess);
         ogs_assert(urr);
         urr->id = id;
     }
@@ -980,20 +987,15 @@ void ogs_pfcp_urr_remove_all(ogs_pfcp_sess_t *sess)
         ogs_pfcp_urr_remove(urr);
 }
 
-ogs_pfcp_qer_t *ogs_pfcp_qer_add(ogs_pfcp_pdr_t *pdr)
+ogs_pfcp_qer_t *ogs_pfcp_qer_add(ogs_pfcp_sess_t *sess)
 {
     ogs_pfcp_qer_t *qer = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
 
-    ogs_assert(pdr);
-    sess = pdr->sess;
     ogs_assert(sess);
 
     ogs_pool_alloc(&ogs_pfcp_qer_pool, &qer);
     ogs_assert(qer);
     memset(qer, 0, sizeof *qer);
-
-    pdr->qer = qer;
 
     qer->sess = sess;
     ogs_list_add(&sess->qer_list, qer);
@@ -1015,18 +1017,15 @@ ogs_pfcp_qer_t *ogs_pfcp_qer_find(
 }
 
 ogs_pfcp_qer_t *ogs_pfcp_qer_find_or_add(
-        ogs_pfcp_pdr_t *pdr, ogs_pfcp_qer_id_t id)
+        ogs_pfcp_sess_t *sess, ogs_pfcp_qer_id_t id)
 {
     ogs_pfcp_qer_t *qer = NULL;
-    ogs_pfcp_sess_t *sess = NULL;
 
-    ogs_assert(pdr);
-    sess = pdr->sess;
     ogs_assert(sess);
 
     qer = ogs_pfcp_qer_find(sess, id);
     if (!qer) {
-        qer = ogs_pfcp_qer_add(pdr);
+        qer = ogs_pfcp_qer_add(sess);
         ogs_assert(qer);
         qer->id = id;
     }

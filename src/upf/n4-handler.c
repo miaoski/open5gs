@@ -63,6 +63,7 @@ static ogs_pfcp_pdr_t *handle_create_pdr(ogs_pfcp_sess_t *sess,
         uint8_t *cause_value, uint8_t *offending_ie_value)
 {
     ogs_pfcp_pdr_t *pdr = NULL;
+    ogs_pfcp_far_t *far = NULL;
     int i, len;
     int rv;
 
@@ -174,8 +175,11 @@ static ogs_pfcp_pdr_t *handle_create_pdr(ogs_pfcp_sess_t *sess,
         return NULL;
     }
 
-    if (message->far_id.presence)
-        ogs_pfcp_far_find_or_add(pdr, message->far_id.u32);
+    if (message->far_id.presence) {
+        far = ogs_pfcp_far_find_or_add(sess, message->far_id.u32);
+        ogs_assert(far);
+        ogs_pfcp_pdr_associate_far(pdr, far);
+    }
 
     return pdr;
 }

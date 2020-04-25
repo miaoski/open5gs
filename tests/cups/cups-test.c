@@ -20,8 +20,8 @@
 #include "test-app.h"
 #include "pcscf-fd-path.h"
 
-#define TEST1_PING 0
-#define TEST3_PING 1
+#define TEST1_PING 1
+#define TEST3_PING 0
 
 static void cups_test1(abts_case *tc, void *data)
 {
@@ -595,6 +595,7 @@ static void cups_test3(abts_case *tc, void *data)
     ogs_pkbuf_free(recvbuf);
 #endif
 
+#if 0
     /* Send AA-Request */
     ogs_msleep(300);
     pcscf_rx_send_aar(&rx_sid, "10.45.0.3", 1, 1);
@@ -641,7 +642,6 @@ static void cups_test3(abts_case *tc, void *data)
 
     ogs_msleep(50);
 
-#if 0
     /* Send Bearer resource allocation request */
     rv = tests1ap_build_bearer_resource_allocation_request(&sendbuf, msgindex);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
@@ -788,12 +788,8 @@ abts_suite *test_cups(abts_suite *suite)
 {
     suite = ADD_SUITE(suite)
 
-#if 0
     abts_run_test(suite, cups_test1, NULL);
-#endif
-#if 1
     abts_run_test(suite, cups_test3, NULL);
-#endif
 
     return suite;
 }
