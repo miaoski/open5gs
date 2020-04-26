@@ -296,10 +296,10 @@ void smf_s5c_handle_create_bearer_response(
         ogs_list_for_each(&bearer->pfcp.pdr_list, pdr)
             ogs_pfcp_pdr_associate_qer(pdr, qer);
 
-        qer->mbr.ul = bearer->qos.mbr.uplink;
-        qer->mbr.dl = bearer->qos.mbr.downlink;
-        qer->gbr.ul = bearer->qos.gbr.uplink;
-        qer->gbr.dl = bearer->qos.gbr.downlink;
+        qer->mbr.uplink = bearer->qos.mbr.uplink;
+        qer->mbr.downlink = bearer->qos.mbr.downlink;
+        qer->gbr.uplink = bearer->qos.gbr.uplink;
+        qer->gbr.downlink = bearer->qos.gbr.downlink;
     }
 
     smf_pfcp_send_session_modification_request(bearer,
@@ -361,10 +361,10 @@ void smf_s5c_handle_update_bearer_response(
         /* Only 1 QER is used per bearer */
         qer = ogs_list_first(&bearer->pfcp.qer_list);
         if (qer) {
-            qer->mbr.ul = bearer->qos.mbr.uplink;
-            qer->mbr.dl = bearer->qos.mbr.downlink;
-            qer->gbr.ul = bearer->qos.gbr.uplink;
-            qer->gbr.dl = bearer->qos.gbr.downlink;
+            qer->mbr.uplink = bearer->qos.mbr.uplink;
+            qer->mbr.downlink = bearer->qos.mbr.downlink;
+            qer->gbr.uplink = bearer->qos.gbr.uplink;
+            qer->gbr.downlink = bearer->qos.gbr.downlink;
 
         }
     }

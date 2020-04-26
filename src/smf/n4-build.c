@@ -291,13 +291,13 @@ static void build_create_qer(
     message->gate_status.presence = 1;
     message->gate_status.u8 = qer->gate_status.value;
 
-    if (qer->mbr.ul || qer->mbr.dl) {
+    if (qer->mbr.uplink || qer->mbr.downlink) {
         message->maximum_bitrate.presence = 1;
         ogs_pfcp_build_bitrate(
                 &message->maximum_bitrate,
                 &qer->mbr, create_qer_buf[i].mbr, OGS_PFCP_BITRATE_LEN);
     }
-    if (qer->gbr.ul || qer->gbr.dl) {
+    if (qer->gbr.uplink || qer->gbr.downlink) {
         message->guaranteed_bitrate.presence = 1;
         ogs_pfcp_build_bitrate(
                 &message->guaranteed_bitrate,
@@ -315,13 +315,13 @@ static void build_update_qer(
     message->qer_id.presence = 1;
     message->qer_id.u32 = qer->id;
 
-    if (qer->mbr.ul || qer->mbr.dl) {
+    if (qer->mbr.uplink || qer->mbr.downlink) {
         message->maximum_bitrate.presence = 1;
         ogs_pfcp_build_bitrate(
                 &message->maximum_bitrate,
                 &qer->mbr, update_qer_buf[i].mbr, OGS_PFCP_BITRATE_LEN);
     }
-    if (qer->gbr.ul || qer->gbr.dl) {
+    if (qer->gbr.uplink || qer->gbr.downlink) {
         message->guaranteed_bitrate.presence = 1;
         ogs_pfcp_build_bitrate(
                 &message->guaranteed_bitrate,

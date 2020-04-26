@@ -552,8 +552,8 @@ int16_t ogs_pfcp_parse_sdf_filter(
 
 #define OGS_PFCP_BITRATE_LEN 10
 typedef struct ogs_pfcp_bitrate_s {
-    uint64_t    ul;
-    uint64_t    dl;
+    uint64_t    uplink;
+    uint64_t    downlink;
 } __attribute__ ((packed)) ogs_pfcp_bitrate_t;
 
 int16_t ogs_pfcp_build_bitrate(ogs_tlv_octet_t *octet,
@@ -567,8 +567,8 @@ typedef struct ogs_pfcp_gate_status_s {
     union {
         struct {
 ED3(uint8_t     spare:4;,
-    uint8_t     ul:2;,
-    uint8_t     dl:2;)
+    uint8_t     uplink:2;,
+    uint8_t     downlink:2;)
         };
         uint8_t value;
     };

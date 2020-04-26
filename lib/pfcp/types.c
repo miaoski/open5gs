@@ -366,10 +366,10 @@ int16_t ogs_pfcp_build_bitrate(ogs_tlv_octet_t *octet,
      * The UL/DL MBR and GBR fields are encoded as kilobits
      * per second (1 kbps = 1000 bps) in binary value.
      */
-    ogs_uint64_to_buffer(target.ul / 1000, 5,
+    ogs_uint64_to_buffer(target.uplink / 1000, 5,
             (unsigned char *)octet->data + size);
     size += 5;
-    ogs_uint64_to_buffer(target.dl / 1000, 5,
+    ogs_uint64_to_buffer(target.downlink / 1000, 5,
             (unsigned char *)octet->data + size);
     size += 5;
 
@@ -394,10 +394,10 @@ int16_t ogs_pfcp_parse_bitrate(
      * The UL/DL MBR and GBR fields are encoded as kilobits
      * per second (1 kbps = 1000 bps) in binary value.
      */
-    bitrate->ul = ogs_buffer_to_uint64(
+    bitrate->uplink = ogs_buffer_to_uint64(
             (unsigned char *)octet->data + size, 5) * 1000;
     size += 5;
-    bitrate->dl = ogs_buffer_to_uint64(
+    bitrate->downlink = ogs_buffer_to_uint64(
             (unsigned char *)octet->data + size, 5) * 1000;
     size += 5;
 
