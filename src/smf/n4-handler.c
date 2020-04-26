@@ -197,10 +197,18 @@ void smf_n4_handle_session_modification_response(
         smf_sess_t *sess, ogs_pfcp_xact_t *xact,
         ogs_pfcp_session_modification_response_t *rsp)
 {
+    smf_bearer_t *bearer = NULL;
+
     ogs_assert(xact);
     ogs_assert(rsp);
 
+    bearer = xact->data;
+    ogs_assert(bearer);
+
     ogs_pfcp_xact_commit(xact);
+
+    if (bearer->state.removed)
+        smf_bearer_remove(bearer);
 }
 
 void smf_n4_handle_session_deletion_response(

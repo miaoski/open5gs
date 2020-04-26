@@ -423,7 +423,7 @@ ogs_pkbuf_t *smf_n4_build_session_establishment_request(
 }
 
 ogs_pkbuf_t *smf_n4_build_session_modification_request(
-        uint8_t type, smf_bearer_t *bearer, uint8_t gtp_type)
+        uint8_t type, smf_bearer_t *bearer)
 {
     ogs_pfcp_message_t pfcp_message;
     ogs_pfcp_session_modification_request_t *req = NULL;
@@ -443,41 +443,7 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     req = &pfcp_message.pfcp_session_modification_request;
     memset(&pfcp_message, 0, sizeof(ogs_pfcp_message_t));
 
-    if (gtp_type == OGS_GTP_CREATE_BEARER_RESPONSE_TYPE) {
-        create_pdr_buf_init();
-
-        /* Create PDR */
-        i = 0;
-        ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
-            build_create_pdr(&req->create_pdr[i], i, pdr);
-            i++;
-        }
-
-        /* Create FAR */
-        i = 0;
-        ogs_list_for_each(&bearer->pfcp.far_list, far) {
-            build_create_far(&req->create_far[i], i, far);
-            i++;
-        }
-
-        /* Create QER */
-        i = 0;
-        ogs_list_for_each(&bearer->pfcp.qer_list, qer) {
-            build_create_qer(&req->create_qer[i], i, qer);
-            i++;
-        }
-    } else if (gtp_type == OGS_GTP_UPDATE_BEARER_RESPONSE_TYPE) {
-        ogs_assert(bearer->state.tft_changed || bearer->state.qos_changed);
-
-        if (bearer->state.qos_changed) {
-            /* Update QER */
-            i = 0;
-            ogs_list_for_each(&bearer->pfcp.qer_list, qer) {
-                build_update_qer(&req->update_qer[i], i, qer);
-                i++;
-            }
-        }
-    } else if (gtp_type == OGS_GTP_DELETE_BEARER_RESPONSE_TYPE) {
+    if (bearer->state.removed) {
         /* Remove PDR */
         i = 0;
         ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
@@ -510,13 +476,45 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
             message->qer_id.u32 = qer->id;
             i++;
         }
-    } else
-        ogs_assert_if_reached();
+    } else {
+        if (bearer->state.created) {
+            create_pdr_buf_init();
+
+            /* Create PDR */
+            i = 0;
+            ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
+                build_create_pdr(&req->create_pdr[i], i, pdr);
+                i++;
+            }
+
+            /* Create FAR */
+            i = 0;
+            ogs_list_for_each(&bearer->pfcp.far_list, far) {
+                build_create_far(&req->create_far[i], i, far);
+                i++;
+            }
+
+            /* Create QER */
+            i = 0;
+            ogs_list_for_each(&bearer->pfcp.qer_list, qer) {
+                build_create_qer(&req->create_qer[i], i, qer);
+                i++;
+            }
+        }
+        if (bearer->state.qos_updated) {
+            /* Update QER */
+            i = 0;
+            ogs_list_for_each(&bearer->pfcp.qer_list, qer) {
+                build_update_qer(&req->update_qer[i], i, qer);
+                i++;
+            }
+        }
+    }
 
     pfcp_message.h.type = type;
     pkbuf = ogs_pfcp_build_msg(&pfcp_message);
 
-    if (gtp_type == OGS_GTP_CREATE_BEARER_RESPONSE_TYPE) {
+    if (bearer->state.created) {
         create_pdr_buf_clear();
     }
 

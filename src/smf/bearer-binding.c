@@ -278,6 +278,9 @@ void smf_bearer_binding(smf_sess_t *sess)
 
             memset(&h, 0, sizeof(ogs_gtp_header_t));
             if (bearer_created == 1) {
+                memset(&bearer->state, 0, sizeof(bearer->state));
+                bearer->state.created = true;
+
                 h.type = OGS_GTP_CREATE_BEARER_REQUEST_TYPE;
                 h.teid = sess->sgw_s5c_teid;
 
@@ -290,11 +293,10 @@ void smf_bearer_binding(smf_sess_t *sess)
                 ogs_expect_or_return(pkbuf);
             } else {
                 memset(&bearer->state, 0, sizeof(bearer->state));
-
                 if (pcc_rule->num_of_flow)
-                    bearer->state.tft_changed = true;
+                    bearer->state.tft_updated = true;
                 if (qos_presence)
-                    bearer->state.qos_changed = true;
+                    bearer->state.qos_updated = true;
 
                 h.type = OGS_GTP_UPDATE_BEARER_REQUEST_TYPE;
                 h.teid = sess->sgw_s5c_teid;
@@ -322,6 +324,9 @@ void smf_bearer_binding(smf_sess_t *sess)
                         pcc_rule->name);
                 return;
             }
+
+            memset(&bearer->state, 0, sizeof(bearer->state));
+            bearer->state.removed = true;
 
             memset(&h, 0, sizeof(ogs_gtp_header_t));
             h.type = OGS_GTP_DELETE_BEARER_REQUEST_TYPE;

@@ -161,8 +161,10 @@ typedef struct smf_bearer_s {
     ogs_list_t      pf_list;
 
     struct {
-        bool tft_changed;
-        bool qos_changed;
+        bool created;
+        bool tft_updated;
+        bool qos_updated;
+        bool removed;
     } state;
 
     smf_sess_t      *sess;
