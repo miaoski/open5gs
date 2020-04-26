@@ -63,6 +63,24 @@ void smf_gx_handle_cca_initial_request(
         return;
     }
 
+    if (sess->pdn.ambr.downlink || sess->pdn.ambr.uplink) {
+        smf_bearer_t *bearer = smf_default_bearer_in_sess(sess);
+        ogs_pfcp_pdr_t *pdr = NULL;
+        ogs_pfcp_qer_t *qer = NULL;
+        ogs_assert(bearer);
+
+        /* Only 1 QER is used per bearer */
+        qer = ogs_list_first(&bearer->pfcp.qer_list);
+        if (!qer) {
+            qer = ogs_pfcp_qer_add(&bearer->pfcp);
+            ogs_assert(qer);
+            qer->id = OGS_NEXT_ID(sess->qer_id, 1, OGS_MAX_NUM_OF_QER+1);
+        }
+
+        ogs_list_for_each(&bearer->pfcp.pdr_list, pdr)
+            ogs_pfcp_pdr_associate_qer(pdr, qer);
+    }
+
     sess->num_of_pcc_rule = gx_message->num_of_pcc_rule;
     for (i = 0; i < gx_message->num_of_pcc_rule; i++)
         OGS_STORE_PCC_RULE(&sess->pcc_rule[i], &gx_message->pcc_rule[i]);

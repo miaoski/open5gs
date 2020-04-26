@@ -317,8 +317,8 @@ void smf_gx_send_ccr(smf_sess_t *sess, ogs_gtp_xact_t *xact,
             }
             
             if (sess->pdn.ambr.downlink) {
-                ret = fd_msg_avp_new(ogs_diam_gx_apn_aggregate_max_bitrate_dl, 0,
-                        &avpch1);
+                ret = fd_msg_avp_new(
+                        ogs_diam_gx_apn_aggregate_max_bitrate_dl, 0, &avpch1);
                 ogs_assert(ret == 0);
                 val.u32 = sess->pdn.ambr.downlink;
                 ret = fd_msg_avp_setvalue (avpch1, &val);

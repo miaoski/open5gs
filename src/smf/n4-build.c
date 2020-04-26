@@ -122,14 +122,15 @@ static void build_create_pdr(
     ogs_assert(message);
 
     ogs_assert(pdr);
-    far = pdr->far;
-    ogs_assert(far);
     pfcp_sess = pdr->sess;
     ogs_assert(pfcp_sess);
     bearer = SMF_BEARER(pfcp_sess);
     ogs_assert(bearer);
     sess = bearer->sess;
     ogs_assert(sess);
+
+    far = pdr->far;
+    ogs_assert(far);
 
     message->presence = 1;
     message->pdr_id.presence = 1;

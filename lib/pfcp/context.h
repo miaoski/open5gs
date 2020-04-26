@@ -96,14 +96,14 @@ typedef struct ogs_pfcp_qer_s ogs_pfcp_qer_t;
 typedef struct ogs_pfcp_bar_s ogs_pfcp_bar_t;
 
 typedef struct ogs_pfcp_sess_s {
-    ogs_list_t          pdr_list;   /* PDR List */
-    ogs_list_t          far_list;   /* FAR List */
-    ogs_list_t          urr_list;   /* URR List */
-    ogs_list_t          qer_list;   /* QER List */
-    ogs_pfcp_bar_t      *bar;       /* BAR Item */
+    ogs_list_t          pdr_list;       /* PDR List */
+    ogs_list_t          far_list;       /* FAR List */
+    ogs_list_t          urr_list;       /* URR List */
+    ogs_list_t          qer_list;       /* QER List */
+    ogs_pfcp_bar_t      *bar;           /* BAR Item */
 
     /* Related Context */
-    ogs_pfcp_pdr_t      *default_pdr;
+    ogs_pfcp_pdr_t      *default_pdr;   /* Used by UPF */
 } ogs_pfcp_sess_t;
 
 typedef struct ogs_pfcp_pdr_s {
