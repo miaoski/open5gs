@@ -29,4 +29,4 @@ testcups_exe = executable('cups',
         '-DFD_EXT_DIR="@0@"'.format(freediameter_extensions_builddir)],
     dependencies : libtestapp_dep)
 
-# test('cups', testcups_exe, is_parallel : false, suite: '5g')
+test('cups', testcups_exe, is_parallel : false, suite: '5gc')

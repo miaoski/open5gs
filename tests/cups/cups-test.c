@@ -1267,7 +1267,6 @@ static void cups_test4(abts_case *tc, void *data)
     ABTS_PTR_NOTNULL(tc, recvbuf);
     ogs_pkbuf_free(recvbuf);
 
-#if 0
     /* Receive E-RAB Setup Request +
      * Activate dedicated EPS bearer context request */
     recvbuf = testenb_s1ap_read(s1ap);
@@ -1286,19 +1285,8 @@ static void cups_test4(abts_case *tc, void *data)
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
     rv = testenb_s1ap_send(s1ap, sendbuf);
     ABTS_INT_EQUAL(tc, OGS_OK, rv);
-#endif
 
     ogs_msleep(300);
-
-#if 0 /* TFT Rule Tester */
-    /* Send GTP-U ICMP Packet */
-#if 1
-    rv = testgtpu_build_ping(&sendbuf, 1, "10.45.0.2", "10.45.0.1");
-#else
-    rv = testgtpu_build_ping(&sendbuf, 1, "cafe::2", "cafe::1");
-#endif
-    rv = testgtpu_enb_send(gtpu, sendbuf);
-#endif
 
     /********** Remove Subscriber in Database */
     doc = BCON_NEW("imsi", BCON_UTF8("001010123456819"));
@@ -1317,11 +1305,9 @@ abts_suite *test_cups(abts_suite *suite)
 {
     suite = ADD_SUITE(suite)
 
-#if 0
     abts_run_test(suite, cups_test1, NULL);
     abts_run_test(suite, cups_test2, NULL);
     abts_run_test(suite, cups_test3, NULL);
-#endif
     abts_run_test(suite, cups_test4, NULL);
 
     return suite;
