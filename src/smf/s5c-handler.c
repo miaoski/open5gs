@@ -366,9 +366,19 @@ void smf_s5c_handle_update_bearer_response(
             qer->gbr.ul = bearer->qos.gbr.uplink;
             qer->gbr.dl = bearer->qos.gbr.downlink;
 
-            smf_pfcp_send_session_modification_request(bearer,
-                    OGS_GTP_UPDATE_BEARER_RESPONSE_TYPE);
         }
+    }
+
+    if (bearer->state.tft_changed)
+        ogs_warn("Not Implemented");
+
+#if 0 /* FIXME */
+    if (bearer->state.qos_changed || bearer->state.tft_changed) {
+#else
+    if (bearer->state.qos_changed) {
+#endif
+        smf_pfcp_send_session_modification_request(bearer,
+                OGS_GTP_UPDATE_BEARER_RESPONSE_TYPE);
     }
 }
 
@@ -421,7 +431,12 @@ void smf_s5c_handle_delete_bearer_response(
     ogs_debug("[SMF] Delete Bearer Response : SGW[0x%x] --> SMF[0x%x]",
             sess->sgw_s5c_teid, sess->smf_n4_teid);
 
+    smf_pfcp_send_session_modification_request(bearer,
+            OGS_GTP_DELETE_BEARER_RESPONSE_TYPE);
+
+#if 0
     smf_bearer_remove(bearer);
+#endif
 }
 
 static int reconfigure_packet_filter(smf_pf_t *pf, ogs_gtp_tft_t *tft, int i)

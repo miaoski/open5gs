@@ -467,8 +467,8 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
             i++;
         }
     } else if (gtp_type == OGS_GTP_UPDATE_BEARER_RESPONSE_TYPE) {
-        ogs_assert(bearer->state.tft_changed == true ||
-                    bearer->state.qos_changed == true);
+        ogs_assert(bearer->state.tft_changed || bearer->state.qos_changed);
+
         if (bearer->state.qos_changed) {
             /* Update QER */
             i = 0;
@@ -477,9 +477,41 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
                 i++;
             }
         }
-    } else {
+    } else if (gtp_type == OGS_GTP_DELETE_BEARER_RESPONSE_TYPE) {
+        /* Remove PDR */
+        i = 0;
+        ogs_list_for_each(&bearer->pfcp.pdr_list, pdr) {
+            ogs_pfcp_tlv_remove_pdr_t *message = &req->remove_pdr[i];
+
+            message->presence = 1;
+            message->pdr_id.presence = 1;
+            message->pdr_id.u16 = pdr->id;
+            i++;
+        }
+
+        /* Remove FAR */
+        i = 0;
+        ogs_list_for_each(&bearer->pfcp.far_list, far) {
+            ogs_pfcp_tlv_remove_far_t *message = &req->remove_far[i];
+
+            message->presence = 1;
+            message->far_id.presence = 1;
+            message->far_id.u32 = far->id;
+            i++;
+        }
+
+        /* Remove QER */
+        i = 0;
+        ogs_list_for_each(&bearer->pfcp.qer_list, qer) {
+            ogs_pfcp_tlv_remove_qer_t *message = &req->remove_qer[i];
+
+            message->presence = 1;
+            message->qer_id.presence = 1;
+            message->qer_id.u32 = qer->id;
+            i++;
+        }
+    } else
         ogs_assert_if_reached();
-    }
 
     pfcp_message.h.type = type;
     pkbuf = ogs_pfcp_build_msg(&pfcp_message);

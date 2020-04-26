@@ -331,6 +331,41 @@ static ogs_pfcp_qer_t *handle_create_qer(ogs_pfcp_sess_t *sess,
     return qer;
 }
 
+static ogs_pfcp_qer_t *handle_update_qer(ogs_pfcp_sess_t *sess,
+        ogs_pfcp_tlv_update_qer_t *message,
+        uint8_t *cause_value, uint8_t *offending_ie_value)
+{
+    ogs_pfcp_qer_t *qer = NULL;
+
+    ogs_assert(message);
+    ogs_assert(sess);
+
+    if (message->presence == 0)
+        return NULL;
+
+    if (message->qer_id.presence == 0) {
+        ogs_warn("No QER-ID");
+        *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+        *offending_ie_value = OGS_PFCP_FAR_ID_TYPE;
+        return NULL;
+    }
+
+    qer = ogs_pfcp_qer_find(sess, message->qer_id.u32);
+    if (!qer) {
+        ogs_error("Cannot find QER-ID[%d] in PDR", message->qer_id.u32);
+        *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
+        *offending_ie_value = OGS_PFCP_FAR_ID_TYPE;
+        return NULL;
+    }
+
+    if (message->maximum_bitrate.presence)
+        ogs_pfcp_parse_bitrate(&qer->mbr, &message->maximum_bitrate);
+    if (message->guaranteed_bitrate.presence)
+        ogs_pfcp_parse_bitrate(&qer->gbr, &message->guaranteed_bitrate);
+
+    return qer;
+}
+
 void upf_n4_handle_session_establishment_request(
         upf_sess_t *sess, ogs_pfcp_xact_t *xact, 
         ogs_pfcp_session_establishment_request_t *req)
@@ -400,7 +435,6 @@ void upf_n4_handle_session_establishment_request(
         return;
     }
 
-
     upf_pfcp_send_session_establishment_response(
             xact, sess, created_pdr, num_of_created_pdr);
 }
@@ -440,7 +474,7 @@ void upf_n4_handle_session_modification_request(
 
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_send_error_message(xact, sess ? sess->smf_n4_seid : 0,
-                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
+                OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE,
                 cause_value, offending_ie_value);
         return;
     }
@@ -454,7 +488,7 @@ void upf_n4_handle_session_modification_request(
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_sess_clear(&sess->pfcp);
         ogs_pfcp_send_error_message(xact, sess ? sess->smf_n4_seid : 0,
-                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
+                OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE,
                 cause_value, offending_ie_value);
         return;
     }
@@ -468,7 +502,21 @@ void upf_n4_handle_session_modification_request(
     if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
         ogs_pfcp_sess_clear(&sess->pfcp);
         ogs_pfcp_send_error_message(xact, sess ? sess->smf_n4_seid : 0,
-                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
+                OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE,
+                cause_value, offending_ie_value);
+        return;
+    }
+
+    for (i = 0; i < OGS_MAX_NUM_OF_QER; i++) {
+        if (handle_update_qer(&sess->pfcp, &req->update_qer[i],
+                    &cause_value, &offending_ie_value) == NULL)
+            break;
+    }
+
+    if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
+        ogs_pfcp_sess_clear(&sess->pfcp);
+        ogs_pfcp_send_error_message(xact, sess ? sess->smf_n4_seid : 0,
+                OGS_PFCP_SESSION_MODIFICATION_RESPONSE_TYPE,
                 cause_value, offending_ie_value);
         return;
     }
