@@ -160,7 +160,7 @@ static int pgw_context_validation(void)
         return OGS_ERROR;
     }
     if (ogs_list_first(&self.subnet_list) == NULL) {
-        ogs_error("No pgw.ue_pool in '%s'",
+        ogs_error("No pgw.pdn in '%s'",
                 ogs_config()->file);
         return OGS_ERROR;
     }
@@ -563,9 +563,10 @@ int pgw_context_parse_config(void)
                                 NULL, self.gtpu_port);
                         ogs_assert(rv == OGS_OK);
                     }
-                } else if (!strcmp(pgw_key, "ue_pool")) {
-                    ogs_yaml_iter_t ue_pool_array, ue_pool_iter;
-                    ogs_yaml_iter_recurse(&pgw_iter, &ue_pool_array);
+                } else if (!strcmp(pgw_key, "pdn") ||
+                            !strcmp(pgw_key, "ue_pool")) {
+                    ogs_yaml_iter_t pdn_array, pdn_iter;
+                    ogs_yaml_iter_recurse(&pgw_iter, &pdn_array);
                     do {
                         pgw_subnet_t *subnet = NULL;
                         const char *ipstr = NULL;
@@ -576,43 +577,43 @@ int pgw_context_parse_config(void)
                         const char *high[MAX_NUM_OF_SUBNET_RANGE];
                         int i, num = 0;
 
-                        if (ogs_yaml_iter_type(&ue_pool_array) ==
+                        if (ogs_yaml_iter_type(&pdn_array) ==
                                 YAML_MAPPING_NODE) {
-                            memcpy(&ue_pool_iter, &ue_pool_array,
+                            memcpy(&pdn_iter, &pdn_array,
                                     sizeof(ogs_yaml_iter_t));
-                        } else if (ogs_yaml_iter_type(&ue_pool_array) ==
+                        } else if (ogs_yaml_iter_type(&pdn_array) ==
                             YAML_SEQUENCE_NODE) {
-                            if (!ogs_yaml_iter_next(&ue_pool_array))
+                            if (!ogs_yaml_iter_next(&pdn_array))
                                 break;
-                            ogs_yaml_iter_recurse(&ue_pool_array,
-                                    &ue_pool_iter);
-                        } else if (ogs_yaml_iter_type(&ue_pool_array) ==
+                            ogs_yaml_iter_recurse(&pdn_array,
+                                    &pdn_iter);
+                        } else if (ogs_yaml_iter_type(&pdn_array) ==
                                 YAML_SCALAR_NODE) {
                             break;
                         } else
                             ogs_assert_if_reached();
 
-                        while (ogs_yaml_iter_next(&ue_pool_iter)) {
-                            const char *ue_pool_key =
-                                ogs_yaml_iter_key(&ue_pool_iter);
-                            ogs_assert(ue_pool_key);
-                            if (!strcmp(ue_pool_key, "addr")) {
+                        while (ogs_yaml_iter_next(&pdn_iter)) {
+                            const char *pdn_key =
+                                ogs_yaml_iter_key(&pdn_iter);
+                            ogs_assert(pdn_key);
+                            if (!strcmp(pdn_key, "addr")) {
                                 char *v =
-                                    (char *)ogs_yaml_iter_value(&ue_pool_iter);
+                                    (char *)ogs_yaml_iter_value(&pdn_iter);
                                 if (v) {
                                     ipstr = (const char *)strsep(&v, "/");
                                     if (ipstr) {
                                         mask_or_numbits = (const char *)v;
                                     }
                                 }
-                            } else if (!strcmp(ue_pool_key, "apn")) {
-                                apn = ogs_yaml_iter_value(&ue_pool_iter);
-                            } else if (!strcmp(ue_pool_key, "dev")) {
-                                dev = ogs_yaml_iter_value(&ue_pool_iter);
-                            } else if (!strcmp(ue_pool_key, "range")) {
+                            } else if (!strcmp(pdn_key, "apn")) {
+                                apn = ogs_yaml_iter_value(&pdn_iter);
+                            } else if (!strcmp(pdn_key, "dev")) {
+                                dev = ogs_yaml_iter_value(&pdn_iter);
+                            } else if (!strcmp(pdn_key, "range")) {
                                 ogs_yaml_iter_t range_iter;
                                 ogs_yaml_iter_recurse(
-                                        &ue_pool_iter, &range_iter);
+                                        &pdn_iter, &range_iter);
                                 ogs_assert(ogs_yaml_iter_type(&range_iter) !=
                                     YAML_MAPPING_NODE);
                                 do {
@@ -644,7 +645,7 @@ int pgw_context_parse_config(void)
                                     ogs_yaml_iter_type(&range_iter) ==
                                         YAML_SEQUENCE_NODE);
                             } else
-                                ogs_warn("unknown key `%s`", ue_pool_key);
+                                ogs_warn("unknown key `%s`", pdn_key);
                         }
 
                         if (ipstr && mask_or_numbits) {
@@ -662,7 +663,7 @@ int pgw_context_parse_config(void)
                                     ipstr, mask_or_numbits, apn);
                         }
 
-                    } while (ogs_yaml_iter_type(&ue_pool_array) ==
+                    } while (ogs_yaml_iter_type(&pdn_array) ==
                             YAML_SEQUENCE_NODE);
                 } else if (!strcmp(pgw_key, "mtu")) {
                     ogs_assert(ogs_yaml_iter_type(&pgw_iter) !=

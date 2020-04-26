@@ -477,14 +477,14 @@ pgw:
 #  o IPv4 Pool
 #    $ sudo ip addr add 10.45.0.1/16 dev ogstun
 #
-#    ue_pool:
+#    pdn:
 #      addr: 10.45.0.1/16
 #
 #  o IPv4/IPv6 Pool
 #    $ sudo ip addr add 10.45.0.1/16 dev ogstun
 #    $ sudo ip addr add cafe:1::1/64 dev ogstun
 #
-#    ue_pool:
+#    pdn:
 #      - addr: 10.45.0.1/16
 #      - addr: cafe:1::1/64
 #
@@ -496,7 +496,7 @@ pgw:
 #    $ sudo ip addr add cafe:1::1/64 dev ogstun
 #    $ sudo ip addr add cafe:2::1/64 dev ogstun
 #
-#    ue_pool:
+#    pdn:
 #      - addr: 10.45.0.1/16
 #      - addr: cafe:1::1/64
 #      - addr: 10.46.0.1/16
@@ -510,7 +510,7 @@ pgw:
 #    $ sudo ip addr add 10.46.0.1/16 dev ogstun3
 #    $ sudo ip addr add cafe:2::1/64 dev ogstun3
 #
-#    ue_pool:
+#    pdn:
 #      - addr: 10.45.0.1/16
 #      - addr: cafe:1::1/64
 #        dev: ogstun2
@@ -522,23 +522,23 @@ pgw:
 #        dev: ogstun3
 #
 #  o Pool Range Sample
-#    ue_pool:
+#    pdn:
 #      - addr: 10.45.0.1/24
 #        range: 10.45.0.100-10.45.0.200
 #
-#    ue_pool:
+#    pdn:
 #      - addr: 10.45.0.1/24
 #        range:
 #          - 10.45.0.5-10.45.0.50
 #          - 10.45.0.100-
 #
-#    ue_pool:
+#    pdn:
 #      - addr: 10.45.0.1/24
 #        range:
 #          - -10.45.0.200
 #          - 10.45.0.210-10.45.0.220
 #
-#    ue_pool:
+#    pdn:
 #      - addr: 10.45.0.1/16
 #        range:
 #          - 10.45.0.100-10.45.0.200
@@ -549,7 +549,7 @@ pgw:
 #          - cafe::c0-cafe:d0
 #
 #
-    ue_pool:
+    pdn:
       - addr: 10.45.0.1/16
       - addr: cafe::1/64
 
