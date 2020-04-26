@@ -302,7 +302,8 @@ void smf_s5c_handle_create_bearer_response(
         qer->gbr.dl = bearer->qos.gbr.downlink;
     }
 
-    smf_pfcp_send_session_modification_request(bearer);
+    smf_pfcp_send_session_modification_request(bearer,
+            OGS_GTP_CREATE_BEARER_RESPONSE_TYPE);
 }
 
 void smf_s5c_handle_update_bearer_response(
@@ -354,7 +355,21 @@ void smf_s5c_handle_update_bearer_response(
     ogs_debug("[SMF] Update Bearer Response : SGW[0x%x] --> SMF[0x%x]",
             sess->sgw_s5c_teid, sess->smf_n4_teid);
 
-    smf_pfcp_send_session_modification_request(bearer);
+    if (bearer->state.qos_changed) {
+        ogs_pfcp_qer_t *qer = NULL;
+
+        /* Only 1 QER is used per bearer */
+        qer = ogs_list_first(&bearer->pfcp.qer_list);
+        if (qer) {
+            qer->mbr.ul = bearer->qos.mbr.uplink;
+            qer->mbr.dl = bearer->qos.mbr.downlink;
+            qer->gbr.ul = bearer->qos.gbr.uplink;
+            qer->gbr.dl = bearer->qos.gbr.downlink;
+
+            smf_pfcp_send_session_modification_request(bearer,
+                    OGS_GTP_UPDATE_BEARER_RESPONSE_TYPE);
+        }
+    }
 }
 
 void smf_s5c_handle_delete_bearer_response(
@@ -641,6 +656,13 @@ void smf_s5c_handle_bearer_resource_command(
                 h.type, bearer, cmd->procedure_transaction_id.u8);
         ogs_expect_or_return(pkbuf);
     } else {
+        memset(&bearer->state, 0, sizeof(bearer->state));
+
+        if (tft_update)
+            bearer->state.tft_changed = true;
+        if (qos_update)
+            bearer->state.qos_changed = true;
+
         h.type = OGS_GTP_UPDATE_BEARER_REQUEST_TYPE;
         pkbuf = smf_s5c_build_update_bearer_request(
                 h.type, bearer, cmd->procedure_transaction_id.u8,

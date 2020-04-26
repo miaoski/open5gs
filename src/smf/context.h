@@ -160,6 +160,11 @@ typedef struct smf_bearer_s {
     /* Packet Filter List */
     ogs_list_t      pf_list;
 
+    struct {
+        bool tft_changed;
+        bool qos_changed;
+    } state;
+
     smf_sess_t      *sess;
 } smf_bearer_t;
 

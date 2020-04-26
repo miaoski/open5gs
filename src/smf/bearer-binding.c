@@ -289,6 +289,13 @@ void smf_bearer_binding(smf_sess_t *sess)
                         h.type, bearer, pcc_rule->num_of_flow ? &tft : NULL);
                 ogs_expect_or_return(pkbuf);
             } else {
+                memset(&bearer->state, 0, sizeof(bearer->state));
+
+                if (pcc_rule->num_of_flow)
+                    bearer->state.tft_changed = true;
+                if (qos_presence)
+                    bearer->state.qos_changed = true;
+
                 h.type = OGS_GTP_UPDATE_BEARER_REQUEST_TYPE;
                 h.teid = sess->sgw_s5c_teid;
 

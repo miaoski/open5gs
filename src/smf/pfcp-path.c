@@ -252,7 +252,8 @@ void smf_pfcp_send_session_establishment_request(
     ogs_expect(rv == OGS_OK);
 }
 
-void smf_pfcp_send_session_modification_request(smf_bearer_t *bearer)
+void smf_pfcp_send_session_modification_request(
+        smf_bearer_t *bearer, uint8_t gtp_type)
 {
     int rv;
     ogs_pkbuf_t *n4buf = NULL;
@@ -268,7 +269,7 @@ void smf_pfcp_send_session_modification_request(smf_bearer_t *bearer)
     h.type = OGS_PFCP_SESSION_MODIFICATION_REQUEST_TYPE;
     h.seid = sess->upf_n4_seid;
 
-    n4buf = smf_n4_build_session_modification_request(h.type, bearer);
+    n4buf = smf_n4_build_session_modification_request(h.type, bearer, gtp_type);
     ogs_expect_or_return(n4buf);
 
     xact = ogs_pfcp_xact_local_create(
