@@ -64,6 +64,7 @@ static ogs_pfcp_pdr_t *handle_create_pdr(ogs_pfcp_sess_t *sess,
 {
     ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_far_t *far = NULL;
+    ogs_pfcp_qer_t *qer = NULL;
     int i, len;
     int rv;
 
@@ -181,6 +182,12 @@ static ogs_pfcp_pdr_t *handle_create_pdr(ogs_pfcp_sess_t *sess,
         ogs_pfcp_pdr_associate_far(pdr, far);
     }
 
+    if (message->qer_id.presence) {
+        qer = ogs_pfcp_qer_find_or_add(sess, message->qer_id.u32);
+        ogs_assert(qer);
+        ogs_pfcp_pdr_associate_qer(pdr, qer);
+    }
+
     return pdr;
 }
 
@@ -280,6 +287,50 @@ static ogs_pfcp_far_t *handle_create_far(ogs_pfcp_sess_t *sess,
     return far;
 }
 
+static ogs_pfcp_qer_t *handle_create_qer(ogs_pfcp_sess_t *sess,
+        ogs_pfcp_tlv_create_qer_t *message,
+        uint8_t *cause_value, uint8_t *offending_ie_value)
+{
+    ogs_pfcp_qer_t *qer = NULL;
+
+    ogs_assert(message);
+    ogs_assert(sess);
+
+    if (message->presence == 0)
+        return NULL;
+
+    if (message->qer_id.presence == 0) {
+        ogs_warn("No QER-ID");
+        *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+        *offending_ie_value = OGS_PFCP_FAR_ID_TYPE;
+        return NULL;
+    }
+
+    qer = ogs_pfcp_qer_find(sess, message->qer_id.u32);
+    if (!qer) {
+        ogs_error("Cannot find QER-ID[%d] in PDR", message->qer_id.u32);
+        *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_INCORRECT;
+        *offending_ie_value = OGS_PFCP_FAR_ID_TYPE;
+        return NULL;
+    }
+
+    if (message->gate_status.presence == 0) {
+        ogs_warn("No Gate Status");
+        *cause_value = OGS_PFCP_CAUSE_MANDATORY_IE_MISSING;
+        *offending_ie_value = OGS_PFCP_APPLY_ACTION_TYPE;
+        return NULL;
+    }
+
+    qer->gate_status.value = message->gate_status.u8;
+
+    if (message->maximum_bitrate.presence)
+        ogs_pfcp_parse_bitrate(&qer->mbr, &message->maximum_bitrate);
+    if (message->guaranteed_bitrate.presence)
+        ogs_pfcp_parse_bitrate(&qer->gbr, &message->guaranteed_bitrate);
+
+    return qer;
+}
+
 void upf_n4_handle_session_establishment_request(
         upf_sess_t *sess, ogs_pfcp_xact_t *xact, 
         ogs_pfcp_session_establishment_request_t *req)
@@ -323,6 +374,12 @@ void upf_n4_handle_session_establishment_request(
 
     for (i = 0; i < OGS_MAX_NUM_OF_FAR; i++) {
         if (handle_create_far(&sess->pfcp, &req->create_far[i],
+                    &cause_value, &offending_ie_value) == NULL)
+            break;
+    }
+
+    for (i = 0; i < OGS_MAX_NUM_OF_QER; i++) {
+        if (handle_create_qer(&sess->pfcp, &req->create_qer[i],
                     &cause_value, &offending_ie_value) == NULL)
             break;
     }
