@@ -154,6 +154,9 @@ typedef struct ogs_pfcp_qer_s {
 
     ogs_pfcp_qer_id_t       id;
 
+    ogs_pfcp_bitrate_t      mbr;
+    ogs_pfcp_bitrate_t      gbr;
+
     ogs_pfcp_sess_t         *sess;
 } ogs_pfcp_qer_t;
 

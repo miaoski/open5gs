@@ -77,6 +77,9 @@ void smf_gx_handle_cca_initial_request(
             qer->id = OGS_NEXT_ID(sess->qer_id, 1, OGS_MAX_NUM_OF_QER+1);
         }
 
+        qer->mbr.ul = sess->pdn.ambr.uplink;
+        qer->mbr.dl = sess->pdn.ambr.downlink;
+
         ogs_list_for_each(&bearer->pfcp.pdr_list, pdr)
             ogs_pfcp_pdr_associate_qer(pdr, qer);
     }

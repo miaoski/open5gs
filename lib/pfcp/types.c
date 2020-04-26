@@ -345,3 +345,63 @@ int16_t ogs_pfcp_parse_sdf_filter(
 
     return size;
 }
+
+int16_t ogs_pfcp_build_bitrate(ogs_tlv_octet_t *octet,
+        ogs_pfcp_bitrate_t *bitrate, void *data, int data_len)
+{
+    ogs_pfcp_bitrate_t target;
+    int16_t size = 0;
+
+    ogs_assert(bitrate);
+    ogs_assert(octet);
+    ogs_assert(data);
+    ogs_assert(data_len >= OGS_PFCP_BITRATE_LEN);
+
+    octet->data = data;
+    memcpy(&target, bitrate, sizeof(ogs_pfcp_bitrate_t));
+
+    /*
+     * Ch 8.15 Bearer QoS in TS 29.274 v15.9.0
+     *
+     * The UL/DL MBR and GBR fields are encoded as kilobits
+     * per second (1 kbps = 1000 bps) in binary value.
+     */
+    ogs_uint64_to_buffer(target.ul / 1000, 5,
+            (unsigned char *)octet->data + size);
+    size += 5;
+    ogs_uint64_to_buffer(target.dl / 1000, 5,
+            (unsigned char *)octet->data + size);
+    size += 5;
+
+    octet->len = size;
+
+    return octet->len;
+}
+int16_t ogs_pfcp_parse_bitrate(
+        ogs_pfcp_bitrate_t *bitrate, ogs_tlv_octet_t *octet)
+{
+    int16_t size = 0;
+
+    ogs_assert(bitrate);
+    ogs_assert(octet);
+    ogs_assert(octet->len == OGS_PFCP_BITRATE_LEN);
+
+    memset(bitrate, 0, sizeof(ogs_pfcp_bitrate_t));
+
+    /*
+     * Ch 8.15 Bearer QoS in TS 29.274 v15.9.0
+     *
+     * The UL/DL MBR and GBR fields are encoded as kilobits
+     * per second (1 kbps = 1000 bps) in binary value.
+     */
+    bitrate->ul = ogs_buffer_to_uint64(
+            (unsigned char *)octet->data + size, 5) * 1000;
+    size += 5;
+    bitrate->dl = ogs_buffer_to_uint64(
+            (unsigned char *)octet->data + size, 5) * 1000;
+    size += 5;
+
+    ogs_assert(size == octet->len);
+
+    return size;
+}

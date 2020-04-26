@@ -273,6 +273,12 @@ static void build_create_urr(
     message->urr_id.u32 = urr->id;
 }
 
+static struct {
+    char mbr[OGS_PFCP_BITRATE_LEN];
+    char gbr[OGS_PFCP_BITRATE_LEN];
+} create_qer_buf[OGS_MAX_NUM_OF_QER];
+
+
 static void build_create_qer(
     ogs_pfcp_tlv_create_qer_t *message, int i, ogs_pfcp_qer_t *qer)
 {
@@ -282,6 +288,19 @@ static void build_create_qer(
     message->presence = 1;
     message->qer_id.presence = 1;
     message->qer_id.u32 = qer->id;
+
+    if (qer->mbr.ul || qer->mbr.dl) {
+        message->maximum_bitrate.presence = 1;
+        ogs_pfcp_build_bitrate(
+                &message->maximum_bitrate,
+                &qer->mbr, create_qer_buf[i].mbr, OGS_PFCP_BITRATE_LEN);
+    }
+    if (qer->gbr.ul || qer->gbr.dl) {
+        message->guaranteed_bitrate.presence = 1;
+        ogs_pfcp_build_bitrate(
+                &message->guaranteed_bitrate,
+                &qer->gbr, create_qer_buf[i].gbr, OGS_PFCP_BITRATE_LEN);
+    }
 }
 
 ogs_pkbuf_t *smf_n4_build_session_establishment_request(

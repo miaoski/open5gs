@@ -535,6 +535,32 @@ int16_t ogs_pfcp_build_sdf_filter(
 int16_t ogs_pfcp_parse_sdf_filter(
         ogs_pfcp_sdf_filter_t *info, ogs_tlv_octet_t *octet);
 
+/*
+ * 8.2.8 MBR
+ *
+ * The UL/DL MBR fields shall be encoded as kilobits per second
+ * (1 kbps = 1000 bps) in binary value. The UL/DL MBR fields may require
+ * converting values in bits per second to kilobits per second
+ * when the UL/DL MBR values are received from an interface other than
+ * GTPv2 interface. If such conversions result in fractions,
+ * then the value of UL/DL MBR fields shall be rounded upwards.
+ * The range of UL/DL MBR is specified in 3GPP TS 36.413 [10].
+ *
+ * NOTE: The encoding is aligned on the encoding specified
+ * in 3GPP TS 29.274 [9].
+ */
+
+#define OGS_PFCP_BITRATE_LEN 10
+typedef struct ogs_pfcp_bitrate_s {
+    uint64_t    ul;
+    uint64_t    dl;
+} __attribute__ ((packed)) ogs_pfcp_bitrate_t;
+
+int16_t ogs_pfcp_build_bitrate(ogs_tlv_octet_t *octet,
+        ogs_pfcp_bitrate_t *bitrate, void *data, int data_len);
+int16_t ogs_pfcp_parse_bitrate(
+        ogs_pfcp_bitrate_t *bitrate, ogs_tlv_octet_t *octet);
+
 #ifdef __cplusplus
 }
 #endif
