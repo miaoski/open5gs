@@ -310,6 +310,7 @@ void smf_s5c_handle_update_bearer_response(
         ogs_gtp_update_bearer_response_t *rsp)
 {
     int rv;
+    smf_bearer_t *bearer = NULL;
 
     ogs_assert(xact);
     ogs_assert(rsp);
@@ -346,8 +347,14 @@ void smf_s5c_handle_update_bearer_response(
         return;
     }
 
+    bearer = smf_bearer_find_by_ebi(
+            sess, rsp->bearer_contexts.eps_bearer_id.u8);
+    ogs_assert(bearer);
+
     ogs_debug("[SMF] Update Bearer Response : SGW[0x%x] --> SMF[0x%x]",
             sess->sgw_s5c_teid, sess->smf_n4_teid);
+
+    smf_pfcp_send_session_modification_request(bearer);
 }
 
 void smf_s5c_handle_delete_bearer_response(
