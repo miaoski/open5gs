@@ -561,6 +561,19 @@ int16_t ogs_pfcp_build_bitrate(ogs_tlv_octet_t *octet,
 int16_t ogs_pfcp_parse_bitrate(
         ogs_pfcp_bitrate_t *bitrate, ogs_tlv_octet_t *octet);
 
+#define OGS_PFCP_GATE_OPEN 0
+#define OGS_PFCP_GATE_CLOSE 1
+typedef struct ogs_pfcp_gate_status_s {
+    union {
+        struct {
+ED3(uint8_t     spare:4;,
+    uint8_t     ul:2;,
+    uint8_t     dl:2;)
+        };
+        uint8_t value;
+    };
+} __attribute__ ((packed)) ogs_pfcp_gate_status_t;
+
 #ifdef __cplusplus
 }
 #endif

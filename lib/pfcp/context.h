@@ -154,6 +154,7 @@ typedef struct ogs_pfcp_qer_s {
 
     ogs_pfcp_qer_id_t       id;
 
+    ogs_pfcp_gate_status_t  gate_status;
     ogs_pfcp_bitrate_t      mbr;
     ogs_pfcp_bitrate_t      gbr;
 
