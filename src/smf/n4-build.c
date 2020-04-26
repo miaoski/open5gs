@@ -406,6 +406,7 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     ogs_pfcp_session_modification_request_t *req = NULL;
     ogs_pfcp_pdr_t *pdr = NULL;
     ogs_pfcp_far_t *far = NULL;
+    ogs_pfcp_qer_t *qer = NULL;
     ogs_pkbuf_t *pkbuf = NULL;
     int i;
 
@@ -432,6 +433,13 @@ ogs_pkbuf_t *smf_n4_build_session_modification_request(
     i = 0;
     ogs_list_for_each(&bearer->pfcp.far_list, far) {
         build_create_far(&req->create_far[i], i, far);
+        i++;
+    }
+
+    /* Create QER */
+    i = 0;
+    ogs_list_for_each(&bearer->pfcp.qer_list, qer) {
+        build_create_qer(&req->create_qer[i], i, qer);
         i++;
     }
 

@@ -378,6 +378,14 @@ void upf_n4_handle_session_establishment_request(
             break;
     }
 
+    if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
+        ogs_pfcp_sess_clear(&sess->pfcp);
+        ogs_pfcp_send_error_message(xact, sess ? sess->smf_n4_seid : 0,
+                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
+                cause_value, offending_ie_value);
+        return;
+    }
+
     for (i = 0; i < OGS_MAX_NUM_OF_QER; i++) {
         if (handle_create_qer(&sess->pfcp, &req->create_qer[i],
                     &cause_value, &offending_ie_value) == NULL)
@@ -391,6 +399,7 @@ void upf_n4_handle_session_establishment_request(
                 cause_value, offending_ie_value);
         return;
     }
+
 
     upf_pfcp_send_session_establishment_response(
             xact, sess, created_pdr, num_of_created_pdr);
@@ -438,6 +447,20 @@ void upf_n4_handle_session_modification_request(
 
     for (i = 0; i < OGS_MAX_NUM_OF_FAR; i++) {
         if (handle_create_far(&sess->pfcp, &req->create_far[i],
+                    &cause_value, &offending_ie_value) == NULL)
+            break;
+    }
+
+    if (cause_value != OGS_PFCP_CAUSE_REQUEST_ACCEPTED) {
+        ogs_pfcp_sess_clear(&sess->pfcp);
+        ogs_pfcp_send_error_message(xact, sess ? sess->smf_n4_seid : 0,
+                OGS_PFCP_SESSION_ESTABLISHMENT_RESPONSE_TYPE,
+                cause_value, offending_ie_value);
+        return;
+    }
+
+    for (i = 0; i < OGS_MAX_NUM_OF_QER; i++) {
+        if (handle_create_qer(&sess->pfcp, &req->create_qer[i],
                     &cause_value, &offending_ie_value) == NULL)
             break;
     }

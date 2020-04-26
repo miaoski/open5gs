@@ -280,6 +280,28 @@ void smf_s5c_handle_create_bearer_response(
     ogs_debug("[SMF] Create Bearer Response : SGW[0x%x] --> SMF[0x%x]",
             sess->sgw_s5c_teid, sess->smf_n4_teid);
 
+    if (bearer->qos.mbr.downlink || bearer->qos.mbr.uplink ||
+        bearer->qos.gbr.downlink || bearer->qos.gbr.uplink) {
+        ogs_pfcp_pdr_t *pdr = NULL;
+        ogs_pfcp_qer_t *qer = NULL;
+
+        /* Only 1 QER is used per bearer */
+        qer = ogs_list_first(&bearer->pfcp.qer_list);
+        if (!qer) {
+            qer = ogs_pfcp_qer_add(&bearer->pfcp);
+            ogs_assert(qer);
+            qer->id = OGS_NEXT_ID(sess->qer_id, 1, OGS_MAX_NUM_OF_QER+1);
+        }
+
+        ogs_list_for_each(&bearer->pfcp.pdr_list, pdr)
+            ogs_pfcp_pdr_associate_qer(pdr, qer);
+
+        qer->mbr.ul = bearer->qos.mbr.uplink;
+        qer->mbr.dl = bearer->qos.mbr.downlink;
+        qer->gbr.ul = bearer->qos.gbr.uplink;
+        qer->gbr.dl = bearer->qos.gbr.downlink;
+    }
+
     smf_pfcp_send_session_modification_request(bearer);
 }
 
